@@ -1,0 +1,77 @@
+/* style.css */
+
+/* Reset básico para eliminar márgenes y rellenos por defecto */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo básico del cuerpo */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Estilo del contenedor principal */
+#container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo del encabezado (h1) */
+h1 {
+    font-size: 3rem; /* Tamaño del texto para el encabezado */
+    text-align: center;
+    color: #ff0000; /* Color rojo */
+    margin-bottom: 20px;
+}
+
+/* Estilo del texto del párrafo (p) */
+p {
+    font-size: 1.25rem; /* Tamaño del texto para el párrafo */
+    text-align: center;
+    color: #00ff00; /* Color verde */
+    margin-bottom: 20px;
+}
+
+/* Estilo de la barra de navegación */
+nav {
+    background: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 1rem;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo del pie de página */
+footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 20px;
+}
+
+/* Adaptación a dispositivos móviles */
+@media (max-width: 768px) {
+    nav a {
+        display: block;
+        margin: 10px 0;
+    }
+}
