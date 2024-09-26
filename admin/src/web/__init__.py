@@ -3,6 +3,7 @@ from flask import render_template
 from web.handlers import error
 from src.core import database
 from src.core.config import config
+from src.core.User import User
 
 
 def create_app(env="development", static_folder="../../static"):
