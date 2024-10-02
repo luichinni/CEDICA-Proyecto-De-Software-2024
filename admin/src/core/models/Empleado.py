@@ -1,9 +1,37 @@
 from src.core.database import db
-from enum import Enum
-from src.core.enums.equipo import ProfesionEnum
-from src.core.enums.equipo import PuestoLaboralEnum
-from src.core.enums.equipo import CondicionEnum
+import enum
+from sqlalchemy import Enum
 
+class ProfesionEnum(enum.Enum):
+    PSICOLOGO = 1
+    PSICOMOTRICISTA = 2
+    MEDICO = 3
+    KINESIOLOGO = 4
+    TERAPISTA_OCUPACIONAL= 5
+    PSICOPEDAGOGO = 6
+    DOCENTE = 7
+    PROFESOR = 8
+    FONOAUDIOLOGO = 9
+    VETERINARIO = 10
+    OTRO = 11
+
+class CondicionEnum(enum.Enum):
+    VOLUNTARIO = 1
+    PERSONAL_RENTADO = 2
+
+class PuestoLaboralEnum(enum.Enum):
+    ADMINISTRATIVO = 1
+    TERAPEUTA = 2
+    CONDUCTOR = 3
+    AUXILIAR_DE_PISTA = 4
+    HERRERO = 5
+    VETERINARIO = 6
+    ENTRENADOR_DE_CABALLOS = 7
+    DOMADOR = 8
+    PROFESOR_DE_EQUITACIÓN = 9
+    DOCENTE_DE_CAPACITACIÓN = 10
+    AUXILIAR_DE_MANTENIMIENTO = 11
+    OTRO = 12
 
 class Empleado(db.Model):
     """Representa un miembro del equipo de CEDICA"""
