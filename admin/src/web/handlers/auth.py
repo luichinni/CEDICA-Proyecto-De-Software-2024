@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import session
 from flask import abort
-from src.core.users import user_has_permission
+from src.core.services.user_service import user_has_permission
 
 def get_current_user_id():
     current_user_id = 0 # TODO: cambiar el 0 por session.get('user_id') cuando se implemente session
