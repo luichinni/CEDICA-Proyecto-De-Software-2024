@@ -1,13 +1,10 @@
-from core.enums.user_roles import UserRoles
-from src.core.models.user import User
-from src.core.models.user.user_permission import UserPermission
 from src.core.database import db
-from enum import Enum
+from src.core.services.role_service import RoleService
+from src.core.services.role_service import EmpleadoService
+from src.core.models.user import User
+from src.core.models.user.role_permission import UserPermission
+from src.core.admin_data import AdminData
 import re
-
-class UserOrderBy(Enum):
-    CREATED_AT = 'created_at'
-    EMAIL = 'email'
 
 class UserService:
     
@@ -24,35 +21,36 @@ class UserService:
             raise ValueError("La contraseña debe contener al menos un número.")
 
     @staticmethod
-    def validate_role(role):
+    def validate_role_id(role_id):
         """Verifica que el rol no sea admin, a menos que este no exista."""
-        if role != UserRoles.SYSTEM_ADMIN: 
+        role_name = RoleService.get_role_by_id(role_id=role_id).name
+        
+        if role_name != AdminData.role_name: 
             return
     
-        admin_alias = "admin" 
-        existing_admin = UserService.get_user_by_alias(alias=admin_alias, include_deleted=True)
+        existing_admin = UserService.get_user_by_alias(alias=AdminData.alias, include_deleted=True)
         if existing_admin:
             raise ValueError("No se puede crear un usuario con el rol 'SYSTEM_ADMIN' porque ya existe el usuario ADMIN.")
 
     @staticmethod
-    def create_user(empleado_id, alias, password, role, activo=True):
+    def create_user(empleado_id, alias, password, role_id, activo=True):
         """Crea un nuevo usuario."""
         UserService.validate_password(password)
-        UserService.validate_role(role)
+        UserService.validate_role_id(role_id)
 
         user = User(
             empleado_id=empleado_id,
             alias=alias,
             password=password,
             activo=activo,
-            roles=role
+            role_id=role_id
         )
         db.session.add(user)
         db.session.commit()
         return user
 
     @staticmethod
-    def update_user(user_id, alias=None, password=None, activo=None, role=None):
+    def update_user(user_id, alias=None, password=None, activo=None, role_id=None):
         """Actualiza un usuario existente."""
         user = UserService.get_user_by_id(user_id)
         if user:
@@ -63,9 +61,9 @@ class UserService:
                 user.password = password
             if activo is not None:
                 user.activo = activo
-            if role is not None:
-                UserService.validate_role(role)
-                user.roles = role 
+            if role_id is not None:
+                UserService.validate_role_id(role_id)
+                user.role_id = role_id 
             db.session.commit()
         return user
     
@@ -103,7 +101,7 @@ class UserService:
     from flask_sqlalchemy import Pagination
 
     @staticmethod
-    def search_users(email=None, activo=None, rol=None, page=1, per_page=25, order_by='created_at', ascending=True):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query.filter(User.deleted == False) 
 
@@ -113,8 +111,8 @@ class UserService:
         if activo is not None:
             query = query.filter(User.activo == activo)
 
-        if rol:
-            query = query.filter(User.roles == rol)
+        if role_id:
+            query = query.filter(User.role_id == role_id)
 
         if order_by not in ['email', 'created_at']:
             raise ValueError("El campo de ordenamiento debe ser 'email' o 'created_at'.")
@@ -145,20 +143,26 @@ class UserService:
     @staticmethod
     def create_admin_user():
         """Crea un usuario admin con rol de 'System Admin' si no existe."""
-        admin_alias = 'admin'
-        admin_password = 'DEFAULT_password1234' # TODO: Cambiar esto a una contraseña segura
+        admin_alias = AdminData.alias
         existing_admin = UserService.get_user_by_alias(alias=admin_alias)
-        
 
         if existing_admin is None:
-            #TODO: Crear empleado para user_admin create_admin_employee
+            admin_password = AdminData.password
+            admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
+            empleado_admin_id = EmpleadoService.get_empleado_by_email(name=AdminData.role_name).id
+        
+            if admin_role_id is None:
+                raise ValueError("No se puede crear el user admin ya que el rol del admin no existe.")
+
+            if empleado_admin_id is None:
+                raise ValueError("No se puede crear el user admin ya que el empleado del admin no existe.")
 
             admin_user = UserService.create_user(
-                empleado_id=0,  # TODO: Revisar esto mas adelante
+                empleado_id=empleado_admin_id,
                 alias=admin_alias,
                 password=admin_password, 
                 activo=True,
-                role=UserRoles.SYSTEM_ADMIN
+                role_id=admin_role_id
             )
             return admin_user
         return existing_admin

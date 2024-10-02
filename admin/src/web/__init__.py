@@ -3,7 +3,11 @@ from flask import render_template
 from web.handlers import error
 from src.core import database
 from src.core.config import config
-from src.core.models import *
+from src.core.models.user import User
+from src.core.models.empleado import Empleado
+from src.core.models.user.permission import Permission
+from src.core.models.user.role_permission import RolePermission
+from src.core.models.user.role import Role
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)

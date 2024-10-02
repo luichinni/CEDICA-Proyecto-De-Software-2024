@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
-from src.core.services import user_service
+#from src.core.services import user_service
+#from src.core.services import role_service
+#from src.core.services import empleado_service
 
 db = SQLAlchemy()
 
@@ -24,7 +26,18 @@ def reset():
     print("Creando la base de datos")
     db.create_all()
 
-    print("Creando user admin del sistema")
-    user_service.create_admin_user()
+    create_admin()
 
     print("Listo!")
+
+def create_admin():
+    pass
+    '''print("Creando empleado admin")
+    empleado_service.create_admin_user()
+
+    print("Creando rol system admin")
+    role_service.create_admin_user()
+
+    print("Creando user admin del sistema")
+    user_service.create_admin_user()'''
+    
