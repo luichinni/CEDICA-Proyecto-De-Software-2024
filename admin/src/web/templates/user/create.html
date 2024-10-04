@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Crear Usuario</title>
+</head>
+<body>
+    <h1>Crear Usuario Nuevo</h1>
+
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('user.create_user') }}" method="post">
+        <label>Empleado ID: <input type="text" name="employee_id"></label><br>
+        <label>Alias: <input type="text" name="alias"></label><br>
+        <label>Contraseña: <input type="password" name="password"></label><br>
+        <label>Rol ID: <input type="text" name="role_id"></label><br>
+        <label>Activo: <input type="checkbox" name="activo" checked></label><br>
+        <button type="submit">Crear Usuario</button>
+    </form>
+    <a href="{{ url_for('user.list_users') }}">Volver a la lista</a>
+</body>
+</html>

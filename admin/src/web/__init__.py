@@ -12,7 +12,9 @@ from src.core.models.user.role import Role
 
 from src.core.services.user_service import UserService 
 from src.core.services.role_service import RoleService 
-from core.services.employee_service import EmployeeService 
+from src.core.services.employee_service import EmployeeService 
+
+from src.web.controllers.user_controller import bp as users_bp 
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
@@ -26,6 +28,8 @@ def create_app(env="development", static_folder="../../static"):
 
 
     app.register_error_handler(404, error.not_found_error)
+
+    app.register_blueprint(users_bp) 
 
     @app.cli.command(name="reset-db")
     def reset_db():

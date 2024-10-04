@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Detalles del Usuario</title>
+</head>
+<body>
+    <h1>Detalles de Usuario</h1>
+    <p>Alias: {{ user.alias }}</p>
+    <p>Email: {{ user.employee.email }}</p>
+    <p>Rol: {{ user.role.name }}</p>
+    <p>Estado: {{ 'Activo' if user.activo else 'Inactivo' }}</p>
+    <a href="{{ url_for('user.edit_user', user_id=user.id) }}">Editar</a>
+    <a href="{{ url_for('user.list_users') }}">Volver a la lista</a>
+</body>
+</html>

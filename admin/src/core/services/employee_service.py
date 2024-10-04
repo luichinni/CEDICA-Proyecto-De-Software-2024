@@ -25,6 +25,13 @@ class EmployeeService:
 
     @staticmethod
     def create_admin_employee():
-        """Crea un usuario admin con rol de 'System Admin' si no existe."""
+        """Crea un empleado admin con emal del admin si no existe."""
         admin_email = AdminData.email
         EmployeeService.create_employee(admin_email)
+
+    @staticmethod
+    def create_exaple_employees():
+        """Crea un empleados de ejemplo."""
+        EmployeeService.create_employee("exa1@example.com")
+        EmployeeService.create_employee("exa2@example.com")
+        EmployeeService.create_employee("exa3@example.com")

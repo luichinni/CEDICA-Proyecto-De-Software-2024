@@ -2,6 +2,7 @@ from src.core.database import db
 from src.core.services.role_service import RoleService
 from src.core.services.employee_service import EmployeeService
 from src.core.models.user import User
+from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
 import re
@@ -92,12 +93,30 @@ class UserService:
         return User.query.filter_by(alias=alias, deleted=False).first()
 
     @staticmethod
-    def get_all_users(include_deleted=False):
+    def get_all_users(page=1, per_page=25, include_deleted=False):
         """Obtiene todos los usuarios."""
-        if include_deleted:
-            return User.query.all()
-        return User.query.filter_by(deleted=False).all()
+        query = User.query
     
+        if not include_deleted:
+            query = query.filter_by(deleted=False)
+        
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        return pagination.items, pagination.total, pagination.pages
+    
+    @staticmethod
+    def apply_ordering(query, order_by, ascending):
+        """Aplica el ordenamiento a la consulta según el campo y el orden deseado."""
+        if order_by == 'email':
+            query = query.join(User.employee)
+            column = Employee.email
+        elif order_by == 'created_at':
+            column = User.created_at
+        else:
+            raise ValueError("El campo de ordenamiento debe ser 'email' o 'created_at'.")
+
+        return query.order_by(column.asc() if ascending else column.desc())
+
     @staticmethod
     def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
@@ -115,12 +134,9 @@ class UserService:
         if order_by not in ['email', 'created_at']:
             raise ValueError("El campo de ordenamiento debe ser 'email' o 'created_at'.")
 
-        if ascending:
-            query = query.order_by(getattr(User, order_by).asc())
-        else:
-            query = query.order_by(getattr(User, order_by).desc())
+        query = UserService.apply_ordering(query, order_by, ascending)
 
-        pagination = query.paginate(page, per_page, error_out=True)
+        pagination = query.paginate(page=page, per_page=per_page, error_out=True)
         
         return pagination.items, pagination.total, pagination.pages
 

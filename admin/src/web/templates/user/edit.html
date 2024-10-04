@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Editar Usuario</title>
+</head>
+<body>
+    <h1>Editar Usuario</h1>
+    <form action="{{ url_for('user.update_user', user_id=user.id) }}" method="post">
+        <label>Alias: <input type="text" name="alias" value="{{ user.alias }}"></label><br>
+        <label>Contraseña: <input type="password" name="password"></label><br>
+        <label>Rol ID: <input type="text" name="role_id" value="{{ user.role_id }}"></label><br>
+        <label>Activo: <input type="checkbox" name="activo" {% if user.activo %}checked{% endif %}></label><br>
+        <button type="submit">Actualizar Usuario</button>
+    </form>
+    <a href="{{ url_for('user.user_detail', user_id=user.id) }}">Cancelar</a>
+</body>
+</html>

@@ -28,12 +28,17 @@ def init(UserService, RoleService, EmployeeService):
     """Inicializa la base de datos"""
     print("Creando empleado admin")
     EmployeeService.create_admin_employee()
-
     print("Creando rol system admin")
     RoleService.create_admin_role()
-
     print("Creando user admin del sistema")
     UserService.create_admin_user()
+
+    
+    print("Creando empleados de ejemplo")
+    EmployeeService.create_exaple_employees()
+    print("Creando roles de ejemplo")
+    RoleService.create_example_roles()
+
     print("Finalizacion de la inicializacion de la base de datos!")
 
     

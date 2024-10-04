@@ -28,3 +28,10 @@ class RoleService:
         """Crea el rol 'System Admin' si no existe."""
         return RoleService.create_role(AdminData.role_name)
         
+    @staticmethod
+    def create_example_roles():
+        """Crea roles de ejemplo."""
+        RoleService.create_role("Técnica")
+        RoleService.create_role("Ecuestre")
+        RoleService.create_role("Voluntariado")
+        RoleService.create_role("Administración")
