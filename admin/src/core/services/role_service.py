@@ -1,5 +1,6 @@
-from src.core.models.user import Role
+from src.core.models.user.role import Role
 from src.core.database import db
+from src.core.admin_data import AdminData
 
 class RoleService:
 
@@ -21,3 +22,9 @@ class RoleService:
     @staticmethod
     def get_role_by_name(name):
         return Role.query.filter_by(name=name).first()
+
+    @staticmethod
+    def create_admin_role():
+        """Crea el rol 'System Admin' si no existe."""
+        return RoleService.create_role(AdminData.role_name)
+        

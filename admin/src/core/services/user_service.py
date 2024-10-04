@@ -1,8 +1,8 @@
 from src.core.database import db
 from src.core.services.role_service import RoleService
-from src.core.services.role_service import EmpleadoService
+from src.core.services.employee_service import EmployeeService
 from src.core.models.user import User
-from src.core.models.user.role_permission import UserPermission
+from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
 import re
 
@@ -33,13 +33,13 @@ class UserService:
             raise ValueError("No se puede crear un usuario con el rol 'SYSTEM_ADMIN' porque ya existe el usuario ADMIN.")
 
     @staticmethod
-    def create_user(empleado_id, alias, password, role_id, activo=True):
+    def create_user(employee_id, alias, password, role_id, activo=True):
         """Crea un nuevo usuario."""
         UserService.validate_password(password)
         UserService.validate_role_id(role_id)
 
         user = User(
-            empleado_id=empleado_id,
+            employee_id=employee_id,
             alias=alias,
             password=password,
             activo=activo,
@@ -98,15 +98,13 @@ class UserService:
             return User.query.all()
         return User.query.filter_by(deleted=False).all()
     
-    from flask_sqlalchemy import Pagination
-
     @staticmethod
     def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query.filter(User.deleted == False) 
 
         if email:
-            query = query.filter(User.empleado.has(email=email)) 
+            query = query.filter(User.employee.has(email=email)) 
 
         if activo is not None:
             query = query.filter(User.activo == activo)
@@ -136,7 +134,7 @@ class UserService:
     @staticmethod
     def get_permissions_of(user_id):
         """Obtiene los permisos de un usuario."""
-        user_permissions = UserPermission.query.filter_by(user_id=user_id).all()
+        user_permissions = RolePermission.query.filter_by(user_id=user_id).all()
         permissions = [up.permission.name for up in user_permissions]
         return permissions
     
@@ -149,16 +147,16 @@ class UserService:
         if existing_admin is None:
             admin_password = AdminData.password
             admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
-            empleado_admin_id = EmpleadoService.get_empleado_by_email(name=AdminData.role_name).id
+            employee_admin_id = EmployeeService.get_employee_by_email(email=AdminData.email).id
         
             if admin_role_id is None:
                 raise ValueError("No se puede crear el user admin ya que el rol del admin no existe.")
 
-            if empleado_admin_id is None:
+            if employee_admin_id is None:
                 raise ValueError("No se puede crear el user admin ya que el empleado del admin no existe.")
 
             admin_user = UserService.create_user(
-                empleado_id=empleado_admin_id,
+                employee_id=employee_admin_id,
                 alias=admin_alias,
                 password=admin_password, 
                 activo=True,

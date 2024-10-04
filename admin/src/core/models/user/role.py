@@ -10,7 +10,7 @@ class Role(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     
-    permissions = db.relationship('Permission', secondary='role_permissions', backref='roles') 
+    permissions = db.relationship('RolePermission', back_populates='role') 
     
     def __repr__(self):
         return f'<Role {self.name}, created_at={self.created_at}, updated_at={self.updated_at}>'
