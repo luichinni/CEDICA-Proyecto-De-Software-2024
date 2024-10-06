@@ -13,6 +13,7 @@ from src.core.models.user.role import Role
 from src.core.services.user_service import UserService 
 from src.core.services.role_service import RoleService 
 from src.core.services.employee_service import EmployeeService 
+from src.core.services.permission_service import PermissionService 
 
 from src.web.controllers.user_controller import bp as users_bp 
 
@@ -34,6 +35,6 @@ def create_app(env="development", static_folder="../../static"):
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, EmployeeService)
+        database.init(UserService, RoleService, EmployeeService, PermissionService)
 
     return app

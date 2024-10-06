@@ -1,9 +1,11 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from src.core.services.user_service import UserService
+from src.web.handlers.auth import check_permissions
 
 bp = Blueprint('user', __name__, url_prefix='/users')
 
 @bp.get('/')
+@check_permissions("user_index")
 def list_users():
     """Lista todos los usuarios con paginación."""
     page = request.args.get('page', 1, type=int)
@@ -14,6 +16,7 @@ def list_users():
     return render_template('user/list.html', users=users, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/search')
+@check_permissions("user_index")
 def search_users():
     """Busca usuarios según criterios específicos con paginación."""
     email = request.args.get('email')
@@ -37,6 +40,7 @@ def search_users():
     return render_template('user/list.html', users=users, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/<int:user_id>')
+@check_permissions("user_show")
 def user_detail(user_id):
     """Muestra los detalles de un usuario por su ID.""" 
     user = UserService.get_user_by_id(user_id)
@@ -46,11 +50,13 @@ def user_detail(user_id):
     return render_template('user/detail.html', user=user)
 
 @bp.get('/new')
+@check_permissions("user_new")
 def new_user():
     """Muestra el formulario para crear un nuevo usuario.""" 
     return render_template('user/create.html')
 
 @bp.post('/create')
+@check_permissions("user_new")
 def create_user():
     """Crea un nuevo usuario con los datos proporcionados en el formulario.""" 
     params = request.form
@@ -69,6 +75,7 @@ def create_user():
         return redirect(url_for('user.new_user'))
 
 @bp.get('/<int:user_id>/edit')
+@check_permissions("user_update")
 def edit_user(user_id):
     """Muestra el formulario para editar un usuario existente.""" 
     user = UserService.get_user_by_id(user_id)
@@ -78,6 +85,7 @@ def edit_user(user_id):
     return render_template('user/edit.html', user=user)
 
 @bp.post('/<int:user_id>/update')
+@check_permissions("user_update")
 def update_user(user_id):
     """Actualiza la información de un usuario existente.""" 
     params = request.form
@@ -96,6 +104,7 @@ def update_user(user_id):
         return redirect(url_for('user.edit_user', user_id=user_id))
 
 @bp.post('/<int:user_id>/delete')
+@check_permissions("user_destroy")
 def delete_user(user_id):
     """Elimina un usuario existente.""" 
     if UserService.delete_user(user_id):

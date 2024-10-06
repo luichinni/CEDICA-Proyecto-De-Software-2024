@@ -159,7 +159,8 @@ class UserService:
     @staticmethod
     def get_permissions_of(user_id):
         """Obtiene los permisos de un usuario."""
-        user_permissions = RolePermission.query.filter_by(user_id=user_id).all()
+        user = UserService.get_user_by_id(user_id, include_deleted=True)
+        user_permissions = RolePermission.query.filter_by(role_id=user.role_id).all()
         permissions = [up.permission.name for up in user_permissions]
         return permissions
     

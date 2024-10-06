@@ -1,10 +1,10 @@
 from functools import wraps
 from flask import session
 from flask import abort
-from src.core.services.user_service import user_has_permission
+from src.core.services.user_service import UserService
 
 def get_current_user_id():
-    current_user_id = 0 # TODO: cambiar el 0 por session.get('user_id') cuando se implemente session
+    current_user_id = 1 # TODO: cambiar el 1 por session.get('user_id') cuando se implemente session
     return current_user_id
 
 
@@ -27,7 +27,7 @@ def check_permissions(required_permission):
         def wrapper(*args, **kwargs):
 
             current_user_id = get_current_user_id()
-            if not user_has_permission(required_permission, current_user_id):
+            if not UserService.user_has_permission(required_permission, current_user_id):
                 return abort(403) 
 
             return func(*args, **kwargs)
