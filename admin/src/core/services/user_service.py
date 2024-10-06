@@ -5,6 +5,7 @@ from src.core.models.user import User
 from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
+from src.web.handlers.validations import validate_params
 import re
 
 class UserService:
@@ -34,6 +35,7 @@ class UserService:
             raise ValueError("No se puede crear un usuario con el rol 'SYSTEM_ADMIN' porque ya existe el usuario ADMIN.")
 
     @staticmethod
+    @validate_params
     def create_user(employee_id, alias, password, role_id, activo=True):
         """Crea un nuevo usuario."""
         UserService.validate_password(password)
@@ -51,6 +53,7 @@ class UserService:
         return user
 
     @staticmethod
+    @validate_params
     def update_user(user_id, alias=None, password=None, activo=None, role_id=None):
         """Actualiza un usuario existente."""
         user = UserService.get_user_by_id(user_id)
@@ -69,6 +72,7 @@ class UserService:
         return user
     
     @staticmethod
+    @validate_params
     def delete_user(user_id):
         """Elimina un usuario por su ID de forma lógica."""
         user = UserService.get_user_by_id(user_id)
@@ -79,6 +83,7 @@ class UserService:
         return False
     
     @staticmethod
+    @validate_params
     def get_user_by_id(user_id, include_deleted=False):
         """Obtiene un usuario por su ID."""
         if include_deleted:
@@ -86,6 +91,7 @@ class UserService:
         return User.query.filter_by(id=user_id, deleted=False).first()
 
     @staticmethod
+    @validate_params
     def get_user_by_alias(alias, include_deleted=False):
         """Obtiene un usuario por su alias."""
         if include_deleted:
@@ -93,6 +99,7 @@ class UserService:
         return User.query.filter_by(alias=alias, deleted=False).first()
 
     @staticmethod
+    @validate_params
     def get_all_users(page=1, per_page=25, include_deleted=False):
         """Obtiene todos los usuarios."""
         query = User.query
@@ -118,6 +125,7 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
+    @validate_params
     def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query.filter(User.deleted == False) 
@@ -142,6 +150,7 @@ class UserService:
 
 
     @staticmethod
+    @validate_params
     def user_has_permission(required_permission, user_id):
         """Verifica si un usuario tiene un permiso específico."""
         permissions = UserService.get_permissions_of(user_id)
