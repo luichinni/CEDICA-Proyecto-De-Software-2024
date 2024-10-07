@@ -65,6 +65,9 @@ class UserService:
     def update_user(user_id, alias=None, password=None, activo=None, role_id=None):
         """Actualiza un usuario existente."""
         user = UserService.get_user_by_id(user_id)
+        if user.role.name == AdminData.role_name: 
+            raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
+
 
         if alias is not None:
             user.alias = alias

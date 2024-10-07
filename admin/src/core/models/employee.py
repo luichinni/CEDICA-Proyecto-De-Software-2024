@@ -12,3 +12,11 @@ class Employee(db.Model):
     
     def __repr__(self):
         return f'<Permission {self.email}, created_at={self.created_at}, updated_at={self.updated_at}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+        }
