@@ -1,5 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from src.core.services.user_service import UserService
+from src.core.services.role_service import RoleService
+from src.core.services.employee_service import EmployeeService
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
 from src.web.handlers import get_int_param, get_str_param, get_bool_param
@@ -53,17 +55,28 @@ def user_detail(user_id):
     """Muestra los detalles de un usuario por su ID.""" 
     
     user = UserService.get_user_by_id(user_id)
-    if not user:
-        flash("Usuario no encontrado", "error")
-        return redirect(url_for('user.list_users'))
     return render_template('user/detail.html', user=user)
+
+def get_user_data(params, optional=False):
+    """Obtiene la información de un usuario existente.""" 
+
+    role_id = get_int_param(params, "role_id", optional=optional)
+    
+    employee_email = get_str_param(params, "employee_email", optional=optional)
+    employee_id = EmployeeService.get_employee_by_email(employee_email).id if employee_email else None
+    
+    alias = get_str_param(params, "alias", optional=optional)
+    password=get_str_param(params, "password", optional=optional)
+    activo=get_bool_param(params, "activo", optional=optional)
+    return ( employee_id, alias, password, activo, role_id )
 
 @bp.get('/new')
 @check_permissions("user_new")
 @handle_error(lambda: url_for('user.list_users'))
 def new_user():
     """Muestra el formulario para crear un nuevo usuario.""" 
-    return render_template('user/create.html')
+    roles = RoleService.get_all_roles()
+    return render_template('user/create.html', roles=roles)
 
 @bp.post('/create')
 @check_permissions("user_new")
@@ -71,12 +84,14 @@ def new_user():
 def create_user():
     """Crea un nuevo usuario con los datos proporcionados en el formulario.""" 
     params = request.form
+    employee_id, alias, password, activo, role_id = get_user_data(params, optional=False)
+
     user = UserService.create_user(
-        employee_id=get_int_param(params, "employee_id"),
-        alias=get_str_param(params, "alias"),
-        password=get_str_param(params, "password"),
-        role_id=get_int_param(params, "role_id"),
-        activo=get_bool_param(params, "activo")
+        employee_id=employee_id,
+        alias=alias,
+        password=password,
+        activo=activo,
+        role_id=role_id
     )
     flash("Usuario creado exitosamente", "success")
     return redirect(url_for('user.user_detail', user_id=user.id))
@@ -87,10 +102,8 @@ def create_user():
 def edit_user(user_id):
     """Muestra el formulario para editar un usuario existente.""" 
     user = UserService.get_user_by_id(user_id)
-    if not user:
-        flash("Usuario no encontrado", "error")
-        return redirect(url_for('user.list_users'))
-    return render_template('user/edit.html', user=user)
+    roles = RoleService.get_all_roles()
+    return render_template('user/edit.html', user=user, roles=roles)
 
 @bp.post('/<int:user_id>/update')
 @check_permissions("user_update")
@@ -98,12 +111,15 @@ def edit_user(user_id):
 def update_user(user_id):
     """Actualiza la información de un usuario existente.""" 
     params = request.form
+
+    _, alias, password, activo, role_id = get_user_data(params, optional=True)
+
     UserService.update_user(
         user_id=user_id,
-        alias=get_str_param(params, "alias", optional= True),
-        password=get_str_param(params, "password", optional= True),
-        activo=get_bool_param(params, "activo", optional= True),
-        role_id=get_int_param(params, "role_id", optional= True)
+        alias=alias,
+        password=password,
+        activo=activo,
+        role_id=role_id
     )
     flash("Usuario actualizado exitosamente", "success")
     return redirect(url_for('user.user_detail', user_id=user_id))

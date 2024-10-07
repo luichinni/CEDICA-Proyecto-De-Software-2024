@@ -32,6 +32,11 @@ class RoleService:
         if existing_role is None:
             raise ValueError(f"No existe rol con el nombre ingresado: '{name}'")
         return existing_role
+    
+    @staticmethod
+    def get_all_roles():
+        """Obtiene todos los roles."""
+        return Role.query.all()
 
     @staticmethod
     def create_admin_role():
