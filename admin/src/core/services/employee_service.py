@@ -16,16 +16,21 @@ class EmployeeService:
         
         return new_employee
 
-
     @staticmethod
     def get_employee_by_id(employee_id):
-        """Busca un empleado por email."""
-        return Employee.query.get(employee_id)
-
+        """Busca un empleado por id y lanza un error si no existe."""
+        existing_employee = Employee.query.get(employee_id)
+        if existing_employee is None:
+            raise ValueError(f"No existe empleado con el id ingresado: '{employee_id}'")
+        return existing_employee
+    
     @staticmethod
     def get_employee_by_email(email):
-        """Busca un empleado por email."""
-        return Employee.query.filter_by(email=email).first()
+        """Busca un empleado por email y lanza un error si no existe."""
+        existing_employee = Employee.query.filter_by(email=email).first()
+        if existing_employee is None:
+            raise ValueError(f"No existe empleado con el email ingresado: '{email}'")
+        return existing_employee
 
 
     @staticmethod

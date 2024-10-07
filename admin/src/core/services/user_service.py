@@ -26,21 +26,19 @@ class UserService:
     def validate_role_id(role_id):
         """Verifica que el rol no sea admin, a menos que este no exista."""
         role_name = RoleService.get_role_by_id(role_id=role_id).name
-        
         if role_name != AdminData.role_name: 
             return
     
-        existing_admin = UserService.get_user_by_alias(alias=AdminData.alias, include_deleted=True, include_blocked=True)
-        if existing_admin:
-            raise ValueError("No se interactuar con el usuario con el rol System Admin.")
+        try:
+            existing_admin = UserService.get_user_by_alias(alias=AdminData.alias, include_deleted=True, include_blocked=True)
+        except ValueError as e: 
+            return
+        raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
 
     @staticmethod
     def validate_employee_id(employee_id):
         """Verifica que el employee exista y que no este relacionado con otro user."""
         employee = EmployeeService.get_employee_by_id(employee_id)
-        
-        if not employee:
-            raise ValueError(f"No existe un empleado con id {employee_id}.")
 
         if employee.user:
             raise ValueError(f"El empleado con id {employee_id}, ya tiene un usuario asignado.")
@@ -67,18 +65,19 @@ class UserService:
     def update_user(user_id, alias=None, password=None, activo=None, role_id=None):
         """Actualiza un usuario existente."""
         user = UserService.get_user_by_id(user_id)
-        if user:
-            if alias is not None:
-                user.alias = alias
-            if password is not None and password is not '':
-                UserService.validate_password(password)
-                user.password = password
-            if activo is not None:
-                user.activo = activo
-            if role_id is not None:
-                UserService.validate_role_id(role_id)
-                user.role_id = role_id 
-            db.session.commit()
+
+        if alias is not None:
+            user.alias = alias
+        if password is not None and password is not '':
+            UserService.validate_password(password)
+            user.password = password
+        if activo is not None:
+            user.activo = activo
+        if role_id is not None:
+            UserService.validate_role_id(role_id)
+            user.role_id = role_id 
+        db.session.commit()
+
         return user
     
     @staticmethod
@@ -87,29 +86,21 @@ class UserService:
         """Elimina un usuario por su ID de forma lógica."""
         user = UserService.get_user_by_id(user_id)
         
-        if not user:
-            return False
-        
         UserService.validate_role_id(user.role_id)
         
         user.deleted = True
         db.session.commit()
-        return True
     
     @staticmethod
     @validate_params
     def block_user(user_id):
         """Bloquea un usuario por su ID."""
         user = UserService.get_user_by_id(user_id)
-
-        if not user:
-            return False
         
         UserService.validate_role_id(user.role_id)
         
         user.blocked = True
         db.session.commit()
-        return True
     
     @staticmethod
     @validate_params
@@ -123,7 +114,11 @@ class UserService:
         if not include_blocked:
             query = query.filter_by(blocked=False)
         
-        return query.first()
+        existing_user = query.first()
+        if existing_user is None:
+            raise ValueError(f"No existe un usuario con el ID ingresado: '{user_id}'")
+        
+        return existing_user
     
     @staticmethod
     @validate_params
@@ -137,7 +132,11 @@ class UserService:
         if not include_blocked:
             query = query.filter_by(blocked=False)
         
-        return query.first()
+        existing_user = query.first()
+        if existing_user is None:
+            raise ValueError(f"No existe un usuario con el alias ingresado: '{alias}'")
+        
+        return existing_user
 
     @staticmethod
     @validate_params
@@ -217,27 +216,17 @@ class UserService:
     def create_admin_user():
         """Crea un usuario admin con rol de 'System Admin' si no existe."""
         admin_alias = AdminData.alias
-        existing_admin = UserService.get_user_by_alias(alias=admin_alias)
-
-        if existing_admin is None:
-            admin_password = AdminData.password
-            admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
-            employee_admin_id = EmployeeService.get_employee_by_email(email=AdminData.email).id
-        
-            if admin_role_id is None:
-                raise ValueError("No se puede crear el user admin ya que el rol del admin no existe.")
-
-            if employee_admin_id is None:
-                raise ValueError("No se puede crear el user admin ya que el empleado del admin no existe.")
-
-            admin_user = UserService.create_user(
-                employee_id=employee_admin_id,
-                alias=admin_alias,
-                password=admin_password, 
-                activo=True,
-                role_id=admin_role_id
-            )
-            return admin_user
-        return existing_admin
+        admin_password = AdminData.password
+        admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
+        employee_admin_id = EmployeeService.get_employee_by_email(email=AdminData.email).id
+    
+        admin_user = UserService.create_user(
+            employee_id=employee_admin_id,
+            alias=admin_alias,
+            password=admin_password, 
+            activo=True,
+            role_id=admin_role_id
+        )
+        return admin_user
 
 

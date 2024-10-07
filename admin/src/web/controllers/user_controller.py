@@ -113,10 +113,8 @@ def update_user(user_id):
 @handle_error(lambda user_id: url_for('user.list_users'))
 def delete_user(user_id):
     """Elimina un usuario existente.""" 
-    if UserService.delete_user(user_id):
-        flash("Usuario eliminado exitosamente", "success")
-    else:
-        flash("Usuario no encontrado", "error")
+    UserService.delete_user(user_id)
+    flash("Usuario eliminado exitosamente", "success")
     return redirect(url_for('user.list_users'))
 
 
@@ -124,9 +122,7 @@ def delete_user(user_id):
 @check_permissions("user_block")
 @handle_error(lambda user_id: url_for('user.list_users'))
 def block_user(user_id):
-    """Elimina un usuario existente.""" 
-    if UserService.block_user(user_id):
-        flash("Usuario bloqueado exitosamente", "success")
-    else:
-        flash("Usuario no encontrado", "error")
+    """Bloquea un usuario existente.""" 
+    UserService.block_user(user_id)
+    flash("Usuario bloqueado exitosamente", "success")
     return redirect(url_for('user.list_users'))
