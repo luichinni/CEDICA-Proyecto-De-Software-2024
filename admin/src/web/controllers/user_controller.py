@@ -2,6 +2,7 @@ from flask import Blueprint, request, render_template, redirect, url_for, flash
 from src.core.services.user_service import UserService
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
+from src.web.handlers import get_int_param, get_str_param, get_bool_param
 
 bp = Blueprint('user', __name__, url_prefix='/users')
 
@@ -10,8 +11,9 @@ bp = Blueprint('user', __name__, url_prefix='/users')
 @handle_error(lambda: url_for('user.list_users'))
 def list_users():
     """Lista todos los usuarios con paginación."""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 25, type=int)
+    params = request.args
+    page = get_int_param(params, 'page', 1, optional= True)
+    per_page = get_int_param(params, 'per_page', 25, optional= True)
     
     users, total, pages = UserService.get_all_users(page=page, per_page=per_page)
     
@@ -22,13 +24,15 @@ def list_users():
 @handle_error(lambda: url_for('user.list_users'))
 def search_users():
     """Busca usuarios según criterios específicos con paginación."""
-    email = request.args.get('email')
-    activo = request.args.get('activo', type=lambda x: x.lower() == 'true')  # Convierte a booleano
-    role_id = request.args.get('role_id', type=int)
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 25, type=int)
-    order_by = request.args.get('order_by', 'created_at')
-    ascending = request.args.get('ascending', 'true', type=lambda x: x.lower() == 'true')
+    params = request.args
+    
+    email = get_str_param(params, 'email', optional= True)
+    activo = get_bool_param(params, 'activo', optional= True) 
+    role_id = get_int_param(params, 'role_id', optional= True) 
+    page = get_int_param(params, 'page', 1, optional= True) 
+    per_page = get_int_param(params, 'per_page', 25, optional= True) 
+    order_by = get_int_param(params, 'order_by', 'created_at', optional= True)
+    ascending = get_int_param(params, 'ascending', True, optional= True)
 
     users, total, pages = UserService.search_users(
         email=email,
@@ -47,6 +51,7 @@ def search_users():
 @handle_error(lambda user_id: url_for('user.list_users'))
 def user_detail(user_id):
     """Muestra los detalles de un usuario por su ID.""" 
+    
     user = UserService.get_user_by_id(user_id)
     if not user:
         flash("Usuario no encontrado", "error")
@@ -67,11 +72,11 @@ def create_user():
     """Crea un nuevo usuario con los datos proporcionados en el formulario.""" 
     params = request.form
     user = UserService.create_user(
-        employee_id=params["employee_id"],
-        alias=params["alias"],
-        password=params["password"],
-        role_id=params["role_id"],
-        activo=params.get("activo", "on") == "on"
+        employee_id=get_int_param(params, "employee_id"),
+        alias=get_str_param(params, "alias"),
+        password=get_str_param(params, "password"),
+        role_id=get_int_param(params, "role_id"),
+        activo=get_bool_param(params, "activo")
     )
     flash("Usuario creado exitosamente", "success")
     return redirect(url_for('user.user_detail', user_id=user.id))
@@ -95,10 +100,10 @@ def update_user(user_id):
     params = request.form
     UserService.update_user(
         user_id=user_id,
-        alias=params.get("alias"),
-        password=params.get("password"),
-        activo=params.get("activo") == "on",
-        role_id=params.get("role_id")
+        alias=get_str_param(params, "alias", optional= True),
+        password=get_str_param(params, "password", optional= True),
+        activo=get_bool_param(params, "activo", optional= True),
+        role_id=get_int_param(params, "role_id", optional= True)
     )
     flash("Usuario actualizado exitosamente", "success")
     return redirect(url_for('user.user_detail', user_id=user_id))

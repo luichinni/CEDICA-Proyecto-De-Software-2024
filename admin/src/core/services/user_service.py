@@ -169,7 +169,6 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    @validate_params
     def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True, include_deleted=False, include_blocked=False):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query

@@ -35,3 +35,39 @@ def validate_params(func):
         
         return func(*args, **kwargs)
     return wrapper
+
+def get_param(params, key, param_type, default=None, optional=False):
+    """Obtiene y valida un parámetro del tipo especificado."""
+    value = params.get(key)
+
+    if value:
+        if param_type == int and value.isdigit():
+            return int(value)
+        elif param_type == str and isinstance(value, str) and value.strip() != '':
+            return value
+        elif param_type == bool:
+            if isinstance(value, str):
+                if value.lower() in ('true', '1', 'yes', 'on'):
+                    return True
+                if value.lower() in ('false', '0', 'no', 'off'):
+                    return False
+        raise ValueError(f"El parámetro '{key}' debe ser del tipo {param_type.__name__}")
+    
+    if optional:
+        return default
+    raise ValueError(f"El parámetro '{key}' tiene que ser ingresado")
+
+
+def get_int_param(params, key, default=None, optional=False):
+    """Intenta obtener un parámetro como un entero."""
+    return get_param(params, key, int, default, optional)
+
+
+def get_str_param(params, key, default=None, optional=False):
+    """Intenta obtener un parámetro como un string."""
+    return get_param(params, key, str, default, optional)
+
+
+def get_bool_param(params, key, default=None, optional=False):
+    """Intenta obtener un parámetro como booleano."""
+    return get_param(params, key, bool, default, optional)
