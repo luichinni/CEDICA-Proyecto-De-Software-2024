@@ -5,6 +5,16 @@
 </head>
 <body>
     <h1>Editar Usuario</h1>
+        <!-- Mostrar mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     <form action="{{ url_for('user.update_user', user_id=user.id) }}" method="post">
         <label>Alias: <input type="text" name="alias" value="{{ user.alias }}"></label><br>
         <label>Contraseña: <input type="password" name="password"></label><br>

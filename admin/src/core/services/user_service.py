@@ -30,9 +30,20 @@ class UserService:
         if role_name != AdminData.role_name: 
             return
     
-        existing_admin = UserService.get_user_by_alias(alias=AdminData.alias, include_deleted=True)
+        existing_admin = UserService.get_user_by_alias(alias=AdminData.alias, include_deleted=True, include_blocked=True)
         if existing_admin:
-            raise ValueError("No se puede crear un usuario con el rol 'SYSTEM_ADMIN' porque ya existe el usuario ADMIN.")
+            raise ValueError("No se interactuar con el usuario con el rol System Admin.")
+
+    @staticmethod
+    def validate_employee_id(employee_id):
+        """Verifica que el employee exista y que no este relacionado con otro user."""
+        employee = EmployeeService.get_employee_by_id(employee_id)
+        
+        if not employee:
+            raise ValueError(f"No existe un empleado con id {employee_id}.")
+
+        if employee.user:
+            raise ValueError(f"El empleado con id {employee_id}, ya tiene un usuario asignado.")
 
     @staticmethod
     @validate_params
@@ -40,7 +51,7 @@ class UserService:
         """Crea un nuevo usuario."""
         UserService.validate_password(password)
         UserService.validate_role_id(role_id)
-
+        UserService.validate_employee_id(employee_id)
         user = User(
             employee_id=employee_id,
             alias=alias,
@@ -53,14 +64,13 @@ class UserService:
         return user
 
     @staticmethod
-    @validate_params
     def update_user(user_id, alias=None, password=None, activo=None, role_id=None):
         """Actualiza un usuario existente."""
         user = UserService.get_user_by_id(user_id)
         if user:
             if alias is not None:
                 user.alias = alias
-            if password is not None:
+            if password is not None and password is not '':
                 UserService.validate_password(password)
                 user.password = password
             if activo is not None:
@@ -76,36 +86,70 @@ class UserService:
     def delete_user(user_id):
         """Elimina un usuario por su ID de forma lógica."""
         user = UserService.get_user_by_id(user_id)
-        if user:
-            user.deleted = True
-            db.session.commit()
-            return True
-        return False
+        
+        if not user:
+            return False
+        
+        UserService.validate_role_id(user.role_id)
+        
+        user.deleted = True
+        db.session.commit()
+        return True
     
     @staticmethod
     @validate_params
-    def get_user_by_id(user_id, include_deleted=False):
+    def block_user(user_id):
+        """Bloquea un usuario por su ID."""
+        user = UserService.get_user_by_id(user_id)
+
+        if not user:
+            return False
+        
+        UserService.validate_role_id(user.role_id)
+        
+        user.blocked = True
+        db.session.commit()
+        return True
+    
+    @staticmethod
+    @validate_params
+    def get_user_by_id(user_id, include_deleted=False, include_blocked=False):
         """Obtiene un usuario por su ID."""
-        if include_deleted:
-            return User.query.get(user_id)
-        return User.query.filter_by(id=user_id, deleted=False).first()
-
-    @staticmethod
-    @validate_params
-    def get_user_by_alias(alias, include_deleted=False):
-        """Obtiene un usuario por su alias."""
-        if include_deleted:
-            return User.query.filter_by(alias=alias).first()
-        return User.query.filter_by(alias=alias, deleted=False).first()
-
-    @staticmethod
-    @validate_params
-    def get_all_users(page=1, per_page=25, include_deleted=False):
-        """Obtiene todos los usuarios."""
-        query = User.query
-    
+        query = User.query.filter_by(id=user_id)
+        
         if not include_deleted:
             query = query.filter_by(deleted=False)
+        
+        if not include_blocked:
+            query = query.filter_by(blocked=False)
+        
+        return query.first()
+    
+    @staticmethod
+    @validate_params
+    def get_user_by_alias(alias, include_deleted=False, include_blocked=False):
+        """Obtiene un usuario por su alias."""
+        query = User.query.filter_by(alias=alias)
+        
+        if not include_deleted:
+            query = query.filter_by(deleted=False)
+        
+        if not include_blocked:
+            query = query.filter_by(blocked=False)
+        
+        return query.first()
+
+    @staticmethod
+    @validate_params
+    def get_all_users(page=1, per_page=25, include_deleted=False, include_blocked=False):
+        """Obtiene todos los usuarios."""
+        query = User.query
+        
+        if not include_deleted:
+            query = query.filter_by(deleted=False)
+        
+        if not include_blocked:
+            query = query.filter_by(blocked=False)
         
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         
@@ -126,9 +170,15 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True, include_deleted=False, include_blocked=False):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
-        query = User.query.filter(User.deleted == False) 
+        query = User.query
+
+        if not include_deleted:
+            query = query.filter_by(deleted=False)
+        
+        if not include_blocked:
+            query = query.filter_by(blocked=False)
 
         if email:
             query = query.filter(User.employee.has(email=email)) 
@@ -159,7 +209,7 @@ class UserService:
     @staticmethod
     def get_permissions_of(user_id):
         """Obtiene los permisos de un usuario."""
-        user = UserService.get_user_by_id(user_id, include_deleted=True)
+        user = UserService.get_user_by_id(user_id, include_deleted=True, include_blocked=True)
         user_permissions = RolePermission.query.filter_by(role_id=user.role_id).all()
         permissions = [up.permission.name for up in user_permissions]
         return permissions

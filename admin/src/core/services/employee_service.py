@@ -18,6 +18,11 @@ class EmployeeService:
 
 
     @staticmethod
+    def get_employee_by_id(employee_id):
+        """Busca un empleado por email."""
+        return Employee.query.get(employee_id)
+
+    @staticmethod
     def get_employee_by_email(email):
         """Busca un empleado por email."""
         return Employee.query.filter_by(email=email).first()

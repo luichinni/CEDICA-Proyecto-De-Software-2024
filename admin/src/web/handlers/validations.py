@@ -11,8 +11,10 @@ def validate_params(func):
 
         # Recorremos cada argumento (nombre y valor)
         for param_name, value in bound_args.arguments.items():
-            if value is None or (isinstance(value, str) and value.strip() == ''):
-                raise ValueError(f"El parámetro '{param_name}' no puede ser nulo ni una cadena vacía.")
+            if value is None:
+                raise ValueError(f"El parámetro '{param_name}' no puede ser nulo.")
+            if (isinstance(value, str) and value.strip() == ''):
+                raise ValueError(f"El parámetro '{param_name}' no puede una cadena vacía.")
         
         return func(*args, **kwargs)
     return wrapper

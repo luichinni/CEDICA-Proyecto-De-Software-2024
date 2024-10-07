@@ -66,3 +66,4 @@ class PermissionService:
         PermissionService.create_permission("user_new")
         PermissionService.create_permission("user_update")
         PermissionService.create_permission("user_destroy")
+        PermissionService.create_permission("user_block")

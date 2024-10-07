@@ -12,10 +12,11 @@ class User(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)  
     
     deleted = db.Column(db.Boolean, default=False)
+    blocked = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     
-    employee = db.relationship('Employee', backref='users')
+    employee = db.relationship('Employee', backref='user')
     role = db.relationship('Role', backref='users')  
     
     def __repr__(self):
