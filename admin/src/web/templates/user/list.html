@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of Users</title>
+</head>
+<body>
+    <h1>User List</h1>
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <!-- Link to create a new user -->
+    <a href="{{ url_for('user.new_user') }}">Crear Usuario Nuevo</a>
+
+    <!-- Search form -->
+    <form method="get" action="{{ url_for('user.search_users') }}" onsubmit="return handleSubmit();">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" value="{{ request.args.get('email', '') }}">
+        
+        <label for="activo">Activo:</label>
+        <select id="activo" name="activo">
+            <option value="">Todos</option>
+            <option value="true" {% if request.args.get('activo') == 'true' %}selected{% endif %}>Sí</option>
+            <option value="false" {% if request.args.get('activo') == 'false' %}selected{% endif %}>No</option>
+        </select>
+        
+        <label for="role_id">Role ID:</label>
+        <input type="text" id="role_id" name="role_id" value="{{ request.args.get('role_id', '') }}">
+    
+        <label for="order_by">Ordenar por:</label>
+        <select id="order_by" name="order_by">
+            <option value="created_at" {% if request.args.get('order_by') == 'created_at' %}selected{% endif %}>Fecha de Creación</option>
+            <option value="email" {% if request.args.get('order_by') == 'email' %}selected{% endif %}>Email</option>
+        </select>
+    
+        <label for="ascending">Orden:</label>
+        <select id="ascending" name="ascending">
+            <option value="true" {% if request.args.get('ascending') == 'true' %}selected{% endif %}>Ascendente</option>
+            <option value="false" {% if request.args.get('ascending') == 'false' %}selected{% endif %}>Descendente</option>
+        </select>
+    
+        <input type="submit" value="Buscar">
+    </form>
+    
+    <script>
+    function handleSubmit() {
+        const email = document.getElementById('email').value.trim();
+        const activo = document.getElementById('activo').value;
+        const role_id = document.getElementById('role_id').value.trim();
+        const order_by = document.getElementById('order_by').value;
+        const ascending = document.getElementById('ascending').value;
+    
+        const params = new URLSearchParams();
+    
+        if (email) params.set('email', email);
+        if (activo) params.set('activo', activo);
+        if (role_id) params.set('role_id', role_id);
+        if (order_by) params.set('order_by', order_by);
+        if (ascending) params.set('ascending', ascending);
+    
+        window.location.href = "{{ url_for('user.search_users') }}?" + params.toString();
+        return false;  // Evita que el formulario se envíe de la forma tradicional.
+    }
+    </script>
+
+    <!-- Display users in a table -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Alias</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>  <!-- Column for actions -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.alias }}</td>
+                    <td>{{ user.employee.email }}</td>
+                    <td>{{ "Active" if user.activo else "Inactive" }}</td>
+                    <td>
+                        <!-- Link to view user details -->
+                        <a href="{{ url_for('user.user_detail', user_id=user.id) }}">Ver Detalles</a>
+                        
+                        <!-- Form to delete the user -->
+                        <form action="{{ url_for('user.delete_user', user_id=user.id) }}" method="post" style="display:inline;">
+                            <button type="submit">Eliminar</button>
+                        </form>
+                        <!-- Form to block the user -->
+                        <form action="{{ url_for('user.block_user', user_id=user.id) }}" method="post" style="display:inline;">
+                            <button type="submit">Bloquear</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination controls -->
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="{{ url_for('user.search_users', page=current_page - 1, per_page=per_page, email=request.args.get('email'), activo=request.args.get('activo'), role_id=request.args.get('role_id'), order_by=request.args.get('order_by'), ascending=request.args.get('ascending')) }}">Previous</a>
+        {% endif %}
+        
+        {% for page_num in range(1, pages + 1) %}
+            {% if page_num == current_page %}
+                <strong>{{ page_num }}</strong>
+            {% else %}
+                <a href="{{ url_for('user.search_users', page=page_num, per_page=per_page, email=request.args.get('email'), activo=request.args.get('activo'), role_id=request.args.get('role_id'), order_by=request.args.get('order_by'), ascending=request.args.get('ascending')) }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if current_page < pages %}
+            <a href="{{ url_for('user.search_users', page=current_page + 1, per_page=per_page, email=request.args.get('email'), activo=request.args.get('activo'), role_id=request.args.get('role_id'), order_by=request.args.get('order_by'), ascending=request.args.get('ascending')) }}">Next</a>
+        {% endif %}
+    </div>
+
+    <p>Total users: {{ total }}</p>
+</body>
+</html>
