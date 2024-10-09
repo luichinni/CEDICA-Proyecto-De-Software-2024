@@ -5,7 +5,7 @@ class User(db.Model):
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
     alias = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(100), nullable=False)
     activo = db.Column(db.Boolean, default=True)
