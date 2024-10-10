@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='.env')
 class Config(object):
     TESTING = False
+    SECRET_KEY= "my_precious"
+    SESSION_TYPE= "filesystem"
 
 class ProductionConfig(Config):
     pass
