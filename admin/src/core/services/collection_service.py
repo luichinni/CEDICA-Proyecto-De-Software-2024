@@ -75,30 +75,37 @@ class CollectionService:
         
         return pagination.items, pagination.total, pagination.pages
 
-@staticmethod
-def search_collections(start_date=None, end_date=None, payment_method=None, first_name=None, last_name=None, page=1, per_page=25, order_by_date=False, ascending=True, include_deleted=False):
-    """Busca cobros con filtros"""
-    query = Collection.query
+    @staticmethod
+    def apply_ordering(query, order_by_date, ascending):
+        """Aplica el ordenamiento a la consulta según el campo y el orden deseado."""
+        if order_by_date:
+            column = Collection.payment_date
+        else:
+            column = Collection.created_at
+        
+        return query.order_by(column.asc() if ascending else column.desc())
 
-    if not include_deleted:
-        query = query.filter(Collection.deleted == False) 
+    @staticmethod
+    def search_collections(start_date=None, end_date=None, payment_method=None, nombre=None, apellido=None, page=1, per_page=25, order_by_date=False, ascending=True, include_deleted=False):
+        """Busca cobros con filtros"""
+        query = Collection.query
 
-    if start_date:
-        query = query.filter(Collection.payment_date >= start_date)
-    if end_date:
-        query = query.filter(Collection.payment_date <= end_date)
-    if payment_method:
-        query = query.filter_by(payment_method=payment_method)
+        if not include_deleted:
+            query = query.filter(Collection.deleted == False) 
 
-    if first_name:
-        query = query.join(Collection.employee).filter_by(first_name=first_name)
-    if last_name:
-        query = query.join(Collection.employee).filter_by(last_name=last_name)
+        if start_date:
+            query = query.filter(Collection.payment_date >= start_date)
+        if end_date:
+            query = query.filter(Collection.payment_date <= end_date)
+        if payment_method:
+            query = query.filter_by(payment_method=payment_method)
 
-    if order_by_date:
-        query = query.order_by(Collection.payment_date.asc() if ascending else Collection.payment_date.desc())
-    else:
-        query = query.order_by(Collection.created_at.asc() if ascending else Collection.created_at.desc())
+        if nombre:
+            query = query.join(Collection.employee).filter_by(nombre=nombre)
+        if apellido:
+            query = query.join(Collection.employee).filter_by(apellido=apellido)
+        
+        query = CollectionService.apply_ordering(query, order_by_date, ascending)
 
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-    return pagination.items, pagination.total, pagination.pages
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        return pagination.items, pagination.total, pagination.pages
