@@ -39,7 +39,7 @@ def init(UserService, RoleService, EmployeeService, PermissionService):
     print("Creando roles de ejemplo")
     RoleService.create_example_roles()
     print("Creando permisos de ejemplo")
-    PermissionService.create_example_permissions()
+    PermissionService.create_initial_permissions()
 
     print("Finalizacion de la inicializacion de la base de datos!")
 

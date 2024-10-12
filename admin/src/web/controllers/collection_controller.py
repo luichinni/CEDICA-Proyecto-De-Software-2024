@@ -4,11 +4,12 @@ from src.core.services.employee_service import EmployeeService
 from src.core.services.client_service import ClientService
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error, get_int_param, get_bool_param, get_str_param
+from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 
 bp = Blueprint('collection', __name__, url_prefix='/collection')
 
 @bp.get('/')
-@check_permissions("collection_index")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}")
 def list_collections():
     """Lista todos los cobros."""
     params = request.args
@@ -24,7 +25,7 @@ def list_collections():
     return render_template('collections/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/search')
-@check_permissions("collection_index")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}")
 @handle_error(lambda: url_for('collection.list_collections'))
 def search_collections():
     """Busca cobros con filtros."""
@@ -56,7 +57,7 @@ def search_collections():
     return render_template('collections/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/<int:collection_id>')
-@check_permissions("collection_index")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.SHOW.value}")
 @handle_error(lambda collection_id: url_for('collection.list_collections'))
 def collection_detail(collection_id):
     """Obtiene un cobro por ID."""
@@ -64,14 +65,14 @@ def collection_detail(collection_id):
     return render_template('collections/detail.html', collection=collection)
 
 @bp.get('/new')
-@check_permissions("collection_new")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
 @handle_error(lambda: url_for('collection.list_collections'))
 def new_collection():
     """Muestra el formulario para crear un nuevo cobro.""" 
     return render_template('collection/create.html')
 
 @bp.post('/create')
-@check_permissions("collection_new")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
 @handle_error(lambda: url_for('collection.new_collection'))
 def create_collection():
     """Crea un nuevo cobro."""
@@ -95,7 +96,7 @@ def create_collection():
     return redirect(url_for('collection.list_collections'))
 
 @bp.get('/<int:collection_id>/edit')
-@check_permissions("collection_update")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}")
 @handle_error(lambda collection_id: url_for('collection.list_collections'))
 def edit_collection(collection_id):
     """Muestra el formulario para editar un cobro existente.""" 
@@ -103,7 +104,7 @@ def edit_collection(collection_id):
     return render_template('collection/edit.html', collection=collection)
 
 @bp.post('/<int:collection_id>/update')
-@check_permissions("collection_update")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}")
 @handle_error(lambda collection_id: url_for('collection.edit_collection', collection_id=collection_id))
 def update_collection(collection_id):
     """Actualiza un cobro existente."""
@@ -119,7 +120,7 @@ def update_collection(collection_id):
     return redirect(url_for('collection.collection_detail', collection_id=collection_id))
 
 @bp.post('/<int:collection_id>/delete')
-@check_permissions("collection_destroy")
+@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.DESTROY.value}")
 @handle_error(lambda collection_id: url_for('collection.list_collections'))
 def delete_collection(collection_id):
     """Elimina un cobro de forma lógica."""
