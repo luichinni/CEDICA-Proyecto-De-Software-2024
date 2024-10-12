@@ -1,9 +1,9 @@
-from src.core.models.Employee import Employee
+from src.core.models.employee import Employee
 from src.core.database import db
 from src.core.admin_data import AdminData
-from src.core.models.Employee import ProfesionEnum
-from src.core.models.Employee import CondicionEnum
-from src.core.models.Employee import PuestoLaboralEnum
+from src.core.models.employee import ProfesionEnum
+from src.core.models.employee import CondicionEnum
+from src.core.models.employee import PuestoLaboralEnum
 from datetime import date
 
 def add_employee(**kwargs):
