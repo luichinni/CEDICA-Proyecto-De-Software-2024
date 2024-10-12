@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from src.core.services.user_service import UserService
 from src.core.services.role_service import RoleService
-from src.core.services.employee_service import EmployeeService
+from src.core.services import employee_service
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
 from src.web.handlers import get_int_param, get_str_param, get_bool_param
@@ -63,7 +63,7 @@ def get_user_data(params, optional=False):
     role_id = get_int_param(params, "role_id", optional=optional)
     
     employee_email = get_str_param(params, "employee_email", optional=optional)
-    employee_id = EmployeeService.get_employee_by_email(employee_email).id if employee_email else None
+    employee_id = employee_service.get_employee_by_email(employee_email).id if employee_email else None
     
     alias = get_str_param(params, "alias", optional=optional)
     password=get_str_param(params, "password", optional=optional)

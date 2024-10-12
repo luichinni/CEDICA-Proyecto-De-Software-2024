@@ -1,0 +1,16 @@
+from enum import Enum
+
+
+class PuestoLaboralEnum(Enum):
+    ADMINISTRATIVO = 1
+    TERAPEUTA = 2
+    CONDUCTOR = 3
+    AUXILIAR_DE_PISTA = 4
+    HERRERO = 5
+    VETERINARIO = 6
+    ENTRENADOR_DE_CABALLOS = 7
+    DOMADOR = 8
+    PROFESOR_DE_EQUITACIÓN = 9
+    DOCENTE_DE_CAPACITACIÓN = 10
+    AUXILIAR_DE_MANTENIMIENTO = 11
+    OTRO = 12

@@ -9,21 +9,21 @@ from wtforms import StringField, SubmitField,SelectField
 from wtforms.validators import DataRequired
 
 from src.core.models.user import User
-from src.core.models.employee import Employee
+from src.core.models import employee
 from src.core.models.user.permission import Permission
 from src.core.models.user.role_permission import RolePermission
 from src.core.models.user.role import Role
 from src.core.models.collection import Collection
 from src.core.models.client import Client
 
-from src.core.services.user_service import UserService 
-from src.core.services.role_service import RoleService 
-from src.core.services.employee_service import EmployeeService 
+from src.core.services.user_service import UserService, RoleService
+from src.core.services import employee_service
 from src.core.services.permission_service import PermissionService 
 from src.core.services.client_service import ClientService 
 
-from src.web.controllers.user_controller import bp as users_bp 
 from src.web.controllers.collection_controller import bp as collection_bp 
+from src.web.controllers.user_controller import bp as users_bp
+from src.web.controllers.employee.employee_controller import bp as employee_bp
 
 class MyForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
@@ -46,7 +46,7 @@ def create_app(env="development", static_folder="../../static"):
     @app.route("/prueba")
     def prueba():
         return render_template('form.html', form=MyForm() )
-    
+
     @app.route("/pruebados")
     def pruebados():
         opciones= [
@@ -61,10 +61,11 @@ def create_app(env="development", static_folder="../../static"):
 
     app.register_blueprint(users_bp) 
     app.register_blueprint(collection_bp) 
+    app.register_blueprint(employee_bp)
 
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService)
+        database.init(UserService, RoleService, employee_service, PermissionService)
 
     return app
