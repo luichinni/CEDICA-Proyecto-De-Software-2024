@@ -61,7 +61,7 @@ def create_admin_employee():
 
 def create_exaple_employees():
     """Crea un empleados de ejemplo."""
-    add_employee(nombre="admin", email="a", apellido="a", dni="00000004",
+    add_employee(nombre="admin", email="exa1@example.com", apellido="a", dni="00000004",
     domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
     fecha_inicio=date(2023, 10, 8),
     fecha_cese =date(2023, 10, 8),
@@ -70,7 +70,7 @@ def create_exaple_employees():
     nro_afiliado ="0",
     condicion=CondicionEnum.VOLUNTARIO,
     activo=True)
-    add_employee(nombre="admin", email="aaa", apellido="a", dni="00000001",
+    add_employee(nombre="admin", email="exa2@example.com", apellido="a", dni="00000001",
     domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
     fecha_inicio=date(2023, 10, 8),
     fecha_cese =date(2023, 10, 8),
@@ -79,7 +79,7 @@ def create_exaple_employees():
     nro_afiliado ="0",
     condicion=CondicionEnum.VOLUNTARIO,
     activo=True)
-    add_employee(nombre="admin", email="bbb", apellido="a", dni="00000002",
+    add_employee(nombre="admin", email="exa3@example.com", apellido="a", dni="00000002",
     domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
     fecha_inicio=date(2023, 10, 8),
     fecha_cese =date(2023, 10, 8),
