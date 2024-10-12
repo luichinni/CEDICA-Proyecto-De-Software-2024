@@ -9,6 +9,13 @@ class PaymentMethod(enum.Enum):
     TRANSFER = "Transferencia"
     OTHER = "Otro"
 
+    @classmethod
+    def from_value(cls, value):
+        for method in cls:
+            if method.value == value:
+                return method
+        raise ValueError(f"No se encontró un método de pago con el valor: {value}")
+
 class Collection(db.Model):
     __tablename__ = 'collections'
     

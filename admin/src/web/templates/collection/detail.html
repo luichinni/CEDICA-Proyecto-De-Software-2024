@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Detalles del Cobro</title>
+</head>
+<body>
+    <h1>Detalles del Cobro</h1>
+    
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+    <ul>
+        <li><strong>Empleado:</strong> {{ collection.employee.email }}</li>
+        <li><strong>Cliente:</strong> {{ collection.client.dni }}</li>
+        <li><strong>Fecha de Pago:</strong> {{ collection.payment_date.strftime('%Y-%m-%d') }}</li>
+        <li><strong>Método de Pago:</strong> {{ collection.payment_method.value }}</li>
+        <li><strong>Monto:</strong> {{ collection.amount }}</li>
+        <li><strong>Observaciones:</strong> {{ collection.observations }}</li>
+    </ul>
+
+    <!-- Link para editar el cobro -->
+    <a href="{{ url_for('collection.edit_collection', collection_id=collection.id) }}">Editar</a>
+
+    <!-- Formulario para eliminar el cobro -->
+    <form action="{{ url_for('collection.delete_collection', collection_id=collection.id) }}" method="post" style="display:inline;">
+        <button type="submit">Eliminar</button>
+    </form>
+
+    <!-- Link para volver a la lista de cobros -->
+    <br><br>
+    <a href="{{ url_for('collection.list_collections') }}">Volver a la lista de cobros</a>
+</body>
+</html>

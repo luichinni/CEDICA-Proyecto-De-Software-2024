@@ -1,4 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
+from src.core.models.collection import PaymentMethod
 from src.core.services.collection_service import CollectionService
 from src.core.services.employee_service import EmployeeService
 from src.core.services.client_service import ClientService
@@ -22,7 +23,7 @@ def list_collections():
         per_page=per_page, 
         include_deleted=include_deleted
     )
-    return render_template('collections/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
+    return render_template('collection/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}")
@@ -54,7 +55,7 @@ def search_collections():
         ascending=ascending,
         include_deleted=include_deleted
     )
-    return render_template('collections/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
+    return render_template('collection/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/<int:collection_id>')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.SHOW.value}")
@@ -62,14 +63,14 @@ def search_collections():
 def collection_detail(collection_id):
     """Obtiene un cobro por ID."""
     collection = CollectionService.get_collection_by_id(collection_id)
-    return render_template('collections/detail.html', collection=collection)
+    return render_template('collection/detail.html', collection=collection)
 
 @bp.get('/new')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
 @handle_error(lambda: url_for('collection.list_collections'))
 def new_collection():
     """Muestra el formulario para crear un nuevo cobro.""" 
-    return render_template('collection/create.html')
+    return render_template('collection/create.html', payment_methods=PaymentMethod)
 
 @bp.post('/create')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
@@ -83,12 +84,15 @@ def create_collection():
     
     client_dni = get_str_param(params, "dni", optional=False)
     client_id = ClientService.get_client_by_dni(client_dni).id if client_dni else None
+    
+    payment_method_value = get_str_param(params, 'payment_method', optional=False)
+    payment_method = PaymentMethod.from_value(payment_method_value)
 
     CollectionService.create_collection(
         employee_id=employee_id,
         client_id=client_id,
         payment_date=get_str_param(params, 'payment_date', optional=False),
-        payment_method=get_str_param(params, 'payment_method', optional=False),
+        payment_method=payment_method,
         amount=get_str_param(params, 'amount', optional=False),
         observations=get_str_param(params, 'observations', optional=True)
     )
@@ -101,7 +105,7 @@ def create_collection():
 def edit_collection(collection_id):
     """Muestra el formulario para editar un cobro existente.""" 
     collection = CollectionService.get_collection_by_id(collection_id)
-    return render_template('collection/edit.html', collection=collection)
+    return render_template('collection/edit.html', collection=collection, payment_methods=PaymentMethod)
 
 @bp.post('/<int:collection_id>/update')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}")
@@ -109,10 +113,16 @@ def edit_collection(collection_id):
 def update_collection(collection_id):
     """Actualiza un cobro existente."""
     params = request.form
+
+
+    payment_method_value = get_str_param(params, 'payment_method', optional=True)
+    payment_method = PaymentMethod.from_value(payment_method_value)
+
+    
     CollectionService.update_collection(
         collection_id=collection_id,
         payment_date=get_str_param(params, 'payment_date', optional=True),
-        payment_method=get_str_param(params, 'payment_method', optional=True),
+        payment_method=payment_method,
         amount=get_str_param(params, 'amount', optional=True),
         observations=get_str_param(params, 'observations', optional=True)
     )

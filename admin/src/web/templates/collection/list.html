@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Cobros</title>
+</head>
+<body>
+    <h1>Lista de Cobros</h1>
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Enlace para crear un nuevo cobro -->
+    <a href="{{ url_for('collection.new_collection') }}">Crear Nuevo Cobro</a>
+
+    <!-- Formulario de búsqueda -->
+    <form method="get" action="{{ url_for('collection.search_collections') }}" onsubmit="return handleSubmit();">
+        <label for="nombre">Nombre Empleado:</label>
+        <input type="text" id="nombre" name="nombre" value="{{ request.args.get('nombre', '') }}">
+
+        <label for="apellido">Apellido Empleado:</label>
+        <input type="text" id="apellido" name="apellido" value="{{ request.args.get('apellido', '') }}">
+
+        <label for="payment_method">Método de Pago:</label>
+        <input type="text" id="payment_method" name="payment_method" value="{{ request.args.get('payment_method', '') }}">
+
+        <label for="start_date">Fecha Inicio:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}">
+
+        <label for="end_date">Fecha Fin:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}">
+
+        <label for="ascending">Orden:</label>
+        <select id="ascending" name="ascending">
+            <option value="true" {% if request.args.get('ascending') == 'true' %}selected{% endif %}>Ascendente</option>
+            <option value="false" {% if request.args.get('ascending') == 'false' %}selected{% endif %}>Descendente</option>
+        </select>
+
+        <input type="submit" value="Buscar">
+    </form>
+
+    <script>
+    function handleSubmit() {
+        const nombre = document.getElementById('nombre').value.trim();
+        const apellido = document.getElementById('apellido').value.trim();
+        const payment_method = document.getElementById('payment_method').value.trim();
+        const start_date = document.getElementById('start_date').value;
+        const end_date = document.getElementById('end_date').value;
+        const ascending = document.getElementById('ascending').value;
+
+        const params = new URLSearchParams();
+
+        if (nombre) params.set('nombre', nombre);
+        if (apellido) params.set('apellido', apellido);
+        if (payment_method) params.set('payment_method', payment_method);
+        if (start_date) params.set('start_date', start_date);
+        if (end_date) params.set('end_date', end_date);
+        if (ascending) params.set('ascending', ascending);
+
+        window.location.href = "{{ url_for('collection.search_collections') }}?" + params.toString();
+        return false;  // Evita que el formulario se envíe de la forma tradicional.
+    }
+    </script>
+
+    <!-- Tabla para mostrar los cobros -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Empleado</th>
+                <th>Cliente</th>
+                <th>Método de Pago</th>
+                <th>Fecha de Pago</th>
+                <th>Acciones</th> <!-- Columna para acciones -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for collection in collections %}
+                <tr>
+                    <td>{{ collection.id }}</td>
+                    <td>{{ collection.employee.email }}</td>
+                    <td>{{ collection.client.dni }}</td>
+                    <td>{{ collection.payment_method.value }}</td>
+                    <td>{{ collection.payment_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <!-- Enlace para ver detalles del cobro -->
+                        <a href="{{ url_for('collection.collection_detail', collection_id=collection.id) }}">Ver Detalles</a>
+                        
+                        <!-- Formulario para eliminar el cobro -->
+                        <form action="{{ url_for('collection.delete_collection', collection_id=collection.id) }}" method="post" style="display:inline;">
+                            <button type="submit">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="{{ url_for('collection.search_collections', page=current_page - 1, per_page=per_page) }}">Anterior</a>
+        {% endif %}
+
+        {% for page_num in range(1, pages + 1) %}
+            {% if page_num == current_page %}
+                <strong>{{ page_num }}</strong>
+            {% else %}
+                <a href="{{ url_for('collection.search_collections', page=page_num, per_page=per_page) }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if current_page < pages %}
+            <a href="{{ url_for('collection.search_collections', page=current_page + 1, per_page=per_page) }}">Siguiente</a>
+        {% endif %}
+    </div>
+
+    <p>Total cobros: {{ total }}</p>
+</body>
+</html>

@@ -4,16 +4,43 @@ from sqlalchemy import desc
 from src.core.services.employee_service import EmployeeService
 from src.core.services.client_service import ClientService
 from src.web.handlers import validate_params
+from src.core.admin_data import AdminData
+from datetime import datetime
 
 class CollectionService:
 
+    def validate_employee(employee_id):
+        """Valida que el empleado ingresado exista y que no sea el admin."""
+        employee = EmployeeService.get_employee_by_id(employee_id)
+        if employee.email == AdminData.email:
+            raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
+
+    def validate_client(client_id):
+        """Valida que el cliente ingresado exista."""
+        ClientService.get_client_by_id(client_id)
+
+    def validate_amount(amount):
+        """Valida que el monto ingresado sea positivo."""
+        if float(amount) <= 0:
+            raise ValueError("El monto debe ser mayor que cero.")
+
+    def validate_date(date):
+        """Valida que la fecha ingresada exista"""
+        try:
+            datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError("La fecha ingresada no es válida.")
+        
     @staticmethod
     @validate_params
     def create_collection(employee_id, client_id, payment_date, payment_method, amount, observations = "No observations"):
         """Crea un cobro"""
-        EmployeeService.get_employee_by_id(employee_id) # Verificamos que exista el empleado
-        ClientService.get_client_by_id(client_id) # Verificamos que exista el cliente
         
+        CollectionService.validate_employee(employee_id)
+        CollectionService.validate_client(client_id)
+        CollectionService.validate_amount(amount)
+        CollectionService.validate_date(payment_date)
+
         new_collection = Collection(
             employee_id=employee_id,
             client_id=client_id,
@@ -32,10 +59,12 @@ class CollectionService:
         collection = CollectionService.get_collection_by_id(collection_id)
         
         if payment_date is not None:
+            CollectionService.validate_date(payment_date)
             collection.payment_date = payment_date
         if payment_method is not None:
             collection.payment_method = payment_method
         if amount is not None:
+            CollectionService.validate_amount(amount)
             collection.amount = amount
         if observations is not None:
             collection.observations = observations
