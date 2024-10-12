@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from src.core.models.collection import PaymentMethod
 from src.core.services.collection_service import CollectionService
-from src.core.services.employee_service import EmployeeService
+from src.core.services import employee_service
 from src.core.services.client_service import ClientService
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error, get_int_param, get_bool_param, get_str_param
@@ -80,7 +80,7 @@ def create_collection():
     params = request.form
 
     employee_email = get_str_param(params, "employee_email", optional=False)
-    employee_id = EmployeeService.get_employee_by_email(employee_email).id if employee_email else None
+    employee_id = employee_service.get_employee_by_email(employee_email).id if employee_email else None
     
     client_dni = get_str_param(params, "dni", optional=False)
     client_id = ClientService.get_client_by_dni(client_dni).id if client_dni else None
