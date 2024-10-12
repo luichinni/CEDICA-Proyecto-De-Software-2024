@@ -2,7 +2,7 @@ from src.core.database import db
 from src.core.services.role_service import RoleService
 from src.core.services import employee_service
 from src.core.models.user import User
-from src.core.models.Employee import Employee
+from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
 from src.web.handlers import validate_params
