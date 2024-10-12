@@ -9,7 +9,7 @@ class CollectionService:
 
     @staticmethod
     @validate_params
-    def create_collection(employee_id, client_id, payment_date, payment_method, amount, observations):
+    def create_collection(employee_id, client_id, payment_date, payment_method, amount, observations = "No observations"):
         """Crea un cobro"""
         EmployeeService.get_employee_by_id(employee_id) # Verificamos que exista el empleado
         ClientService.get_client_by_id(client_id) # Verificamos que exista el cliente

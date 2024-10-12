@@ -23,7 +23,7 @@ class Collection(db.Model):
     payment_date = db.Column(db.DateTime, nullable=False)
     payment_method = db.Column(db.Enum(PaymentMethod), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    observations = db.Column(db.String(255))
+    observations = db.Column(db.String(255), nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))  
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)) 

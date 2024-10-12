@@ -10,7 +10,6 @@ bp = Blueprint('user', __name__, url_prefix='/users')
 
 @bp.get('/')
 @check_permissions("user_index")
-@handle_error(lambda: url_for('user.list_users'))
 def list_users():
     """Lista todos los usuarios con paginación."""
     params = request.args
