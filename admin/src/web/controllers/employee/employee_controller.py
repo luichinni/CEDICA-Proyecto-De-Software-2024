@@ -8,10 +8,7 @@ bp = Blueprint('employee_controller', __name__, url_prefix='/employee')
 def create_employee():
     """Crear un empleado"""
     form = EmployeeForm()
-    if request.method == 'POST':
-        print("POST request received.")
     if form.validate_on_submit():
-        print("Form validated successfully.")
         new_employee_data = {
             'nombre': form.nombre.data,
             'apellido': form.apellido.data,
