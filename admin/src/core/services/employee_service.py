@@ -25,11 +25,17 @@ class EmployeeService:
         return employee
 
     @staticmethod
-    def get_employees(filtro=None):
+    def get_employees(filtro=None, order_by=None, ascending=True):
         """Obtiene todos los empleados"""
         employees_query = Employee.query
         if filtro:
             employees_query = employees_query.filter_by(**filtro)
+
+        if order_by:
+            if ascending:
+                employees_query = employees_query.order_by(getattr(Employee, order_by).asc())
+            else:
+                employees_query = employees_query.order_by(getattr(Employee, order_by).desc())
         return employees_query.all()
 
     @staticmethod
