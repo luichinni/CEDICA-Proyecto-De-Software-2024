@@ -4,14 +4,12 @@ from web.handlers import error
 from src.core import database
 from src.core.config import config
 
-<<<<<<< HEAD
 from flask_bcrypt import Bcrypt
 from flask_session import Session
-=======
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField,SelectField
 from wtforms.validators import DataRequired
->>>>>>> 1b00937fde3e9a5dbbb5ecc647e9cd6ab5ed9bad
 
 from src.core.models.user import User
 from src.core.models import employee
