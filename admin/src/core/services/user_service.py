@@ -1,6 +1,6 @@
 from src.core.database import db
 from src.core.services.role_service import RoleService
-from src.core.services.employee_service import EmployeeService
+from src.core.services import employee_service
 from src.core.models.user import User
 from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
@@ -38,7 +38,7 @@ class UserService:
     @staticmethod
     def validate_employee_id(employee_id):
         """Verifica que el employee exista y que no este relacionado con otro user."""
-        employee = EmployeeService.get_employee_by_id(employee_id)
+        employee = employee_service.get_employee_by_id(employee_id)
 
         if employee.user:
             raise ValueError(f"El empleado con id {employee_id}, ya tiene un usuario asignado.")
@@ -67,7 +67,6 @@ class UserService:
         user = UserService.get_user_by_id(user_id)
         if user.role.name == AdminData.role_name: 
             raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
-
 
         if alias is not None:
             user.alias = alias
@@ -221,7 +220,7 @@ class UserService:
         admin_alias = AdminData.alias
         admin_password = AdminData.password
         admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
-        employee_admin_id = EmployeeService.get_employee_by_email(email=AdminData.email).id
+        employee_admin_id = employee_service.get_employee_by_email(email=AdminData.email).id
     
         admin_user = UserService.create_user(
             employee_id=employee_admin_id,

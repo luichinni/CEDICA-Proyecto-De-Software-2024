@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Crear Cobro</title>
+</head>
+<body>
+    <h1>Crear Nuevo Cobro</h1>
+    
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('collection.create_collection') }}" method="post">
+        <label for="employee_email">Email del Empleado:</label>
+        <input type="email" id="employee_email" name="employee_email" required>
+        <br>
+
+        <label for="dni">DNI del Cliente:</label>
+        <input type="text" id="dni" name="dni" required>
+        <br>
+
+        <label for="payment_date">Fecha de Pago:</label>
+        <input type="date" id="payment_date" name="payment_date" required>
+        <br>
+        
+        <label for="payment_method">Método de Pago:</label>
+        <select id="payment_method" name="payment_method" required>
+            {% for method in payment_methods %}
+                <option value="{{ method.value }}">{{ method.name.capitalize() }}</option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <label for="amount">Monto:</label>
+        <input type="text" id="amount" name="amount" required>
+        <br>
+
+        <label for="observations">Observaciones (opcional):</label>
+        <textarea id="observations" name="observations"></textarea>
+        <br>
+
+        <button type="submit">Crear Cobro</button>
+    </form>
+
+    <!-- Link para volver a la lista de cobros -->
+    <br><br>
+    <a href="{{ url_for('collection.list_collections') }}">Volver a la lista de cobros</a>
+</body>
+</html>
