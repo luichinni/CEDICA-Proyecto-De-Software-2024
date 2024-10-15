@@ -12,3 +12,7 @@ def not_found_error(e):
     error = Error(404,"Ups! No pudimos encontrar lo que estás buscando",
                   "La URL que estás buscando no se encuentra en nuestro servidor")
     return render_template("error.html",error= error),404
+
+def unauthorized(e):
+    error = Error(401,"Alto ahí!","Parece que intentas acceder sin permisos.")
+    return render_template("error.html",error=error),401
