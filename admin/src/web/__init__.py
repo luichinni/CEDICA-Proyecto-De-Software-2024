@@ -20,6 +20,7 @@ from src.core.services.permission_service import PermissionService
 
 from src.web.controllers.user_controller import bp as users_bp
 from src.web.controllers.employee.employee_controller import bp as employee_bp
+from src.web.controllers.payment_controller import bp as payment_bp
 
 class MyForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
@@ -57,6 +58,7 @@ def create_app(env="development", static_folder="../../static"):
 
     app.register_blueprint(users_bp) 
     app.register_blueprint(employee_bp)
+    app.register_blueprint(payment_bp)
 
     @app.cli.command(name="reset-db")
     def reset_db():
