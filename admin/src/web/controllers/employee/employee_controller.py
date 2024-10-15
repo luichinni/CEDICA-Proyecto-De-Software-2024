@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, redirect, request, url_for, flash
-from src.core.services import employee_service
+from src.core.services.employee_service import EmployeeService
 from web.forms.employee_forms.EmployeeForm import EmployeeForm
+from web.forms.employee_forms.SearchEmployeeForm import SearchEmployeeForm
 
 bp = Blueprint('employee_controller', __name__, url_prefix='/employee')
 
@@ -27,7 +28,7 @@ def create_employee():
             'condicion': form.condicion.data,
             'activo': form.activo.data,
         }
-        employee_service.add_employee(**new_employee_data)
+        EmployeeService.add_employee(**new_employee_data)
         flash("Se registro el empleado exitosamente", "success")
         return redirect(url_for('employee_controller.list_employees'))
     return render_template('employee/create.html', form=form)
@@ -35,13 +36,33 @@ def create_employee():
 @bp.route('/list', methods=['GET'])
 def list_employees():
     """Listar los empleados"""
-    employees = employee_service.get_employees()
+    employees = EmployeeService.get_employees()
     return render_template('employee/list.html', employees=employees)
+
+@bp.route('/search', methods=['GET', 'POST'])
+def search_employees():
+    form = SearchEmployeeForm()
+    employees = []
+
+    if form.validate_on_submit():
+        search_params = {
+            'nombre': form.nombre.data,
+            'apellido': form.apellido.data,
+            'dni': form.dni.data,
+            'email': form.email.data,
+            'puesto_laboral': form.puesto_laboral.data,
+            'order_by': form.order_by.data,
+            'ascending': form.ascending.data
+        }
+
+        employees = EmployeeService.get_employees(**search_params)
+
+    return render_template('employee/search.html', form=form, employees=employees)
 
 @bp.route('/edit/<int:id_employee>', methods=['GET', 'POST'])
 def edit_employee(employee_id):
     """Editar un empleado existente"""
-    employee = employee_service.get_employee_by_id(employee_id)
+    employee = EmployeeService.get_employee_by_id(employee_id)
     if not employee:
         flash("El empleado seleccionado no existe", "danger")
         return redirect(url_for('employee_controller.list_employees'))
@@ -65,7 +86,7 @@ def edit_employee(employee_id):
             'condicion': form.condicion.data,
             'activo': form.activo.data,
         }
-        employee_service.update_employee(employee, **employee_data)
+        EmployeeService.update_employee(employee, **employee_data)
         flash(f"Empleado {employee.nombre} {employee.apellido} actualizado con éxito", "success")
         return redirect(url_for('employee_controller.list_employees'))
     return render_template('employee/edit.html', form=form, employee=employee)
@@ -73,11 +94,11 @@ def edit_employee(employee_id):
 @bp.route('/delete/<int:id_employee>', methods=['POST'])
 def delete_employee(employee_id):
     """Eliminar un empleado de manera logica"""
-    employee = employee_service.get_employee_by_id(employee_id)
+    employee = EmployeeService.get_employee_by_id(employee_id)
     if not employee:
         flash("El empleado seleccionado no existe", "danger")
         return redirect(url_for('employee_controller.list_employees'))
 
-    employee_service.delete_employee(employee_id)
+    EmployeeService.delete_employee(employee_id)
     flash("Se elimino el empleado exitosamente", "success")
     return redirect(url_for('employee_controller.list_employees'))
