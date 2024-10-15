@@ -19,7 +19,7 @@ from src.core.services import employee_service
 from src.core.services.permission_service import PermissionService 
 
 from src.web.controllers.user_controller import bp as users_bp
-from src.web.controllers.employee.employee_controller import bp as employee_bp
+from web.controllers.employee_controller import bp as employee_bp
 
 class MyForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
