@@ -1,6 +1,7 @@
 from src.core.database import db
 import enum
 from sqlalchemy import Enum
+from datetime import datetime, timezone
 
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
@@ -54,6 +55,8 @@ class Employee(db.Model):
     nro_afiliado = db.Column(db.String(50), nullable=False)
     condicion = db.Column(Enum(CondicionEnum), nullable=False)
     activo = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f"Empleado {self.nombre} {self.apellido}"
