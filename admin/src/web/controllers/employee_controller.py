@@ -5,12 +5,9 @@ from web.forms.employee_forms.SearchEmployeeForm import SearchEmployeeForm
 
 bp = Blueprint('employee_controller', __name__, url_prefix='/employee')
 
-@bp.route('/create', methods=['GET', 'POST'])
-def create_employee():
-    """Crear un empleado"""
-    form = EmployeeForm()
-    if form.validate_on_submit():
-        new_employee_data = {
+def collect_employee_data_from_form(form):
+    """Retorna los datos del form en formato de diccionario"""
+    return {
             'nombre': form.nombre.data,
             'apellido': form.apellido.data,
             'dni': form.dni.data,
@@ -22,12 +19,20 @@ def create_employee():
             'puesto_laboral': form.puesto_laboral.data,
             'fecha_inicio': form.fecha_inicio.data,
             'fecha_cese': form.fecha_cese.data,
-            'contacto_emergencia': form.contacto_emergencia.data,
+            'contacto_emergencia_nombre': form.contacto_emergencia_nombre.data,
+            'contacto_emergencia_telefono': form.contacto_emergencia_telefono.data,
             'obra_social': form.obra_social.data,
             'nro_afiliado': form.nro_afiliado.data,
             'condicion': form.condicion.data,
             'activo': form.activo.data,
         }
+
+@bp.route('/create', methods=['GET', 'POST'])
+def create_employee():
+    """Crear un empleado"""
+    form = EmployeeForm()
+    if form.validate_on_submit():
+        new_employee_data = collect_employee_data_from_form(form)
         EmployeeService.add_employee(**new_employee_data)
         flash("Se registro el empleado exitosamente", "success")
         return redirect(url_for('employee_controller.list_employees'))
@@ -45,17 +50,20 @@ def search_employees():
     employees = []
 
     if form.validate_on_submit():
-        search_params = {
-            'nombre': form.nombre.data,
-            'apellido': form.apellido.data,
-            'dni': form.dni.data,
-            'email': form.email.data,
-            'puesto_laboral': form.puesto_laboral.data,
-            'order_by': form.order_by.data,
-            'ascending': form.ascending.data
-        }
+        search_params = {}
 
-        employees = EmployeeService.get_employees(**search_params)
+        if form.nombre.data:
+            search_params['nombre'] = form.nombre.data
+        if form.apellido.data:
+            search_params['apellido'] = form.apellido.data
+        if form.dni.data:
+            search_params['dni'] = form.dni.data
+        if form.email.data:
+            search_params['email'] = form.email.data
+        if form.puesto_laboral.data:
+            search_params['puesto_laboral'] = form.puesto_laboral.data
+
+        employees = EmployeeService.get_employees(filtro=search_params, order_by=form.order_by.data, ascending=form.ascending.data)
 
     return render_template('employee/search.html', form=form, employees=employees)
 
@@ -68,24 +76,7 @@ def edit_employee(employee_id):
         return redirect(url_for('employee_controller.list_employees'))
     form = EmployeeForm(obj=employee)
     if form.validate_on_submit():
-        employee_data = {
-            'nombre': form.nombre.data,
-            'apellido': form.apellido.data,
-            'dni': form.dni.data,
-            'domicilio': form.domicilio.data,
-            'email': form.email.data,
-            'localidad': form.localidad.data,
-            'telefono': form.telefono.data,
-            'profesion': form.profesion.data,
-            'puesto_laboral': form.puesto_laboral.data,
-            'fecha_inicio': form.fecha_inicio.data,
-            'fecha_cese': form.fecha_cese.data,
-            'contacto_emergencia': form.contacto_emergencia.data,
-            'obra_social': form.obra_social.data,
-            'nro_afiliado': form.nro_afiliado.data,
-            'condicion': form.condicion.data,
-            'activo': form.activo.data,
-        }
+        employee_data = collect_employee_data_from_form(form)
         EmployeeService.update_employee(employee, **employee_data)
         flash(f"Empleado {employee.nombre} {employee.apellido} actualizado con éxito", "success")
         return redirect(url_for('employee_controller.list_employees'))
