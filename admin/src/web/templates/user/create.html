@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Crear Usuario</title>
+</head>
+<body>
+    <h1>Crear Usuario Nuevo</h1>
+
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('user.create_user') }}" method="post">
+        <label>Correo Electrónico del Empleado: <input type="text" name="employee_email"></label><br>
+        <label>Alias: <input type="text" name="alias"></label><br>
+        <label>Contraseña: <input type="password" name="password"></label><br>
+        <label>Rol:
+            <select name="role_id">
+                {% for role in roles %}
+                    <option value="{{ role.id }}">{{ role.name }}</option>
+                {% endfor %}
+            </select>
+        </label><br>
+        
+        <input type="hidden" id="activo_value" name="activo" value="off">
+        <label>Activo: 
+            <input type="checkbox" id="activo_checkbox" onchange="updateActivo()">
+        </label><br>
+        <button type="submit">Crear Usuario</button>
+    </form>
+    <a href="{{ url_for('user.list_users') }}">Volver a la lista</a>
+    <script>
+        function updateActivo() {
+            var checkbox = document.getElementById('activo_checkbox');
+            var hiddenInput = document.getElementById('activo_value');
+            hiddenInput.value = checkbox.checked ? 'on' : 'off';
+        }
+    </script>
+</body>
+</html>
