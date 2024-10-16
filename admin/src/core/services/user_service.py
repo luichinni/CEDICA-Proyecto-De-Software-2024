@@ -1,6 +1,6 @@
 from src.core.database import db
 from src.core.services.role_service import RoleService
-from src.core.services import employee_service
+from src.core.services.employee_service import EmployeeService as employee_service
 from src.core.models.user import User
 from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
