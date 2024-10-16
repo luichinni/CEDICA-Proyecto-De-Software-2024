@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Editar Cobro</title>
+</head>
+<body>
+    <h1>Editar Cobro</h1>
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('collection.update_collection', collection_id=collection.id) }}" method="post">
+        <label for="payment_date">Fecha de Pago:</label>
+        <input type="date" id="payment_date" name="payment_date" value="{{ collection.payment_date }}">
+
+        <label for="payment_method">Método de Pago:</label>
+        <select id="payment_method" name="payment_method" required>
+            {% for method in payment_methods %}
+                <option value="{{ method.value }}" {% if method == collection.payment_method %}selected{% endif %}>{{ method.name.capitalize() }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        
+        <label for="amount">Monto:</label>
+        <input type="text" id="amount" name="amount" value="{{ collection.amount }}">
+
+        <label for="observations">Observaciones:</label>
+        <textarea id="observations" name="observations">{{ collection.observations }}</textarea>
+
+        <input type="submit" value="Actualizar Cobro">
+    </form>
+    <a href="{{ url_for('collection.collection_detail', collection_id=collection.id) }}">Cancelar</a>
+</body>
+</html>

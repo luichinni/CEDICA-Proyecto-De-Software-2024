@@ -24,7 +24,7 @@ def reset():
     db.create_all()
     print("Finalizacion del reset de la base de datos!")
 
-def init(UserService, RoleService, EmployeeService, PermissionService):
+def init(UserService, RoleService, EmployeeService, PermissionService, ClientService):
     """Inicializa la base de datos"""
     print("Creando empleado admin")
     EmployeeService.create_admin_employee()
@@ -33,13 +33,14 @@ def init(UserService, RoleService, EmployeeService, PermissionService):
     print("Creando user admin del sistema")
     UserService.create_admin_user()
 
-    
     print("Creando empleados de ejemplo")
     EmployeeService.create_exaple_employees()
     print("Creando roles de ejemplo")
     RoleService.create_example_roles()
     print("Creando permisos de ejemplo")
-    PermissionService.create_example_permissions()
+    PermissionService.create_initial_permissions()
+    print("Creando clientes de ejemplo")
+    ClientService.create_example_clients()
 
     print("Finalizacion de la inicializacion de la base de datos!")
 

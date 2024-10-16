@@ -13,13 +13,20 @@ from src.core.models import employee
 from src.core.models.user.permission import Permission
 from src.core.models.user.role_permission import RolePermission
 from src.core.models.user.role import Role
+from src.core.models.collection import Collection
+from src.core.models.client import Client
 
-from src.core.services.user_service import UserService, RoleService
+from src.core.services.user_service import UserService
+from src.core.services.user_service import RoleService
 from src.core.services import employee_service
 from src.core.services.permission_service import PermissionService 
+from src.core.services.client_service import ClientService 
 
+from src.web.controllers.collection_controller import bp as collection_bp 
 from src.web.controllers.user_controller import bp as users_bp
 from web.controllers.employee_controller import bp as employee_bp
+
+from src.web.forms.user_forms.create_user_form import CreateUserForm
 
 class MyForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
@@ -42,6 +49,15 @@ def create_app(env="development", static_folder="../../static"):
     @app.route("/prueba")
     def prueba():
         return render_template('form.html', form=MyForm() )
+    
+    @app.route("/pruebaUser")
+    def pruebaUser():
+        form = CreateUserForm()
+
+        form.employee_id.choices = [(e.id, e.email) for e in employee_service.get_employees()]
+        form.role_id.choices = [(r.id, r.name) for r in RoleService.get_all_roles()]
+
+        return render_template('form.html', form=form)
 
     @app.route("/pruebados")
     def pruebados():
@@ -56,11 +72,12 @@ def create_app(env="development", static_folder="../../static"):
     app.register_error_handler(404, error.not_found_error)
 
     app.register_blueprint(users_bp) 
+    app.register_blueprint(collection_bp) 
     app.register_blueprint(employee_bp)
 
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, employee_service, PermissionService)
+        database.init(UserService, RoleService, employee_service, PermissionService, ClientService)
 
     return app

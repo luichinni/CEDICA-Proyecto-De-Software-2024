@@ -3,6 +3,7 @@ from src.core.services.role_service import RoleService
 from src.core.models.user.permission import Permission
 from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
+from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 
 class PermissionService:
 
@@ -59,11 +60,9 @@ class PermissionService:
         return role_permission
 
     @staticmethod
-    def create_example_permissions():
-        """Crea permisos de ejemplo y los enlaza automáticamente al rol de AdminData."""
-        PermissionService.create_permission("user_index")
-        PermissionService.create_permission("user_show")
-        PermissionService.create_permission("user_new")
-        PermissionService.create_permission("user_update")
-        PermissionService.create_permission("user_destroy")
-        PermissionService.create_permission("user_block")
+    def create_initial_permissions():
+        """Crea los permisos iniciales y los enlaza automáticamente al rol de AdminData."""
+        for category in PermissionCategory:
+            for model in PermissionModel:
+                permission_name = f"{model.value}_{category.value}"
+                PermissionService.create_permission(permission_name)

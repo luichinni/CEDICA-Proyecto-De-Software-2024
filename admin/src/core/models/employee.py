@@ -36,7 +36,7 @@ class PuestoLaboralEnum(enum.Enum):
 
 class Employee(db.Model):
     """Representa un miembro del equipo de CEDICA"""
-    __tablename__ = 'employee'
+    __tablename__ = 'employees'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(50), nullable=False)

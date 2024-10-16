@@ -68,7 +68,6 @@ class UserService:
         if user.role.name == AdminData.role_name: 
             raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
 
-
         if alias is not None:
             user.alias = alias
         if password is not None and password is not '':
