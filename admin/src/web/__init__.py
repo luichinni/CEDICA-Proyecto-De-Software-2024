@@ -1,4 +1,5 @@
-from flask import Flask
+import os
+from flask import Flask, flash
 from flask import render_template
 from web.handlers import error
 from src.core import database
@@ -56,6 +57,7 @@ def create_app(env="development", static_folder="../../static"):
 
     @app.route("/")
     def home():
+        print(os.environ.keys())
         return render_template("home.html")
 
     @app.route("/prueba")
