@@ -1,4 +1,5 @@
 from src.core.models.employee import Employee
+from src.core.models.user import User
 from src.core.database import db
 from src.core.admin_data import AdminData
 from src.core.models.employee import ProfesionEnum
@@ -25,6 +26,24 @@ def get_employees():
     """Obtiene todos los empleados"""
     employees = Employee.query.all()
     return employees
+
+def get_employees_without_user():
+    """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados,
+    siempre y cuando no tengan ningún usuario activo."""
+    
+    # Subconsulta: obtener empleados que tienen usuarios no eliminados
+    subquery = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
+    
+    # Consulta principal: empleados que no tienen usuario o cuyos usuarios están eliminados
+    query = Employee.query.outerjoin(User).filter(
+        (Employee.user == None) | (User.deleted == True)
+    ).filter(
+        Employee.id.notin_(subquery)  # Excluir empleados con usuarios activos
+    )
+    
+    return query.all()
+
+
 
 def update_employee(employee, **kwargs):
     """Actualiza los datos de un empleado"""

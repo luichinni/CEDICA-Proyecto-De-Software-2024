@@ -6,6 +6,7 @@ from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
 from src.web.handlers import get_int_param, get_str_param, get_bool_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
+from src.web.forms.user_forms.create_user_form import CreateUserForm
 
 bp = Blueprint('user', __name__, url_prefix='/users')
 
@@ -33,8 +34,8 @@ def search_users():
     role_id = get_int_param(params, 'role_id', optional= True) 
     page = get_int_param(params, 'page', 1, optional= True) 
     per_page = get_int_param(params, 'per_page', 25, optional= True) 
-    order_by = get_int_param(params, 'order_by', 'created_at', optional= True)
-    ascending = get_int_param(params, 'ascending', True, optional= True)
+    order_by = get_str_param(params, 'order_by', 'created_at', optional= True)
+    ascending = get_bool_param(params, 'ascending', True, optional= True)
 
     users, total, pages = UserService.search_users(
         email=email,
@@ -61,22 +62,31 @@ def get_user_data(params, optional=False):
     """Obtiene la información de un usuario existente.""" 
 
     role_id = get_int_param(params, "role_id", optional=optional)
-    
-    employee_email = get_str_param(params, "employee_email", optional=optional)
-    employee_id = employee_service.get_employee_by_email(employee_email).id if employee_email else None
-    
+    employee_id = get_int_param(params, "employee_id", optional=optional)
     alias = get_str_param(params, "alias", optional=optional)
     password=get_str_param(params, "password", optional=optional)
-    activo=get_bool_param(params, "activo", optional=optional)
+    activo=get_bool_param(params, "activo", False, optional=True)
     return ( employee_id, alias, password, activo, role_id )
 
-@bp.get('/new')
+@bp.get('/create')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.NEW.value}")
 @handle_error(lambda: url_for('user.list_users'))
 def new_user():
     """Muestra el formulario para crear un nuevo usuario.""" 
-    roles = RoleService.get_all_roles()
-    return render_template('user/create.html', roles=roles)
+    form = CreateUserForm()
+
+    employee_choices = [(e.id, e.email) for e in employee_service.get_employees_without_user()]
+    if not employee_choices:
+        raise ValueError("No hay empleados sin usuario disponibles.")
+    
+    role_choices = [(r.id, r.name) for r in RoleService.get_all_roles()]
+    if not role_choices:
+        raise ValueError("No hay roles disponibles.")
+
+    form.employee_id.choices = employee_choices
+    form.role_id.choices = role_choices
+
+    return render_template('form.html', form=form)
 
 @bp.post('/create')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.NEW.value}")
