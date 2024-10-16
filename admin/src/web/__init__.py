@@ -26,8 +26,6 @@ from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
 from web.controllers.employee_controller import bp as employee_bp
 
-from src.web.forms.user_forms.create_user_form import CreateUserForm
-
 class MyForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
     submit = SubmitField('Enviar')
@@ -50,15 +48,6 @@ def create_app(env="development", static_folder="../../static"):
     def prueba():
         return render_template('form.html', form=MyForm() )
     
-    @app.route("/pruebaUser")
-    def pruebaUser():
-        form = CreateUserForm()
-
-        form.employee_id.choices = [(e.id, e.email) for e in employee_service.get_employees()]
-        form.role_id.choices = [(r.id, r.name) for r in RoleService.get_all_roles()]
-
-        return render_template('form.html', form=form)
-
     @app.route("/pruebados")
     def pruebados():
         opciones= [
