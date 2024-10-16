@@ -95,7 +95,8 @@ class UserService:
             user.alias = alias
         if password is not None and password is not '':
             UserService.validate_password(password)
-            user.password = password
+            hash = bcrypt.generate_password_hash(password.encode("utf-8"))
+            user.password = hash.decode("utf-8")# encripta
         if activo is not None:
             user.activo = activo
         if role_id is not None:
