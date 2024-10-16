@@ -25,11 +25,12 @@ class EmployeeService:
         return employee
 
     @staticmethod
-    def get_employees(filtro=None, order_by=None, ascending=True):
+    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False):
         """Obtiene todos los empleados"""
-        employees_query = Employee.query
+        employees_query = Employee.query.filter_by(deleted=include_deleted)
         if filtro:
-            employees_query = employees_query.filter_by(**filtro)
+            valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
+            employees_query = employees_query.filter_by(**valid_filters)
 
         if order_by:
             if ascending:
@@ -50,7 +51,10 @@ class EmployeeService:
 
     @staticmethod
     def get_employee_by_id(employee_id):
+        """Busca un empleado por su email"""
         employee = Employee.query.filter_by(id=employee_id).first()
+        if not employee:
+            raise ValueError(f"No se encontro el empleado con id {employee_id}")
         return employee
 
     @staticmethod
@@ -63,47 +67,29 @@ class EmployeeService:
 
     @staticmethod
     def create_admin_employee():
-        """Crea un empleado admin con emal del admin si no existe."""
+        """Crea un empleado admin con email del admin si no existe."""
         admin_email = AdminData.email
         EmployeeService.add_employee(nombre="admin", email=admin_email, apellido="a", dni="00000000",
         domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
         fecha_inicio=date(2023, 10, 8),
         fecha_cese =date(2023, 10, 8),
-        contacto_emergencia ="a",
+        contacto_emergencia_nombre ="a",
+        contacto_emergencia_telefono = "123",
         obra_social="a",
         nro_afiliado ="0",
         condicion=CondicionEnum.VOLUNTARIO,
         activo=True)
 
     @staticmethod
-    def create_exaple_employees():
+    def create_example_employees():
         """Crea un empleados de ejemplo."""
-        EmployeeService.add_employee(nombre="admin", email="a", apellido="a", dni="00000004",
-        domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
-        fecha_inicio=date(2023, 10, 8),
-        fecha_cese =date(2023, 10, 8),
-        contacto_emergencia ="a",
-        obra_social="a",
-        nro_afiliado ="0",
-        condicion=CondicionEnum.VOLUNTARIO,
-        activo=True)
-        EmployeeService.add_employee(nombre="admin", email="aaa", apellido="a", dni="00000001",
-        domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
-        fecha_inicio=date(2023, 10, 8),
-        fecha_cese =date(2023, 10, 8),
-        contacto_emergencia ="a",
-        obra_social="a",
-        nro_afiliado ="0",
-        condicion=CondicionEnum.VOLUNTARIO,
-        activo=True)
-        EmployeeService.add_employee(nombre="admin", email="bbb", apellido="a", dni="00000002",
-        domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
-        fecha_inicio=date(2023, 10, 8),
-        fecha_cese =date(2023, 10, 8),
-        contacto_emergencia ="a",
-        obra_social="a",
-        nro_afiliado ="0",
-        condicion=CondicionEnum.VOLUNTARIO,
-        activo=True)
+
+        example_employees = [
+            {"nombre" : "admin", "email" : "exa1@example.com", "apellido" : "a", "dni" : "00000004", "domicilio" : "a", "localidad" : "a", "telefono" : "1234", "profesion" : ProfesionEnum.MEDICO, "puesto_laboral" : PuestoLaboralEnum.DOMADOR, "fecha_inicio" : date(2023, 10, 8), "fecha_cese" : date(2023, 10, 8), "contacto_emergencia_nombre" : "a", "contacto_emergencia_telefono" : "1234", "obra_social" : "a", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : True},
+            {"nombre" : "admin", "email" : "exa2@example.com", "apellido" : "a", "dni" : "00000001", "domicilio" : "a", "localidad" : "a", "telefono" : "1234", "profesion" : ProfesionEnum.MEDICO, "puesto_laboral" : PuestoLaboralEnum.DOMADOR, "fecha_inicio" : date(2023, 10, 8), "fecha_cese" : date(2023, 10, 8), "contacto_emergencia_nombre" : "a", "contacto_emergencia_telefono" : "1234", "obra_social" : "a", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : True},
+            {"nombre" : "admin", "email" : "exa3@example.com", "apellido" : "a", "dni" : "00000002", "domicilio" : "a", "localidad" : "a", "telefono" : "1234", "profesion" : ProfesionEnum.MEDICO, "puesto_laboral" : PuestoLaboralEnum.DOMADOR, "fecha_inicio" : date(2023, 10, 8), "fecha_cese" : date(2023, 10, 8), "contacto_emergencia_nombre" : "a", "contacto_emergencia_telefono" : "1234", "obra_social" : "a", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : True}
+        ]
+        for employee_data in example_employees:
+            EmployeeService.add_employee(**employee_data)
 
 
