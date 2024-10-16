@@ -1,7 +1,7 @@
 from src.core.database import db
 from src.core.models.collection import Collection
 from sqlalchemy import desc
-from src.core.services import employee_service
+from src.core.services.employee_service import EmployeeService
 from src.core.services.client_service import ClientService
 from src.web.handlers import validate_params
 from src.core.admin_data import AdminData
@@ -11,7 +11,7 @@ class CollectionService:
 
     def validate_employee(employee_id):
         """Valida que el empleado ingresado exista y que no sea el admin."""
-        employee = employee_service.get_employee_by_id(employee_id)
+        employee = EmployeeService.get_employee_by_id(employee_id)
         if employee.email == AdminData.email:
             raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
 

@@ -25,6 +25,15 @@ class EmployeeService:
         employee.deleted = True
         return employee
 
+    
+    @staticmethod
+    def get_all_employees(include_admin=False):
+        """Obtiene todos los roles."""
+        query = Employee.query
+        if not include_admin:
+            query = query.filter(Employee.email != AdminData.email)
+        return query.all()
+
     @staticmethod
     def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False):
         """Obtiene todos los empleados"""

@@ -1,6 +1,6 @@
 from src.core.database import db
 from src.core.services.role_service import RoleService
-from src.core.services.employee_service import EmployeeService as employee_service
+from src.core.services.employee_service import EmployeeService
 from src.core.models.user import User
 from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
@@ -62,7 +62,7 @@ class UserService:
     @staticmethod
     def validate_employee_id(employee_id):
         """Verifica que el employee exista"""
-        employee = employee_service.get_employee_by_id(employee_id)
+        employee = EmployeeService.get_employee_by_id(employee_id)
 
     @staticmethod
     @validate_params
@@ -243,7 +243,7 @@ class UserService:
         admin_alias = AdminData.alias
         admin_password = AdminData.password
         admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
-        employee_admin_id = employee_service.get_employee_by_email(email=AdminData.email).id
+        employee_admin_id = EmployeeService.get_employee_by_email(email=AdminData.email).id
     
         admin_user = UserService.create_user(
             employee_id=employee_admin_id,
