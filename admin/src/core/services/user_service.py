@@ -61,11 +61,8 @@ class UserService:
 
     @staticmethod
     def validate_employee_id(employee_id):
-        """Verifica que el employee exista y que no este relacionado con otro user."""
+        """Verifica que el employee exista"""
         employee = employee_service.get_employee_by_id(employee_id)
-
-        if employee.user:
-            raise ValueError(f"El empleado con id {employee_id}, ya tiene un usuario asignado.")
 
     @staticmethod
     @validate_params

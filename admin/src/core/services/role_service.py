@@ -34,10 +34,13 @@ class RoleService:
         return existing_role
     
     @staticmethod
-    def get_all_roles():
+    def get_all_roles(include_admin_role=False):
         """Obtiene todos los roles."""
-        return Role.query.all()
-
+        query = Role.query
+        if not include_admin_role:
+            query = query.filter(Role.name != AdminData.role_name)
+        return query.all()
+    
     @staticmethod
     def create_admin_role():
         """Crea el rol 'System Admin' si no existe."""
