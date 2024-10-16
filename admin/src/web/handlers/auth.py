@@ -4,21 +4,18 @@ from flask import abort
 from src.core.services.user_service import UserService
 
 def get_current_user_id():
-    current_user_id = 1 # TODO: cambiar el 1 por session.get('user_id') cuando se implemente session
-    return current_user_id
+    return session.get("id")
 
-
-def is_authenticated(session):
+def is_authenticated():
     return get_current_user_id() is not None
 
 def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not is_authenticated(session):
+        if not is_authenticated():
             return abort(401)
         return func(*args, **kwargs)
     return wrapper
-
 
 def check_permissions(required_permission):
     def decorator(func):
@@ -28,8 +25,7 @@ def check_permissions(required_permission):
             print(required_permission)
             current_user_id = get_current_user_id()
             if not UserService.user_has_permission(required_permission, current_user_id):
-                return abort(403) 
-
+                return abort(401) 
             return func(*args, **kwargs)
         return wrapper
     return decorator

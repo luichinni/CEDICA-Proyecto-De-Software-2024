@@ -7,8 +7,32 @@ from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
 from src.web.handlers import validate_params
 import re
+from src.core.bcrypt_y_session import bcrypt
 
 class UserService:
+    
+    @staticmethod
+    def check_user(email,password) -> int:
+        """Este método comprueba que un mail y contraseña sean validos para posteriormente iniciar una sesión.
+
+        Args:
+            email (str): representa el mail ingresado en login
+            password (str): represena la clave sin encriptar ingresada en login
+
+        Returns:
+            int: valor que representa la ID del usuario si es que existe, sino None.
+        """
+        user = UserService.search_users(email=email,activo=True)[0]
+        id_return = None
+        if not user:
+            return id_return
+        
+        encrypted_pass = bcrypt.check_password_hash(user[0].password, password)
+        
+        if encrypted_pass:
+            id_return = user[0].id
+            
+        return id_return
     
     @staticmethod
     def validate_password(password):
@@ -45,6 +69,8 @@ class UserService:
     def create_user(employee_id, alias, password, role_id, activo=True):
         """Crea un nuevo usuario."""
         UserService.validate_password(password)
+        hash = bcrypt.generate_password_hash(password.encode("utf-8"))
+        password = hash.decode("utf-8")# encripta
         UserService.validate_role_id(role_id)
         UserService.validate_employee_id(employee_id)
         user = User(

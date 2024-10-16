@@ -1,8 +1,12 @@
-from flask import Flask
+import os
+from flask import Flask, flash
 from flask import render_template
 from web.handlers import error
 from src.core import database
 from src.core.config import config
+
+from flask_bcrypt import Bcrypt
+from flask_session import Session
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField,SelectField
@@ -24,7 +28,15 @@ from src.core.services.client_service import ClientService
 
 from src.web.controllers.collection_controller import bp as collection_bp 
 from src.web.controllers.user_controller import bp as users_bp
+
 from web.controllers.employee_controller import bp as employee_bp
+from src.web.controllers.session_controller import session_bp
+
+session = Session()
+bcrypt = Bcrypt()
+
+from src.web.forms.user_forms.create_user_form import CreateUserForm
+
 
 class MyForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
@@ -39,9 +51,13 @@ def create_app(env="development", static_folder="../../static"):
 
     app.config.from_object(config[env])
     database.init_app(app)
+    
+    bcrypt.init_app(app)
+    session.init_app(app)
 
     @app.route("/")
     def home():
+        print(os.environ.keys())
         return render_template("home.html")
 
     @app.route("/prueba")
@@ -59,7 +75,9 @@ def create_app(env="development", static_folder="../../static"):
         return render_template('search_box.html', opciones_tipo = opciones, opciones = opciones)
 
     app.register_error_handler(404, error.not_found_error)
+    app.register_error_handler(401, error.unauthorized)
 
+    app.register_blueprint(session_bp) 
     app.register_blueprint(users_bp) 
     app.register_blueprint(collection_bp) 
     app.register_blueprint(employee_bp)
