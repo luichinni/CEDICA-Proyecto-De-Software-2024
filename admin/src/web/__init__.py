@@ -18,7 +18,7 @@ from src.core.models.client import Client
 
 from src.core.services.user_service import UserService
 from src.core.services.user_service import RoleService
-from src.core.services import employee_service
+from src.core.services.employee_service import EmployeeService
 from src.core.services.permission_service import PermissionService 
 from src.core.services.client_service import ClientService 
 
@@ -67,6 +67,6 @@ def create_app(env="development", static_folder="../../static"):
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, employee_service, PermissionService, ClientService)
+        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService)
 
     return app

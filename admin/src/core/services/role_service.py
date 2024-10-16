@@ -34,10 +34,10 @@ class RoleService:
         return existing_role
     
     @staticmethod
-    def get_all_roles(include_admin_role=False):
+    def get_all_roles(include_admin=False):
         """Obtiene todos los roles."""
         query = Role.query
-        if not include_admin_role:
+        if not include_admin:
             query = query.filter(Role.name != AdminData.role_name)
         return query.all()
     

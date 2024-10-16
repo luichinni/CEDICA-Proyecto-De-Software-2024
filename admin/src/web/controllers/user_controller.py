@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from src.core.services.user_service import UserService
 from src.core.services.role_service import RoleService
-from src.core.services import employee_service
+from src.core.services.employee_service import EmployeeService
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
 from src.web.handlers import get_int_param, get_str_param, get_bool_param
@@ -64,7 +64,7 @@ def user_detail(user_id):
 @handle_error(lambda: url_for('user.list_users'))
 def new_user():
     """Muestra el formulario para crear un nuevo usuario y crea el usuario con los datos proporcionados en el formulario."""
-    employee_choices = [(e.id, e.email) for e in employee_service.get_employees_without_user()]
+    employee_choices = [(e.id, e.email) for e in EmployeeService.get_employees_without_user()]
     if not employee_choices:
         raise ValueError("No hay empleados sin usuario disponibles.")
     
