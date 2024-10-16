@@ -34,7 +34,7 @@ def init(UserService, RoleService, EmployeeService, PermissionService, ClientSer
     UserService.create_admin_user()
 
     print("Creando empleados de ejemplo")
-    EmployeeService.create_exaple_employees()
+    EmployeeService.create_example_employees()
     print("Creando roles de ejemplo")
     RoleService.create_example_roles()
     print("Creando permisos de ejemplo")

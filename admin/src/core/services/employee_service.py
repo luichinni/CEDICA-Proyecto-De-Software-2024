@@ -25,6 +25,15 @@ class EmployeeService:
         employee.deleted = True
         return employee
 
+    
+    @staticmethod
+    def get_all_employees(include_admin=False):
+        """Obtiene todos los roles."""
+        query = Employee.query
+        if not include_admin:
+            query = query.filter(Employee.email != AdminData.email)
+        return query.all()
+
     @staticmethod
     def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False):
         """Obtiene todos los empleados"""
@@ -39,26 +48,23 @@ class EmployeeService:
             else:
                 employees_query = employees_query.order_by(getattr(Employee, order_by).desc())
         return employees_query.all()
-def get_employees_without_user():
-    """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados,
-    siempre y cuando no tengan ningún usuario activo."""
     
-    # Subconsulta: obtener empleados que tienen usuarios no eliminados
-    subquery = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
-    
-    # Consulta principal: empleados que no tienen usuario o cuyos usuarios están eliminados
-    query = Employee.query.outerjoin(User).filter(
-        (Employee.user == None) | (User.deleted == True)
-    ).filter(
-        Employee.id.notin_(subquery)  # Excluir empleados con usuarios activos
-    )
-    
-    return query.all()
-
-
-
-def update_employee(employee, **kwargs):
-    """Actualiza los datos de un empleado"""
+    @staticmethod
+    def get_employees_without_user():
+        """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados,
+        siempre y cuando no tengan ningún usuario activo."""
+        
+        # Subconsulta: obtener empleados que tienen usuarios no eliminados
+        subquery = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
+        
+        # Consulta principal: empleados que no tienen usuario o cuyos usuarios están eliminados
+        query = Employee.query.outerjoin(User).filter(
+            (Employee.user == None) | (User.deleted == True)
+        ).filter(
+            Employee.id.notin_(subquery)  # Excluir empleados con usuarios activos
+        )
+        
+        return query.all()
 
     @staticmethod
     def update_employee(employee, **kwargs):

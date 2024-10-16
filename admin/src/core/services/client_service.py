@@ -30,7 +30,22 @@ class ClientService:
         if existing_client is None:
             raise ValueError(f"No existe cliente con el dni ingresado: '{dni}'")
         return existing_client
+    
+    @staticmethod
+    def get_clients(filtro=None, order_by=None, ascending=True, include_deleted=False):
+        """Obtiene todos los empleados"""
+        employees_query = Client.query.filter_by(deleted=include_deleted)
+        if filtro:
+            valid_filters = {key:value for key, value in filtro.items() if hasattr(Client, key) and value is not None}
+            employees_query = employees_query.filter_by(**valid_filters)
 
+        if order_by:
+            if ascending:
+                employees_query = employees_query.order_by(getattr(Client, order_by).asc())
+            else:
+                employees_query = employees_query.order_by(getattr(Client, order_by).desc())
+        return employees_query.all()
+    
     @staticmethod
     def create_example_clients():
         """Crea clientes de ejemplo."""
