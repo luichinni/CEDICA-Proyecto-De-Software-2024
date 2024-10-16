@@ -5,6 +5,7 @@ class Config(object):
     TESTING = False
     SECRET_KEY= "my_precious"
     SESSION_TYPE= "filesystem"
+    SESSION_PERMANENT= False
 
 class ProductionConfig(Config):
     pass
