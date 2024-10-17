@@ -1,14 +1,38 @@
 from src.core.database import db
 from src.core.services.role_service import RoleService
-from src.core.services import employee_service
+from src.core.services.employee_service import EmployeeService
 from src.core.models.user import User
 from src.core.models.employee import Employee
 from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
 from src.web.handlers import validate_params
 import re
+from src.core.bcrypt_y_session import bcrypt
 
 class UserService:
+    
+    @staticmethod
+    def check_user(email,password) -> int:
+        """Este método comprueba que un mail y contraseña sean validos para posteriormente iniciar una sesión.
+
+        Args:
+            email (str): representa el mail ingresado en login
+            password (str): represena la clave sin encriptar ingresada en login
+
+        Returns:
+            int: valor que representa la ID del usuario si es que existe, sino None.
+        """
+        user = UserService.search_users(email=email,activo=True)[0]
+        id_return = None
+        if not user:
+            return id_return
+        
+        encrypted_pass = bcrypt.check_password_hash(user[0].password, password)
+        
+        if encrypted_pass:
+            id_return = user[0].id
+            
+        return id_return
     
     @staticmethod
     def validate_password(password):
@@ -37,17 +61,16 @@ class UserService:
 
     @staticmethod
     def validate_employee_id(employee_id):
-        """Verifica que el employee exista y que no este relacionado con otro user."""
-        employee = employee_service.get_employee_by_id(employee_id)
-
-        if employee.user:
-            raise ValueError(f"El empleado con id {employee_id}, ya tiene un usuario asignado.")
+        """Verifica que el employee exista"""
+        employee = EmployeeService.get_employee_by_id(employee_id)
 
     @staticmethod
     @validate_params
     def create_user(employee_id, alias, password, role_id, activo=True):
         """Crea un nuevo usuario."""
         UserService.validate_password(password)
+        hash = bcrypt.generate_password_hash(password.encode("utf-8"))
+        password = hash.decode("utf-8")# encripta
         UserService.validate_role_id(role_id)
         UserService.validate_employee_id(employee_id)
         user = User(
@@ -68,12 +91,12 @@ class UserService:
         if user.role.name == AdminData.role_name: 
             raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
 
-
         if alias is not None:
             user.alias = alias
         if password is not None and password is not '':
             UserService.validate_password(password)
-            user.password = password
+            hash = bcrypt.generate_password_hash(password.encode("utf-8"))
+            user.password = hash.decode("utf-8")# encripta
         if activo is not None:
             user.activo = activo
         if role_id is not None:
@@ -221,7 +244,7 @@ class UserService:
         admin_alias = AdminData.alias
         admin_password = AdminData.password
         admin_role_id = RoleService.get_role_by_name(name=AdminData.role_name).id
-        employee_admin_id = employee_service.get_employee_by_email(email=AdminData.email).id
+        employee_admin_id = EmployeeService.get_employee_by_email(email=AdminData.email).id
     
         admin_user = UserService.create_user(
             employee_id=employee_admin_id,

@@ -1,6 +1,7 @@
 from src.core.database import db
 import enum
 from sqlalchemy import Enum
+from datetime import datetime, timezone
 
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
@@ -35,7 +36,7 @@ class PuestoLaboralEnum(enum.Enum):
 
 class Employee(db.Model):
     """Representa un miembro del equipo de CEDICA"""
-    __tablename__ = 'employee'
+    __tablename__ = 'employees'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(50), nullable=False)
@@ -49,14 +50,18 @@ class Employee(db.Model):
     puesto_laboral = db.Column(Enum(PuestoLaboralEnum), nullable=False)
     fecha_inicio = db.Column(db.Date, nullable=False)
     fecha_cese = db.Column(db.Date, nullable=True)
-    contacto_emergencia = db.Column(db.String(100), nullable=False)
+    contacto_emergencia_nombre = db.Column(db.String(100), nullable=False)
+    contacto_emergencia_telefono = db.Column(db.String(20), nullable=False)
     obra_social = db.Column(db.String(100), nullable=True)
     nro_afiliado = db.Column(db.String(50), nullable=False)
     condicion = db.Column(Enum(CondicionEnum), nullable=False)
     activo = db.Column(db.Boolean, default=True)
+    deleted = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f"Empleado {self.nombre} {self.apellido}"
+        return f"Empleado {self.nombre} {self.apellido} {self.dni}"
 
     def to_dict(self):
         """Convierte la instancia del empleado a un diccionario."""
@@ -76,7 +81,8 @@ class Employee(db.Model):
             "contacto_emergencia_nombre": self.contacto_emergencia_nombre,
             "contacto_emergencia_telefono": self.contacto_emergencia_telefono,
             "obra_social": self.obra_social,
-            "numero_afiliado": self.numero_afiliado,
+            "nro_afiliado": self.nro_afiliado,
             "condicion": self.condicion,
             "activo": self.activo,
+            "deleted": self.deleted
         }

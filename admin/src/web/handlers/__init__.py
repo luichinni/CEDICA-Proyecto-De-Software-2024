@@ -47,9 +47,9 @@ def get_param(params, key, param_type, default=None, optional=False):
             return value
         elif param_type == bool:
             if isinstance(value, str):
-                if value.lower() in ('true', '1', 'yes', 'on'):
+                if value.lower() in ('true', '1', 'yes', 'on', 'y'):
                     return True
-                if value.lower() in ('false', '0', 'no', 'off'):
+                if value.lower() in ('false', '0', 'no', 'off', 'n'):
                     return False
         raise ValueError(f"El parámetro '{key}' debe ser del tipo {param_type.__name__}")
     
