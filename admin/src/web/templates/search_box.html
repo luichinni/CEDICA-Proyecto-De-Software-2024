@@ -1,0 +1,76 @@
+{%extends 'layout.html'%}
+{% block title %}busqueda{% endblock %}
+{% block head %}
+  
+ <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+{{ super() }}
+{% endblock %}
+{%block content%}
+<section class="search_box">
+  <!-- Barra de búsqueda -->
+  <div class="search_input field is-grouped">
+    <div class="control is-expanded">
+      <input class="input" name="busqueda" type="text" placeholder="Buscar..."/>
+    </div>
+    <div class="control">
+      <button class="button is-info" onclick="aplicarFiltro()">
+        <span class="icon">
+          <i class="fas fa-search"></i>
+        </span>
+        <span>Buscar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtro de tipo -->
+  <div class="search_selec field is-grouped">
+    <div class="control">
+      <div class="select">
+        <select id="tipo_filtro">
+          {% for opcion in opciones_tipo %}
+            <option value="{{ opcion.value }}">{{ opcion.text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Filtro de orden -->
+    <div class="control">
+      <div class="select">
+        <select id="orden_filtro">
+          {% for opcion in opciones %}
+            <option value="{{ opcion.value }}">{{ opcion.text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Filtro de ascendente/descendente -->
+    <div class="control">
+      <label class="radio">
+        <input type="radio" name="order" value="ascendente" checked>
+        Ascendente
+      </label>
+      <label class="radio">
+        <input type="radio" name="order" value="descendente">
+        Descendente
+      </label>
+    </div>
+  </div>
+</section>
+{%endblock %}
+<style>
+  .search_box {
+    margin-bottom: 20px;
+  }
+  
+  .search_input .input {
+    width: 300px;
+  }
+  
+  .search_selec .select {
+    margin-right: 10px;
+  }
+  
+</style>
