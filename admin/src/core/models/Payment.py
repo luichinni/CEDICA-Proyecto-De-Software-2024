@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from enum import Enum
 
 class PaymentEnum(Enum):
-    HONORARIOS: 1
-    PROVEEDOR: 2
-    GASTOS_VARIOS: 3
+    HONORARIOS = 1
+    PROVEEDOR = 2
+    GASTOS_VARIOS = 3
 
 class Payment(db.Model):
     __tablename__ = 'payment'
@@ -19,3 +19,6 @@ class Payment(db.Model):
     empleado = db.relationship('Employee', backref='payments')
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+
+    def __repr__(self):
+        return f"Pago: {self.tipo_pago.name} - {self.monto} on {self.fecha_pago}"
