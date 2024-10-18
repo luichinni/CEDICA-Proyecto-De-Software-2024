@@ -2,6 +2,8 @@ from flask import render_template, Blueprint, redirect, request, url_for, flash
 from src.core.services.employee_service import EmployeeService
 from web.forms.employee_forms.EmployeeForm import EmployeeForm
 from web.forms.employee_forms.SearchEmployeeForm import SearchEmployeeForm
+from web.handlers.auth import check_permissions
+from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 
 bp = Blueprint('employee_controller', __name__, url_prefix='/employee')
 
@@ -28,6 +30,7 @@ def collect_employee_data_from_form(form):
         }
 
 @bp.route('/create', methods=['GET', 'POST'])
+@check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.NEW}")
 def create_employee():
     """Crear un empleado"""
     form = EmployeeForm()
@@ -39,12 +42,14 @@ def create_employee():
     return render_template('employee/create.html', form=form)
 
 @bp.route('/list', methods=['GET'])
+@check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.INDEX}")
 def list_employees():
     """Listar los empleados"""
     employees = EmployeeService.get_employees()
     return render_template('employee/list.html', employees=employees)
 
 @bp.route('/search', methods=['GET', 'POST'])
+@check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.INDEX}")
 def search_employees():
     form = SearchEmployeeForm()
     employees = []
@@ -68,6 +73,7 @@ def search_employees():
     return render_template('employee/search.html', form=form, employees=employees)
 
 @bp.route('/edit/<int:id_employee>', methods=['GET', 'POST'])
+@check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.UPDATE}")
 def edit_employee(employee_id):
     """Editar un empleado existente"""
     employee = EmployeeService.get_employee_by_id(employee_id)
@@ -83,6 +89,7 @@ def edit_employee(employee_id):
     return render_template('employee/edit.html', form=form, employee=employee)
 
 @bp.route('/delete/<int:id_employee>', methods=['POST'])
+@check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.DESTROY}")
 def delete_employee(employee_id):
     """Eliminar un empleado de manera logica"""
     employee = EmployeeService.get_employee_by_id(employee_id)
