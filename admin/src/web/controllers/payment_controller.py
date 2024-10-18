@@ -25,10 +25,8 @@ def search():
             'fecha_inferior': form.fecha_inferior.data,
             'fecha_superior': form.fecha_superior.data,
             'tipo_pago': form.tipo_pago.data,
-            'order_by': form.order_by.data,
-            'ascending': form.ascending.data
         }
-        payments = PaymentService.get_payments(search_params)
+        payments = PaymentService.get_payments(filtro=search_params, order_by=form.order_by.data, ascending=form.ascending.data)
 
     return render_template('payment/search.html', form=form, payments=payments)
 
