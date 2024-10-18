@@ -1,14 +1,21 @@
 from flask import render_template, Blueprint, redirect, url_for, flash
+
+from core.enums.permission_enums import PermissionModel, PermissionCategory
 from src.core.services.PaymentService import PaymentService
 from src.web.forms.payment_forms.PaymentForms import PaymentForm
+from src.web.handlers.auth import check_permissions
 bp = Blueprint('payment_controller', __name__, url_prefix='/payments')
 
+#TODO: ADD 'SHOW' FEATURE AND CHECK PERMISSIONS
+
 @bp.route('/', methods=['GET'])
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
 def index():
     payments = PaymentService.get_payments()
     return render_template('payment/index.html', payments=payments)
 
 @bp.route('/create', methods=['GET', 'POST'])
+@check_permissions(f"{PermissionModel.PAYMENT.name}_{PermissionCategory.NEW.value}")
 def create_payment():
     form = PaymentForm()
     if form.validate_on_submit():
@@ -25,12 +32,14 @@ def create_payment():
     return render_template('payment/create.html', form=form)
 
 @bp.route('/delete/<int:payment_id>', methods=['POST'])
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.DESTROY}")
 def delete_payment(payment_id):
     payment = PaymentService.get_payment_by_id(payment_id)
     flash('Pago eliminado exitosamente', 'success')
     return redirect(url_for('payment_controller.index'))
 
 @bp.route('/edit/<int:payment_id>', methods=['GET', 'POST'])
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.UPDATE}")
 def update_payment(payment_id):
     payment = PaymentService.get_payment_by_id(payment_id)
     form = PaymentForm()
