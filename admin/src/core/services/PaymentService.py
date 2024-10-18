@@ -31,12 +31,21 @@ class PaymentService:
         return payment
 
     @staticmethod
-    def get_payments(filters):
+    def get_payments(**filters):
+        """Toma pagos basado en los filtros y el orden"""
         payments_query = Payment.query
         if 'fecha_inicio' in filters and 'fecha_fin' in filters:
             payments_query = payments_query.filter(Payment.fecha_pago.between(filters['fecha_inicio'], filters['fecha_fin']))
+
         if 'tipo_pago' in filters:
             payments_query = payments_query.filter_by(tipo_pago=filters['tipo_pago'])
+
+        if 'order_by' in filters:
+            order = filters.get('ascending', 'asc')
+            if order == 'asc':
+                payments_query = payments_query.order_by(getattr(Payment, filters['order_by']).asc())
+            else:
+                payments_query = payments_query.order_by(getattr(Payment, filters['order_by']).desc())
         return payments_query.all()
 
     @staticmethod
