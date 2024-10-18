@@ -24,9 +24,9 @@ from src.core.services.user_service import UserService
 from src.core.services.user_service import RoleService
 from src.core.services.employee_service import EmployeeService
 from src.core.services.permission_service import PermissionService 
-from src.core.services.client_service import ClientService 
+from src.core.services.client_service import ClientService
 
-from src.web.controllers.collection_controller import bp as collection_bp 
+from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
 
 from web.controllers.employee_controller import bp as employee_bp
@@ -51,7 +51,7 @@ def create_app(env="development", static_folder="../../static"):
 
     app.config.from_object(config[env])
     database.init_app(app)
-    
+
     bcrypt.init_app(app)
     session.init_app(app)
 
@@ -63,7 +63,7 @@ def create_app(env="development", static_folder="../../static"):
     @app.route("/prueba")
     def prueba():
         return render_template('form.html', form=MyForm() )
-    
+
     @app.route("/pruebados")
     def pruebados():
         opciones= [
@@ -77,10 +77,11 @@ def create_app(env="development", static_folder="../../static"):
     app.register_error_handler(404, error.not_found_error)
     app.register_error_handler(401, error.unauthorized)
 
-    app.register_blueprint(session_bp) 
-    app.register_blueprint(users_bp) 
-    app.register_blueprint(collection_bp) 
+    app.register_blueprint(session_bp)
+    app.register_blueprint(users_bp)
+    app.register_blueprint(collection_bp)
     app.register_blueprint(employee_bp)
+    app.register_blueprint(payment_bp)
 
     @app.cli.command(name="reset-db")
     def reset_db():
