@@ -23,10 +23,10 @@ class PaymentService:
 
     @staticmethod
     def delete_payment(payment_id):
-        payment = Payment.query.get(payment_id)
+        payment = PaymentService.get_payment_by_id(payment_id)
         if not payment:
             raise ValueError('El pago no existe')
-        db.session.delete(payment)
+        payment.deleted = True
         db.session.commit()
         return payment
 

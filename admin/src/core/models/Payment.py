@@ -17,6 +17,7 @@ class Payment(db.Model):
     tipo_pago = db.Column(db.Enum(PaymentEnum), nullable=False)
     descripcion = db.Column(db.String, nullable=False)
     empleado = db.relationship('Employee', backref='payments')
+    deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
