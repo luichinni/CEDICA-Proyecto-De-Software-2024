@@ -5,6 +5,8 @@ from src.core.services.PaymentService import PaymentService
 from src.web.forms.payment_forms.PaymentForm import PaymentForm
 from src.web.forms.payment_forms.SearchPaymentForm import SearchPaymentForm
 from src.web.handlers.auth import check_permissions
+from web.handlers import handle_error
+
 bp = Blueprint('payment_controller', __name__, url_prefix='/payments')
 
 #TODO: ADD 'SHOW' FEATURE AND CHECK PERMISSIONS
@@ -17,6 +19,7 @@ def index():
 
 @bp.route('/search', methods=['GET'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
+@handle_error(lambda: url_for('payment_controller.index'))
 def search():
     form = SearchPaymentForm()
     payments = []
@@ -49,6 +52,7 @@ def create_payment():
 
 @bp.route('/delete/<int:payment_id>', methods=['POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.DESTROY}")
+@handle_error(lambda: url_for('payment_controller.index'))
 def delete_payment(payment_id):
     payment = PaymentService.get_payment_by_id(payment_id)
     flash('Pago eliminado exitosamente', 'success')
@@ -56,6 +60,7 @@ def delete_payment(payment_id):
 
 @bp.route('/edit/<int:payment_id>', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.UPDATE}")
+@handle_error(lambda: url_for('payment_controller.index'))
 def update_payment(payment_id):
     payment = PaymentService.get_payment_by_id(payment_id)
     form = PaymentForm()
