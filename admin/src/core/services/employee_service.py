@@ -37,7 +37,7 @@ class EmployeeService:
         return query.all()
 
     @staticmethod
-    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False):
+    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=25):
         """Obtiene todos los empleados"""
         employees_query = Employee.query.filter_by(deleted=include_deleted)
         if filtro:
@@ -49,7 +49,9 @@ class EmployeeService:
                 employees_query = employees_query.order_by(getattr(Employee, order_by).asc())
             else:
                 employees_query = employees_query.order_by(getattr(Employee, order_by).desc())
-        return employees_query.all()
+
+        pagination = employees_query.paginate(page=page, per_page=per_page, error_out=False)
+        return pagination.items, pagination.total, pagination.pages
     
     @staticmethod
     def get_employees_without_user():

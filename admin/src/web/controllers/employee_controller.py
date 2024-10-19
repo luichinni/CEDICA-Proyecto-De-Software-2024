@@ -1,11 +1,11 @@
 from flask import render_template, Blueprint, redirect, request, url_for, flash
 
-from app import app
 from src.core.services.employee_service import EmployeeService
-from web.forms.employee_forms.EmployeeForm import EmployeeForm
+from web.forms.employee_forms.CreateEmployeeForm import CreateEmployeeForm
 from web.forms.employee_forms.SearchEmployeeForm import SearchEmployeeForm
+from web.forms.employee_forms.EditEmployeeForm import EditEmployeeForm
 from web.handlers.auth import check_permissions
-from web.handlers import handle_error
+from web.handlers import handle_error, get_int_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 
 bp = Blueprint('employee_controller', __name__, url_prefix='/employee')
@@ -36,7 +36,7 @@ def collect_employee_data_from_form(form):
 @check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.NEW}")
 def create_employee():
     """Crear un empleado"""
-    form = EmployeeForm()
+    form = CreateEmployeeForm()
     if form.validate_on_submit():
         new_employee_data = collect_employee_data_from_form(form)
         EmployeeService.add_employee(**new_employee_data)
@@ -44,13 +44,19 @@ def create_employee():
         return redirect(url_for('employee_controller.list_employees'))
     return render_template('employee/create.html', form=form)
 
-@bp.route('/list', methods=['GET'])
+@bp.route('/', methods=['GET'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.INDEX}")
 def index():
     """Listar los empleados"""
-    employees = EmployeeService.get_employees()
-    return render_template('employee/list.html', employees=employees)
+    params = request.args
+    page = get_int_param(params, 'page', 1, True)
+    per_page = get_int_param(params, 'per_page', 25, True)
 
+    employees, total, pages = EmployeeService.get_employees(page=page, per_page=per_page)
+
+    return render_template('employee/list.html', employees=employees, total=total, pages=pages, current_page=page, per_page=per_page)
+
+#TODO: VER COMO HACER PAGINACION ACA
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.INDEX}")
 def search_employees():
@@ -84,7 +90,7 @@ def edit_employee(employee_id):
     if not employee:
         flash("El empleado seleccionado no existe", "danger")
         return redirect(url_for('employee_controller.list_employees'))
-    form = EmployeeForm(obj=employee)
+    form = EditEmployeeForm(obj=employee)
     if form.validate_on_submit():
         employee_data = collect_employee_data_from_form(form)
         EmployeeService.update_employee(employee, **employee_data)
