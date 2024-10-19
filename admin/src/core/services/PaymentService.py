@@ -23,24 +23,32 @@ class PaymentService:
 
     @staticmethod
     def delete_payment(payment_id):
-        payment = Payment.query.get(payment_id)
+        payment = PaymentService.get_payment_by_id(payment_id)
         if not payment:
             raise ValueError('El pago no existe')
-        db.session.delete(payment)
+        payment.deleted = True
         db.session.commit()
         return payment
 
     @staticmethod
-    def get_payments(filters):
-        payments_query = Payment.query
-        if 'fecha_inicio' in filters and 'fecha_fin' in filters:
-            payments_query = payments_query.filter(Payment.fecha_pago.between(filters['fecha_inicio'], filters['fecha_fin']))
-        if 'tipo_pago' in filters:
-            payments_query = payments_query.filter_by(tipo_pago=filters['tipo_pago'])
-        return payments_query.all()
+    def get_payments(filtro=None, order_by=None, ascending=False, include_deleted=False, page=1, per_page=25):
+        """Toma pagos basado en los filtros y el orden"""
+        payments_query = Payment.query.filter_by(deleted=include_deleted)
+        if filtro:
+            valid_filters = {key:value for key, value in filtro.items() if hasattr(Payment, key) and value is not None}
+            payments_query = payments_query.filter_by(**valid_filters)
+
+        if order_by:
+            if ascending:
+                payments_query = payments_query.order_by(getattr(Payment, order_by).asc())
+            else:
+                payments_query = payments_query.order_by(getattr(Payment, order_by).desc())
+
+        pagination = payments_query.paginate(page, per_page, error_out=False)
+        return pagination.items, pagination.total, pagination.pages
 
     @staticmethod
-    def get_payment_by_id(payment_id):
+    def get_payment_by_id(payment_id, include_deleted=False):
         payment = Payment.query.get(payment_id)
         if not payment:
             raise ValueError('El pago no existe')
