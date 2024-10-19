@@ -1,11 +1,11 @@
-from flask import render_template, Blueprint, redirect, url_for, flash
+from flask import render_template, Blueprint, redirect, url_for, flash, request
 
 from core.enums.permission_enums import PermissionModel, PermissionCategory
 from src.core.services.PaymentService import PaymentService
 from src.web.forms.payment_forms.PaymentForm import PaymentForm
 from src.web.forms.payment_forms.SearchPaymentForm import SearchPaymentForm
 from src.web.handlers.auth import check_permissions
-from web.handlers import handle_error
+from web.handlers import handle_error, get_int_param
 
 bp = Blueprint('payment_controller', __name__, url_prefix='/payments')
 
@@ -14,9 +14,15 @@ bp = Blueprint('payment_controller', __name__, url_prefix='/payments')
 @bp.route('/', methods=['GET'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
 def index():
-    payments = PaymentService.get_payments()
-    return render_template('payment/index.html', payments=payments)
+    params = request.args
+    page = get_int_param(params, 'page', 1, optional= True)
+    per_page = get_int_param(params, 'per_page', 25, optional=True)
 
+    payments, total, pages = PaymentService.get_payments(page=page, per_page=per_page)
+
+    return render_template('payment/index.html', payments=payments, total=total, pages=pages, current_page=page, per_page=per_page)
+
+#TODO: VER COMO HAGO PAGINACION ACA
 @bp.route('/search', methods=['GET'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
 @handle_error(lambda: url_for('payment_controller.index'))
