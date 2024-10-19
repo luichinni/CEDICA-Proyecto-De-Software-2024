@@ -1,8 +1,11 @@
 from flask import render_template, Blueprint, redirect, request, url_for, flash
+
+from app import app
 from src.core.services.employee_service import EmployeeService
 from web.forms.employee_forms.EmployeeForm import EmployeeForm
 from web.forms.employee_forms.SearchEmployeeForm import SearchEmployeeForm
 from web.handlers.auth import check_permissions
+from web.handlers import handle_error
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 
 bp = Blueprint('employee_controller', __name__, url_prefix='/employee')
@@ -43,7 +46,7 @@ def create_employee():
 
 @bp.route('/list', methods=['GET'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.INDEX}")
-def list_employees():
+def index():
     """Listar los empleados"""
     employees = EmployeeService.get_employees()
     return render_template('employee/list.html', employees=employees)
@@ -74,6 +77,7 @@ def search_employees():
 
 @bp.route('/edit/<int:id_employee>', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.UPDATE}")
+@handle_error(lambda: url_for('employee_controller.index'))
 def edit_employee(employee_id):
     """Editar un empleado existente"""
     employee = EmployeeService.get_employee_by_id(employee_id)
@@ -90,6 +94,7 @@ def edit_employee(employee_id):
 
 @bp.route('/delete/<int:id_employee>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.name}_{PermissionCategory.DESTROY}")
+@handle_error(lambda: url_for('employee_controller.index'))
 def delete_employee(employee_id):
     """Eliminar un empleado de manera logica"""
     employee = EmployeeService.get_employee_by_id(employee_id)
