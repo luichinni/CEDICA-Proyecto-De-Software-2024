@@ -2,6 +2,8 @@ import os
 from flask import Flask, flash
 from flask import render_template
 from web.handlers import error
+from src.web.handlers.auth import is_authenticated
+from src.web.handlers.auth import check_permissions
 from src.core import database
 from src.core.config import config
 
@@ -82,6 +84,10 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(collection_bp)
     app.register_blueprint(employee_bp)
     app.register_blueprint(payment_bp)
+
+    #Registrar funcion en jinja
+    app.jinja_env.globals.update(is_authenticated = is_authenticated)
+    app.jinja_env.globals.update(check_permissions = check_permissions)
 
     @app.cli.command(name="reset-db")
     def reset_db():
