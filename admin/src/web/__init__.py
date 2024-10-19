@@ -30,7 +30,7 @@ from src.core.services.client_service import ClientService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
-
+from src.web.controllers.payment_controller import bp as payment_bp
 from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 
