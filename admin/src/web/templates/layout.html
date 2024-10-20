@@ -14,17 +14,21 @@
             <nav>
 
                 <ul>
-                    {%if is_authenticated(sesion)%}
-                            <li><a href="#">J&A</a></li> {% endif %}
+                    {%if is_authenticated()%}
+                        {%if check_permission("client_index")%}
+                            <li><a href="{{ url_for('equestrian.list_equestrian') }}">J&A</a></li> {% endif %}
                         {%if check_permission( "equestrian_index")%}
-                            <li><a href="#">Ecuestre</a></li> {% endif %}
+                            <li><a href="{{ url_for('clients.list_clients') }}">Ecuestre</a></li> {% endif %}
                         {%if check_permission("employee_index")%}
-                            <li><a href="#">Equipo</a></li> {% endif %}
+                            <li><a href="{{ url_for('employee_controller.list_employees') }}">Equipo</a></li> {% endif %}
                         {%if check_permission("collections_index")%}
-                            <li><a href="#">cobros</a></li> {% endif %}
+                            <li><a href="{{ url_for('collection.list_collections') }}">cobros</a></li> {% endif %}
                         {%if check_permission("pagos_index")%}
-                            <li><a href="#">Pagos</a></li> {% endif %}
-                    {% endif %}
+                            <li><a href="{{ url_for('payment_controller.index') }}">Pagos</a></li> {% endif %}
+                        {%if check_permission("user_index")%}
+                            <li><a href="{{ url_for('user.list_users') }}">Usuario</a></li> {% endif %}
+                                   
+                     {% endif %}
                         </ul>
             </nav>
             {%if is_authenticated() %} 
@@ -32,30 +36,18 @@
                     <img src="{{ url_for('static', filename='user-icon.png') }}" alt="User Icon" class="user-icon">
                     <div class="user-dropdown">
                         <a href="#">Perfil</a>
-                        <a href="#">Cerrar sesión</a>
+                        <a href="{{url_for('auth.logout')}}">Cerrar sesión</a>
                     </div>
                 </div>
                 {% endif %}
             </header>
-        <div id="container"> 
-                        
-            <!-- Mostrar mensajes flash -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <ul>
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-            
-            {% block content %} 
-            {% endblock %}
-        </div>
-
+           <div id="container"> 
+             {% block content %} 
+             {% endblock %}
+             {% include 'mensaje_flash.html' %}
+           </div>
         <footer>
-            {% block footer %} {% endblock %}
+            {% block footer %} Final de pagina{% endblock %}
         </footer>
     </body>
 </html>
