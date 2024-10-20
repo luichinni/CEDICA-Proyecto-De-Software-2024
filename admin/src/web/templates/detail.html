@@ -1,0 +1,33 @@
+{% extends 'Layout.html'%}
+{% block title %}  {{titulo}} {%endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+{{ super() }}
+{% endblock %}
+
+{%block content%}
+   
+     <h1> {{titulo}}</h1>
+     <br>
+     {% if anterior %}
+         <a href="{{ anterior }}" class="button">Volver</a>
+     {% else %}
+         <a href="/" class="button">Volver a inicio</a>
+     {% endif %}
+     <br>
+     <section>
+       <ul>  
+       {%for key in diccionario %}
+            
+           <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
+       {%endfor%}
+      </ul>
+    </section>
+    <h1>{{request.path}}</h1>
+     <br>
+     <a href="{{ url_for( entidad + '.update_'+entidad,id = diccionario['id']) }}">Editar</a> 
+     <br>
+     <a href="{{ url_for( entidad + '.delete_'+entidad,id = diccionario['id']) }}">Eliminar</a>
+     <br>
+     
+{% endblock %}

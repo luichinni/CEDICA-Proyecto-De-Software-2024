@@ -7,68 +7,121 @@
 {{ super() }}
 {% endblock %}
 {%block content%}
+
+{% if anterior %}
+  <a href="{{ anterior }}" class="button">Volver</a>
+{% else %}
+  <a href="/" class="button">Volver a inicio</a>
+{% endif %}
+
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad + '.new_' + entidad)}}">Agregar</a>
+
+<br>
 <section class="search_box">
-  <!-- Barra de búsqueda -->
-  <div class="search_input field is-grouped">
-    <div class="control is-expanded">
-      <input class="input" name="busqueda" type="text" placeholder="Buscar..."/>
+   
+  <form method="POST" action="{{ url_for(entidad + '.search_'+ entidad) }}" onsubmit= "return aplicarfiltro()">
+    {{ form.hidden_tag() }}
+
+    <div class="search_input field is-grouped">
+      <div class="control is-expanded">
+        {{ form.busqueda(class="input", placeholder="Buscar...") }}
+     </div>
     </div>
+    <div class="search_selec field is-grouped">
+      <div class="control">
+        <div class="select">
+          
+         <div>
+            {{ form.tipo_filtro(class="select") }}
+         </div>
+        </div>
+      </div>
+      <div class="control">
+        <div class="select">
+         <div>
+           {{ form.orden_filtro(class="select") }}
+        </div>
+       </div>
+      </div>
     <div class="control">
-      <button class="button is-info" onclick="aplicarFiltro()">
-        <span class="icon">
-          <i class="fas fa-search"></i>
-        </span>
-        <span>Buscar</span>
-      </button>
-    </div>
+      {{ form.orden(class="radio") }}
+      <label class="radio">{{ form.orden[0] }}</label>
+      <label class="radio">{{ form.orden[1] }}</label>
   </div>
 
-  <!-- Filtro de tipo -->
-  <div class="search_selec field is-grouped">
-    <div class="control">
-      <div class="select">
-        <select id="tipo_filtro">
-          {% for opcion in opciones_tipo %}
-            <option value="{{ opcion.value }}">{{ opcion.text }}</option>
-          {% endfor %}
-        </select>
-      </div>
+    <div>
+        {{ form.submit(class="button is-info") }}  <!-- Botón para enviar el formulario -->
     </div>
+</form>
+ </section>
+ <br>
+ {% include 'list.html'%}
+ <br>
 
-    <!-- Filtro de orden -->
-    <div class="control">
-      <div class="select">
-        <select id="orden_filtro">
-          {% for opcion in opciones %}
-            <option value="{{ opcion.value }}">{{ opcion.text }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-
-    <!-- Filtro de ascendente/descendente -->
-    <div class="control">
-      <label class="radio">
-        <input type="radio" name="order" value="ascendente" checked>
-        Ascendente
-      </label>
-      <label class="radio">
-        <input type="radio" name="order" value="descendente">
-        Descendente
-      </label>
-    </div>
-  </div>
-</section>
-{%endblock %}
-
-{% block list %}
-{% endblock %}
-
-
-<nav class="pagination is-rounded" role="navigation" aria-label="pagination">
   <button href="#" class="pagination-previous">Anterior</a>
   <button href="#" class="pagination-next">Siguiente</a>
+
+
+
+<!-- Pagination controls -->
+<nav class="pagination is-rounded" role="navigation" aria-label="pagination">
+<div class="pagination">
+  {% if current_page > 1 %}
+      <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page - 1, per_page=per_page, 
+                              busqueda = request.args.get('busqueda'),
+                              tipo_filtro = request.args.get('tipo_filtro'),
+                              orden_filtro = request.args.get('orden_filtro'),
+                              orden = request.args.get('orden')) }}" class="pagination-previous" >">Previous</a>
+  {% endif %}
+  
+  {% for page_num in range(1, pages + 1) %}
+      {% if page_num == current_page %}
+          <strong>{{ page_num }}</strong>
+      {% else %}
+          <a href="{{ url_for(entidad + '.search_'+ entidad, page=page_num, per_page=per_page, 
+                              busqueda = request.args.get('busqueda'),
+                              tipo_filtro = request.args.get('tipo_filtro'),
+                              orden_filtro = request.args.get('orden_filtro'),
+                              orden = request.args.get('orden')) }}">{{ page_num }}</a>
+      {% endif %}
+  {% endfor %}
+  
+  {% if current_page < pages %}
+      <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page + 1, per_page=per_page, 
+                             busqueda=request.args.get('busqueda'),
+                              tipo_filtro=request.args.get('tipo_filtro'),
+                              orden_filtro=request.args.get('orden_filtro'),
+                              orden=request.args.get('order')) }}" class="pagination-next">Next</a>
+  {% endif %}
+</div>
 </nav>
+<p>Total users: {{ total }}</p>
+
+{%endblock %}
+ 
+
+ 
+
+ 
+
+
+<script>
+  function aplicarFiltro() {
+      const busqueda = document.getElementById('busqueda').value;
+      const tipo_filtro = document.getElementById('tipo_filtro').value.trim();
+      const orden = document.getElementById('orden').checked ? 'ascendente' : 'descendente';
+      
+      const params = new URLSearchParams();
+  
+      if (busqueda) params.set('busqueda', busqueda);
+      if (tipo_filtro) params.set('tipo_filtro', tipo_filtro); 
+      if (tipo_filtro) params.set('tipo_orden', tipo_filtro); 
+      params.set('orden', orden);
+  
+      window.location.href = "{{ url_for(entidad+ '.search_'+ entidad) }}?" + params.toString();
+      return false;  // Evita que el formulario se envíe de la forma tradicional.
+  }
+  </script>
 
 
 <style>
