@@ -3,6 +3,8 @@ import enum
 from sqlalchemy import Enum
 from datetime import datetime, timezone
 
+from src.core.models.equestrian import associates
+
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
     PSICOMOTRICISTA = 2

@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from src.core.database import db
-from src.core.enums.client_enum import *
+from src.core.enums.client_enum import * # solo hay enums
+from .client_docs import *
 
-class Client(db.Model):
+class Clients(db.Model):
     __tablename__ = 'clients'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -16,15 +17,15 @@ class Client(db.Model):
     domicilio = db.Column(db.String(255), nullable=False)
     telefono = db.Column(db.String(50), nullable=False)
     # Contacto de emergencia:			Tel:
-    contacto_emergencia = db.Column(db.PickleType(mutable=True), nullable=False)
+    contacto_emergencia = db.Column(db.PickleType, nullable=False)
 
     # datos personales 2
     becado = db.Column(db.Boolean, nullable=True)
     obs_beca = db.Column(db.Text, nullable=False)
-    cert_discapacidad = db.Column(db.String(255), nullable=True)
-    discapacidad = db.Column(Enum(Discapacidad), nullable=False)
-    asignacion = db.Column(Enum(AsignacionFamiliar), nullable=True)
-    pension = db.Column(Enum(Pension), nullable=True)
+    cert_discapacidad = db.Column(db.String(255), nullable=True) # enum condicion va al front para esto.
+    discapacidad = db.Column(db.Enum(Discapacidad), nullable=False)
+    asignacion = db.Column(db.Enum(AsignacionFamiliar), nullable=True)
+    pension = db.Column(db.Enum(Pension), nullable=True)
 
     # situacion previsional
     """
@@ -46,7 +47,7 @@ class Client(db.Model):
     Grado / año actual:
     Observaciones:
     """
-    institucion_escolar = db.Column(db.PickleType(mutable=True), nullable=True)
+    institucion_escolar = db.Column(db.PickleType, nullable=True)
 
     # profesionales q lo atienden (campo libre)
     atendido_por = db.Column(db.Text, nullable=False)
@@ -63,7 +64,7 @@ class Client(db.Model):
     Nivel de escolaridad: (máximo nivel alcanzado): Primario – Secundario – Terciario - Universitario
     Actividad u ocupación:
     """
-    tutores_responsables = db.Column(db.PickleType(mutable=True), nullable=False)
+    tutores_responsables = db.Column(db.PickleType, nullable=False)
 
     # actividad q realiza
     """
@@ -76,22 +77,24 @@ class Client(db.Model):
     Caballo:caballo cargado en el sistema
     Auxiliar de Pista:miembro del equipo dado de alta en el sistema
     """
-    propuesta_trabajo = db.Column(Enum(PropuestasInstitucionales), nullable=False)
+    propuesta_trabajo = db.Column(db.Enum(PropuestasInstitucionales), nullable=False)
     condicion = db.Column(db.Boolean, nullable=False)
     sede = db.Column(db.String(100), nullable=False)
-    dias = db.Column(db.PickleType(mutable=True), nullable=False)
+    dias = db.Column(db.PickleType, nullable=False)
     
-    profesor_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
-    profesor = db.relationship('Employee', backpopulates="terapea") # TODO agregarlo a employee
+    profesor_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    profesor = db.relationship('Employee', backref="terapea", foreign_keys=[profesor_id]) # TODO agregarlo a employee
 
-    conductor_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
-    conductor = db.relationship('Employee', backpopulates="conduce_para") # TODO agregarlo a employee
+    conductor_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    conductor = db.relationship('Employee', backref="conduce_para", foreign_keys=[conductor_id]) # TODO agregarlo a employee
 
-    caballo_id = db.Column(db.Integer, db.ForeignKey('equestrian.id'), nullable=False)
-    caballo = db.relationship('Equestrian', backpopulates="clientes")
+    caballo_id = db.Column(db.Integer, db.ForeignKey('equestrians.id'), nullable=False)
+    caballo = db.relationship('Equestrian', backref="clientes")
 
-    auxiliar_pista_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
-    auxiliar = db.relationship('Employee', backpopulates="auxilia") # TODO agregarlo a employee
+    auxiliar_pista_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    auxiliar = db.relationship('Employee', backref="auxilia", foreign_keys=[auxiliar_pista_id]) # TODO agregarlo a employee
+
+    archivos = db.relationship('ClientDocuments', back_populates="cliente")
 
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))  
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)) 

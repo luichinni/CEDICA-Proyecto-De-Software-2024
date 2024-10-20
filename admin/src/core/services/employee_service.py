@@ -27,7 +27,7 @@ class EmployeeService:
 
     
     @staticmethod
-    def get_all_employees(include_admin=False):
+    def get_all_employees(include_admin=False) -> list[Employee]:
         """Obtiene todos los roles."""
         query = Employee.query
         if not include_admin:
