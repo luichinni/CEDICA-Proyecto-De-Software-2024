@@ -19,3 +19,13 @@ class ClientDocuments(db.Model):
     
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     deleted = db.Column(db.Boolean, default=False)
+    
+    def __repr__(self):
+        return f"<ClientDocument id={self.id} titulo={self.titulo}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            'titulo': self.titulo,
+            "created_at": self.created_at.isoformat(),
+        }

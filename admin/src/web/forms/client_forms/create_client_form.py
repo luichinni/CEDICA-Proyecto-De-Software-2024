@@ -1,8 +1,9 @@
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import EquestrianService
 from flask_wtf import FlaskForm
-from wtforms import FieldList, Form, FormField, StringField, DateField, TelField, BooleanField, SelectField, SelectMultipleField
+from wtforms import FieldList, Form, FormField, StringField, DateField, TelField, BooleanField, SelectField, SelectMultipleField, FileField
 from wtforms.validators import DataRequired, Length, Regexp, Email
+from flask_wtf. file import FileAllowed, FileRequired
 from src.core.enums.client_enum import *
 from src.web.forms.client_forms.client_form_validators import *
 
@@ -39,7 +40,7 @@ class ClientFirstForm(FlaskForm):
     apellido = StringField('Apellido/s', validators=[DataRequired(),Length(max=50)])
     fecha_nacimiento = DateField('Fecha de Nacimiento', format='%Y-%m-%d', validators=[DataRequired()])
     # lugar de nacimiento -> (localidad y provincia)
-    lugar_nacimiento = FormField((LugarNacimiento),label='Lugar de Nacimiento')
+    lugar_nacimiento = FormField(LugarNacimiento,label='Lugar de Nacimiento')
     # (calle, número, departamento, localidad, provincia)
     domicilio = FormField((Domicilio),label='Domicilio')
     telefono = TelField('Teléfono', validators=[DataRequired(),Regexp(r'^\+?1?\d{9,15}$')])
@@ -56,13 +57,13 @@ class ClientFirstForm(FlaskForm):
     pension = db.Column(Enum(Pension), nullable=True)
 """
 class ClientSecondForm(FlaskForm):
-    becado = BooleanField('¿Está becado?', validators=[DataRequired()])
+    becado = BooleanField('Está becado', validators=[])
     obs_beca = StringField('Observaciones de beca')
-    cert_discapacidad = SelectField('Certificado de discapacidad que dispone', choices=[ (opcion.name, opcion.name.replace('_',' ').capitalize()) for opcion in Condicion], validators=[DataRequired()])
+    cert_discapacidad = SelectField('Certificado de discapacidad que dispone', choices=[ (opcion.value, opcion.name.replace('_',' ').capitalize()) for opcion in Condicion], validators=[DataRequired()])
     otro_cert = StringField('Otro', validators=[OtroCertificadoRequired])
-    discapacidad = SelectField('Tipo de Discapacidad', choices=[ (disc.name,disc.name.replace('_',' ').capitalize()) for disc in Discapacidad], validators=[DataRequired()])
-    asignacion = SelectField('Asignación Familiar', choices=[(asig.name,asig.value) for asig in AsignacionFamiliar], validators=[DataRequired()])
-    pension = SelectField('Beneficiario de Pensión', choices=[(pen.name,pen.name.replace('_',' ').capitalize()) for pen in Pension], validators=[DataRequired()])
+    discapacidad = SelectField('Tipo de Discapacidad', choices=[ (disc.value,disc.name.replace('_',' ').capitalize()) for disc in Discapacidad], validators=[DataRequired()])
+    asignacion = SelectField('Asignación Familiar', choices=[(asig.value,asig.name.replace('_',' ').capitalize()) for asig in AsignacionFamiliar], validators=[DataRequired()])
+    pension = SelectField('Beneficiario de Pensión', choices=[(pen.value,pen.name.replace('_',' ').capitalize()) for pen in Pension], validators=[DataRequired()])
     
 """
 # situacion previsional
@@ -81,7 +82,7 @@ class ClientSecondForm(FlaskForm):
 class ClientThirdForm(FlaskForm):
     obra_social = StringField('Obra Social del Alumno', validators=[DataRequired(), Length(max=255)])
     nro_afiliado = StringField('Nº Afiliado', validators=[DataRequired(), Length(max=50)])
-    curatela = BooleanField('¿Posee Curatela?', validators=[DataRequired()])
+    curatela = BooleanField('Posee Curatela', validators=[])
     observaciones = StringField('Observaciones', validators=[DataRequired()])
     
 """
@@ -97,13 +98,13 @@ class ClientThirdForm(FlaskForm):
 """
 class InstitucionEscolar(FlaskForm):
     nombre = StringField('Nombre de la Institución', validators=[DataRequired(), Length(max=255)])
-    direccion = FieldList(FormField(Domicilio),label="Dirección", min_entries=1, max_entries=1)
+    direccion = FormField(Domicilio,label="Dirección")
     telefono = TelField('Teléfono', validators=[DataRequired(),Regexp(r'^\+?1?\d{9,15}$')])
     grado = StringField('Grado / año actual', validators=[DataRequired(), Length(max=50)])
     observaciones = StringField('Observaciones')
 
 class ClientFourthForm(FlaskForm):
-    institucion_escolar = FormField((InstitucionEscolar))
+    institucion_escolar = FormField(InstitucionEscolar)
     
 """
 # profesionales q lo atienden (campo libre)
@@ -132,10 +133,10 @@ class TutoresLegales(FlaskForm):
     nombre = StringField('Nombre/s', validators=[DataRequired(), Length(max=50)])
     apellido = StringField('Apellido/s', validators=[DataRequired(),Length(max=50)])
     dni = StringField('Dni', validators=[DataRequired(), Length(max=50)])
-    domicilio = FieldList(FormField(Domicilio),label="Dirección", min_entries=1, max_entries=1)
+    domicilio = FormField(Domicilio,label="Dirección")
     telefono = TelField('Teléfono', validators=[DataRequired(),Regexp(r'^\+?1?\d{9,15}$')])
     email = StringField('Email', validators=[DataRequired(), Email(), Length(max=50)])
-    escolaridad = SelectField('Nivel de escolaridad (máximo alcanzado)', choices=[(nivel.name,nivel.value) for nivel in Escolaridad], validators=[DataRequired()])
+    escolaridad = SelectField('Nivel de escolaridad (máximo alcanzado)', choices=[(nivel.value,nivel.name) for nivel in Escolaridad], validators=[DataRequired()])
     ocupacion = StringField('Actividad u Ocupación', validators=[DataRequired()])
 
 class ClientSixthForm(FlaskForm):
@@ -159,14 +160,40 @@ class ClientSixthForm(FlaskForm):
     dias = db.Column(db.PickleType(mutable=True), nullable=False)
 """
 class PropuestaDeTrabajo(FlaskForm):
-    propuesta = SelectField('Propuesta de trabajo institucional',choices=[(prop.name,prop.value) for prop in PropuestasInstitucionales], validators=[DataRequired()])
-    condicion = BooleanField('Condicion: Marcar para regular, desmarcar para dado de baja', validators=[DataRequired])
+    propuesta = SelectField('Propuesta de trabajo institucional',choices=[(prop.value,prop.name.capitalize()) for prop in PropuestasInstitucionales], validators=[DataRequired()])
+    condicion = BooleanField('Condicion: Marcar para regular, desmarcar para dado de baja', validators=[])
     sede = StringField('Sede',validators=[DataRequired()])
-    dias = SelectMultipleField('Dia/s',choices=[(dia.name,dia.value) for dia in Dias])
-    profesor = SelectField('Profesor/a', choices=[(emp.id, emp.dni + ': ' + emp.nombre + ' ' + emp.apellido) for emp in EmployeeService.get_all_employees()], validators=[DataRequired()])
-    conductor = SelectField('Conductor/a', choices=[(emp.id, emp.dni + ': ' + emp.nombre + ' ' + emp.apellido) for emp in EmployeeService.get_all_employees()], validators=[DataRequired()])
+    dias = SelectMultipleField('Dia/s',choices=[(dia.value,dia.name) for dia in Dias])
+    profesor = SelectField('Profesor/a', choices=[], validators=[DataRequired()])
+    conductor = SelectField('Conductor/a', choices=[], validators=[DataRequired()])
     caballo = SelectField('Caballo', choices=[], validators=[DataRequired()])
-    auxiliar = SelectField('Auxiliar de pista', choices=[(emp.id, emp.dni + ': ' + emp.nombre + ' ' + emp.apellido) for emp in EmployeeService.get_all_employees()], validators=[DataRequired()])
+    auxiliar = SelectField('Auxiliar de pista', choices=[], validators=[DataRequired()])
 
 class ClientSeventhForm(FlaskForm):
     propuesta_trabajo = FormField(PropuestaDeTrabajo,label="Propuesta de Trabajo Institucional")
+    
+"""
+cargar múltiples archivos (formatos permitidos PDF, DOC, XLS, JPEG) o enlaces a archivos externos (por ej, a un Drive, Dropbox, etc). 
+Los mismos aportan información complementaria. Junto con la subida del archivo o link deberá asociarse un tipo de documentación 
+(entrevista, evaluación, planificaciones, evolución, crónicas, documental) como una forma de clasificarlos.
+
+    título, fecha en la que se agregó el enlace, tipo
+
+    titulo = db.Column(db.Text, nullable=False)
+    tipo = db.Column(db.Enum(TipoDocs), nullable=False)
+    ubicacion = db.Column(db.Text, nullable=False)
+    es_link = db.Column(db.Boolean, nullable=False)
+    
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
+    cliente = db.relationship('Clients', back_populates='archivos')
+
+"""
+
+class UploadFile(FlaskForm):
+    tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs])
+    archivo = FileField('Seleccionar Archivo (PDF, DOC, XLS o JPEG)', validators=[FileRequired(),FileAllowed(['pdf', 'doc', 'xls', 'jpeg'])])
+    
+class UploadLink(FlaskForm):
+    titulo = StringField('Nombre de referencia', validators=[DataRequired(), Length(max=100)])
+    tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs], validators=[DataRequired()])
+    link = StringField('URL o Link del Documento', validators=[DataRequired()])

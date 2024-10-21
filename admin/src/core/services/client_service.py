@@ -49,38 +49,33 @@ class ClientService:
                 pass
 
             elif (campo == 'contacto_emergencia'): # nombre y telefono
-                if (type(copy[campo]) == 'dict') and len(set('nombre','telefono').intersection(set(copy[campo].keys()))) == 2:
+                if len(set(['nombre','telefono']).intersection(set(copy[campo].keys()))) == 2:
                     validos[campo] = copy[campo]
                 else:
                     raise ValueError(f"La información del contacto de emergencia está incompleta")
             
             elif (campo == 'becado' or campo == 'curatela' or campo == 'condicion'): # 1, 0 o True, False
-                if not (copy[campo] in ['True','False','0','1']):
+                if not (copy[campo] in ['True','False','0','1', True, False]):
                     raise ValueError(f"El campo {campo} no es válido")
                 else:
                     validos[campo] = copy[campo]
             
             elif (campo == 'discapacidad' or campo == 'asignacion' or campo == 'pension' or campo == 'propuesta_trabajo'): # enum
-                if not (copy[campo] in Discapacidad):
+                if ((campo == 'discapacidad') and int(copy[campo]) in Discapacidad) or ((campo == 'asignacion') and copy[campo] in AsignacionFamiliar) or ((campo == 'pension') and int(copy[campo]) in Pension) or ((campo == 'propuesta_trabajo') and int(copy[campo]) in PropuestasInstitucionales):
+                    validos[campo] = copy[campo]
+                else:
                     raise ValueError(f"{copy[campo]} no es {campo} válida")
-                else:
-                    validos[campo] = copy[campo]
-
-            elif (campo == 'nro_afiliado' and (copy['update'] == False)): # repetido?
-                if len(ClientService.get_clients({"nro_afiliado":copy[campo], "obra_social":copy['obra_social']})) != 0:
-                    raise ValueError(f"Ya existe cliente con nro de afiliado {copy[campo]} para {copy['obra_social']}'")
-                else:
-                    validos[campo] = copy[campo]
 
             elif (campo == 'institucion_escolar'): # nombre, dir, tel, grado y obs
-                if (type(copy[campo]) == 'dict') and len(set('nombre_esc','direccion_esc','tel_esc','grado_esc','obs_esc').intersection(set(copy[campo].keys()))) == 5:
+                if len(set(['institucion_escolar-nombre','institucion_escolar-direccion','institucion_escolar-telefono','institucion_escolar-grado','institucion_escolar-observaciones']).intersection(set(copy[campo].keys()))) == 5:
                     validos[campo] = copy[campo]
                 else:
                     raise ValueError(f"La información de institución escolar está incompleta")
 
             elif (campo == 'tutores_responsables'): # parentesco, nombre, apellido, dni, dir, cel, mail, nivel escolaridad maximo y ocupacion
                 for idx,tutor in enumerate(copy[campo]):
-                    if not ((type(tutor) == 'dict') and len(set('parentesco','nombre','apellido','dni','domicilio','tel','mail','nivel_edu','ocupacion').intersection(set(tutor.keys()))) == 9):
+                    print(tutor)
+                    if len(set([f'tutores_responsables-{idx}-parentesco',f'tutores_responsables-{idx}-nombre',f'tutores_responsables-{idx}-apellido',f'tutores_responsables-{idx}-dni',f'tutores_responsables-{idx}-domicilio',f'tutores_responsables-{idx}-telefono',f'tutores_responsables-{idx}-email',f'tutores_responsables-{idx}-escolaridad',f'tutores_responsables-{idx}-ocupacion']).intersection(set(tutor.keys()))) == 9:
                         raise ValueError(f"La información del tutor legal {idx} está incompleta")
                 validos[campo] = copy[campo]
                 

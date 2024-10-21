@@ -2,17 +2,23 @@
 {% block title %}{{titulo}}{% endblock %}
 
 {% block head %}
+    <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+>
   {{ super() }}
 {% endblock %}
 
 {% block content %}
 
-    <p class="panel-tabs">
-        {% for tab, active in tabs %}
-            <a class="{% if active %}is-active{% endif %}">{{ tab }}</a>
-        {% endfor %}
-    </p>
-    
+    <div class="tabs">
+        <ul>
+            {% for i in range(tabs|length) %}
+                <li class="{% if i == activa %}is-active{% endif %}"><a>{{ tabs[i] }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
     <form method="POST" action="{{ruta_post}}"   >
             {% set campos = form._fields.keys()|list %}
         
@@ -47,8 +53,9 @@
             </div>
         {% endfor %}
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="button is-primary">Submit</button>
     </form>
+    <button type="button" class="button is-danger" onclick="window.location.href='{{ url_for('clients.cancelar_form') }}'">Cancelar</button>
 
     </div>
    
