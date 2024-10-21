@@ -3,22 +3,20 @@
 {% block title %}Home{% endblock %}
 
 {% block head %}
+
   {{ super() }}
 {% endblock %}
 
 {% block content %}
   <h1>Inicio</h1>
   <p>Página de inicio de la aplicación</p>   
-    <!-- Mostrar mensajes flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-            {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+     
+  {%if not is_authenticated() %} 
   <a href="{{url_for('auth.index')}}">Iniciar Sesion</a>
+  {%else %}
   <a href="{{url_for('auth.logout')}}">Cerrar Sesion</a>
+  {%endif%}
+
+
+
 {% endblock %}

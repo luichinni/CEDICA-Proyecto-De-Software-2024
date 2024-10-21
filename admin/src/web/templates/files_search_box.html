@@ -83,25 +83,7 @@
 </nav>
 <p>Total {{entidad}}: {{ total }}</p>
 
-<script>
-  function aplicarFiltro() {
-      const busqueda = document.getElementById('busqueda').value;
-      const tipo_filtro = document.getElementById('tipo_filtro').value.trim();
-      const orden = document.getElementById('orden').checked ? 'ascendente' : 'descendente';
-      const activo = document.getElementById
 
-      const params = new URLSearchParams();
-  
-      if (busqueda) params.set('busqueda', busqueda);
-      if (tipo_filtro) params.set('tipo_filtro', tipo_filtro); 
-      if (tipo_filtro) params.set('tipo_orden', tipo_filtro); 
-      params.set('orden', orden);
-      params.set('activo', 'documents')
-  
-      window.location.href = "{{ url_for(entidad+ '.search_'+ entidad) }}?" + params.toString();
-      return false;  // Evita que el formulario se envíe de la forma tradicional.
-  }
-  </script>
 {%endblock %}
  
 
