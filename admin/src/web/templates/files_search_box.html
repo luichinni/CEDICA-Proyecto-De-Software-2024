@@ -1,7 +1,7 @@
 {%block files_search_box%}
 
 <a class="button is-primary is-pulled-left" href="{{url_for( entidad + '.new_' + entidad)}}">Agregar</a>
-
+<br>
 <br>
 <section class="search_box">
    
@@ -47,15 +47,17 @@
 <!-- Pagination controls -->
 <nav class="pagination is-rounded" role="navigation" aria-label="pagination">
 <div class="pagination">
+ 
   {% if current_page > 1 %}
       <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page - 1, per_page=per_page, 
-                              busqueda = request.args.get('busqueda'),
-                              tipo_filtro = request.args.get('tipo_filtro'),
-                              orden_filtro = request.args.get('orden_filtro'),
-                              orden = request.args.get('orden')),
-                               activo='documents' }}" class="pagination-previous" >">Previous</a>
+                              busqueda=request.args.get('busqueda'),
+                              tipo_filtro=request.args.get('tipo_filtro'),
+                              orden_filtro=request.args.get('orden_filtro'),
+                              orden=request.args.get('orden'),
+                               activo='documents') }}" 
+                               class="pagination-previous" >Previous</a>
   {% endif %}
-  
+  <br>
   {% for page_num in range(1, pages + 1) %}
       {% if page_num == current_page %}
           <strong>{{ page_num }}</strong>
@@ -64,18 +66,18 @@
                               busqueda = request.args.get('busqueda'),
                               tipo_filtro = request.args.get('tipo_filtro'),
                               orden_filtro = request.args.get('orden_filtro'),
-                              orden = request.args.get('orden')),
-                               activo='documents' }}">{{ page_num }}</a>
+                              orden = request.args.get('orden'),
+                               activo='documents' )}}" >{{ page_num }}</a>
       {% endif %}
   {% endfor %}
-  
+  <br>
   {% if current_page < pages %}
       <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page + 1, per_page=per_page, 
                              busqueda=request.args.get('busqueda'),
                               tipo_filtro=request.args.get('tipo_filtro'),
                               orden_filtro=request.args.get('orden_filtro'),
-                              orden=request.args.get('order')),
-                              activo='documents' }}" class="pagination-next">Next</a>
+                              orden=request.args.get('orden'),
+                              activo='documents' )}}" class="pagination-next">Next</a>
   {% endif %}
 </div>
 </nav>

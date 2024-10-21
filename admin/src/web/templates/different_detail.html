@@ -1,5 +1,5 @@
 {% extends 'Layout.html' %}
-{% block title %}detalle{% endblock %}
+{% block title %} {{titulo}} {% endblock %}
 {% block head %}
   
  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">-->
@@ -30,25 +30,26 @@
 <div id="tab-content"  class="is-active" >
   <div id="informacion" class="tab-content" class="is-active">
    
-    <section>
-      <ul>  
+    <section class="section">
+      <ul class="list">  
       {%for key in diccionario %}
            
           <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
       {%endfor%}
      </ul>
    </section>
-     
+   <div class="buttons is-centered">
     <br>
-      <a href="{{ url_for( entidad + '.update_'+entidad,id = diccionario['id'], es_link = diccionario['es_link'] ) }}">Editar</a> 
+      <a href="{{ url_for( entidad + '.update_'+entidad,id = diccionario.id) }}"  class="button is-primary">Editar</a> 
     <br>
-      <a href="{{ url_for( entidad + '.delete_'+entidad,id = diccionario['id']) }}">Eliminar</a>
+      <a href="{{ url_for( entidad + '.delete_'+entidad,id = diccionario.id) }}"  class="button is-primary">Eliminar</a>
     <br>
+   </div>
  </div>
   <div id="documents" class="tab-content">
     <p> Documentos</p>
      
-    {% include 'file_search_box.html'% }
+    {% include 'files_search_box.html'%}
   </div>
 </div>
 
@@ -72,6 +73,7 @@
         event.currentTarget.classList.add('is-active');
 
     }
+    var activo = "{{activo}}"
     mostrar(activo)
 </script>
 <style>
