@@ -1,9 +1,7 @@
- {% block list %}
-   <h1>Lista de Diccionarios</h1>
-
-    {% for diccionario in lista_diccionarios %}
-        <div>
-            <table class="table">
+{% block list %}
+     <div class="container">
+           <div class="table-container has-text-centered">
+            <table class="table is-fullwidth">
                 <thead>
                     <tr>
                      {% for key in lista_diccionarios[0].keys() %}
@@ -11,6 +9,7 @@
                              <th>{{ key | capitalize }}</th>
                         {%endif%}
                      {% endfor %}
+                      <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,18 +20,36 @@
                                    <td>{{ diccionario[key] }}</td>
                                 {%endif%}
                              {% endfor %}
-                             <div class="card">
-                                <footer class="card-footer">
-                                  
-                                  <a href="#" class="card-footer-item">Ver</a>
-                                  <a href="#" class="card-footer-item">Editar</a>
-                                  <a href="#" class="card-footer-item">Eliminar</a>
-                                </footer>
-                            </div>
-                         </tr>
+                            
+                                <td  class="card-footer">
+                                    <div class="buttons">
+                                        {%if check_permission(entidad + "_show")%}
+                                        <!-- Link to view details -->
+                                     <a class="button is-dark is-small" href="{{ url_for( entidad + '.detail_' + entidad, id = diccionario['id']) }}" class="card-footer-item">Ver Detalles</a>
+                                     {%endif%}
+                                     {%if check_permission(entidad + "_update")%}
+                                    <!--Link to edit -->
+                                    <a class="button is-primary is-small" href="{{ url_for( entidad + '.update_'+entidad,id = diccionario['id']) }}" class="card-footer-item">Editar</a>                                    
+                                    {%endif%}
+                                    {%if check_permission(entidad + "_delete")%}
+                                    <!-- Form to delete the element -->
+                                    <form action="{{ url_for( entidad + '.delete_' + entidad, id = diccionario.id ) }}" method="post" style="display:inline;">
+                                        <button class="button is-dark is-small" type="submit">Eliminar</button>
+                                    </form>
+                                    {%endif%}
+                                    {%if check_permission('user_block')%}
+                                      <!-- Form to block the element -->
+                                      <form action="{{ url_for('user.block_user', user_id= diccionario['id']) }}" method="post" style="display:inline;">
+                                         <button class="button is-primary is-small" type="submit">Bloquear</button>
+                                      </form>
+                                    {%endif%}
+                                </div>
+                                </td>
+                         </tr>    
+                    {% endfor %}     
                 </tbody>
             </table>
         </div>
+    </div>
 
-
-{%endblock%}
+{% endblock %}

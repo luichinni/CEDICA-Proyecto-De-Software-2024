@@ -27,15 +27,17 @@ class EmployeeService:
 
     
     @staticmethod
-    def get_all_employees(include_admin=False) -> list[Employee]:
+    def get_all_employees(include_admin=False, include_deleted=False):
         """Obtiene todos los roles."""
         query = Employee.query
         if not include_admin:
             query = query.filter(Employee.email != AdminData.email)
+        if not include_deleted:
+            query = query.filter(deleted=False)
         return query.all()
 
     @staticmethod
-    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False):
+    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=25):
         """Obtiene todos los empleados"""
         employees_query = Employee.query.filter_by(deleted=include_deleted)
         if filtro:
@@ -47,7 +49,9 @@ class EmployeeService:
                 employees_query = employees_query.order_by(getattr(Employee, order_by).asc())
             else:
                 employees_query = employees_query.order_by(getattr(Employee, order_by).desc())
-        return employees_query.all()
+
+        pagination = employees_query.paginate(page=page, per_page=per_page, error_out=False)
+        return pagination.items, pagination.total, pagination.pages
     
     @staticmethod
     def get_employees_without_user():
@@ -77,20 +81,24 @@ class EmployeeService:
         return employee
 
     @staticmethod
-    def get_employee_by_id(employee_id):
+    def get_employee_by_id(employee_id, include_deleted=False):
         """Busca un empleado por su email"""
-        employee = Employee.query.filter_by(id=employee_id).first()
-        if not employee:
+        query = Employee.query.filter_by(id=employee_id)
+        if not include_deleted:
+            query = query.filter_by(deleted=False)
+        if not query:
             raise ValueError(f"No se encontro el empleado con id {employee_id}")
-        return employee
+        return query.first()
 
     @staticmethod
-    def get_employee_by_email(email):
+    def get_employee_by_email(email, include_deleted=False):
         """Busca un empleado por email y lanza un error si no existe."""
-        existing_employee = Employee.query.filter_by(email=email).first()
+        existing_employee = Employee.query.filter_by(email=email)
+        if not include_deleted:
+            existing_employee = existing_employee.filter_by(deleted=False)
         if existing_employee is None:
             raise ValueError(f"No existe empleado con el email ingresado: '{email}'")
-        return existing_employee
+        return existing_employee.first()
 
     @staticmethod
     def create_admin_employee():

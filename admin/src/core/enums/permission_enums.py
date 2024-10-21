@@ -12,3 +12,4 @@ class PermissionModel(Enum):
     COLLECTION = "collection"
     EMPLOYEE = "employee"
     CLIENT = "client"
+    PAYMENT = "payment"
