@@ -1,3 +1,4 @@
+from datetime import date
 import urllib.parse
 from src.core.database import db
 from src.core.enums.client_enum import *
@@ -6,8 +7,28 @@ from src.core.services.equestrian_service import EquestrianService
 from src.core.models.client import Clients, ClientDocuments
 from src.core.storage import storage
 from urllib.parse import urlparse
+import pickle
 
 class ClientService:
+    
+    @staticmethod
+    def obtener_clave_por_valor(enum_class: Enum, valor):
+        """Retorna la Key segun el valor asociado del enum
+
+        Args:
+            enum_class (Enum): Enumerable a analizar
+            valor (Any): Clave a buscar
+
+        Returns:
+            (Any | None): Valor de la clave si es encontrado, sino None
+        """
+        if not (valor in enum_class):
+            return None
+        
+        for valor_enum in enum_class:
+            if valor == valor_enum.value:
+                return valor_enum.name
+
     @staticmethod
     def validate_data(**kwargs):
         """Verifica que los datos pasados cumplan las especificaciones para ser datos validos
@@ -35,18 +56,22 @@ class ClientService:
             if not hasattr(Clients, campo): # salteo ejecucion de campos que no son válidos
                 continue
             
-            if (campo == 'dni' and (copy['update'] == False)): # comprobar solo numeros y buscar repetido
+            if (campo == 'dni'): # comprobar solo numeros y buscar repetido
                 if copy[campo].isdigit():
                     try:
                         ClientService.get_client_by_dni(copy[campo])
-                        raise ValueError(f"Ya existe cliente con el dni ingresado: '{copy[campo]}'") 
                     except:
                         validos[campo] = copy[campo]
+                    else:
+                        raise ValueError(f"Ya existe cliente con el dni ingresado: '{copy[campo]}'")
                 else:
                     raise ValueError(f"El dni ingresado debe ser solo numérico")      
                   
             elif (campo == 'fecha_nacimiento'): # comprobar fecha 
-                pass
+                if copy[campo] > date.today():
+                    raise ValueError('La fecha no puede ser mayor a la fecha actual.')
+                
+                validos[campo] = copy[campo]
 
             elif (campo == 'contacto_emergencia'): # nombre y telefono
                 if len(set(['nombre','telefono']).intersection(set(copy[campo].keys()))) == 2:
@@ -60,48 +85,65 @@ class ClientService:
                 else:
                     validos[campo] = copy[campo]
             
-            elif (campo == 'discapacidad' or campo == 'asignacion' or campo == 'pension' or campo == 'propuesta_trabajo'): # enum
-                if ((campo == 'discapacidad') and int(copy[campo]) in Discapacidad) or ((campo == 'asignacion') and copy[campo] in AsignacionFamiliar) or ((campo == 'pension') and int(copy[campo]) in Pension) or ((campo == 'propuesta_trabajo') and int(copy[campo]) in PropuestasInstitucionales):
-                    validos[campo] = copy[campo]
+            elif (campo == 'discapacidad'):
+                valor_en = ClientService.obtener_clave_por_valor(Discapacidad,int(copy[campo]))
+                if valor_en:
+                    validos[campo] = valor_en
                 else:
                     raise ValueError(f"{copy[campo]} no es {campo} válida")
-
-            elif (campo == 'institucion_escolar'): # nombre, dir, tel, grado y obs
-                if len(set(['institucion_escolar-nombre','institucion_escolar-direccion','institucion_escolar-telefono','institucion_escolar-grado','institucion_escolar-observaciones']).intersection(set(copy[campo].keys()))) == 5:
-                    validos[campo] = copy[campo]
+            
+            elif (campo == 'asignacion'):
+                valor_en = ClientService.obtener_clave_por_valor(AsignacionFamiliar,copy[campo])
+                if valor_en:
+                    validos[campo] = valor_en
                 else:
-                    raise ValueError(f"La información de institución escolar está incompleta")
-
-            elif (campo == 'tutores_responsables'): # parentesco, nombre, apellido, dni, dir, cel, mail, nivel escolaridad maximo y ocupacion
-                for idx,tutor in enumerate(copy[campo]):
-                    print(tutor)
-                    if len(set([f'tutores_responsables-{idx}-parentesco',f'tutores_responsables-{idx}-nombre',f'tutores_responsables-{idx}-apellido',f'tutores_responsables-{idx}-dni',f'tutores_responsables-{idx}-domicilio',f'tutores_responsables-{idx}-telefono',f'tutores_responsables-{idx}-email',f'tutores_responsables-{idx}-escolaridad',f'tutores_responsables-{idx}-ocupacion']).intersection(set(tutor.keys()))) == 9:
-                        raise ValueError(f"La información del tutor legal {idx} está incompleta")
-                validos[campo] = copy[campo]
-                
+                    raise ValueError(f"{copy[campo]} no es {campo} válida")
+            
+            elif (campo == 'pension'):
+                valor_en = ClientService.obtener_clave_por_valor(Pension,int(copy[campo]))
+                if valor_en:
+                    validos[campo] = valor_en
+                else:
+                    raise ValueError(f"{copy[campo]} no es {campo} válida")
+            
+            elif (campo == 'propuesta_trabajo'):
+                valor_en = ClientService.obtener_clave_por_valor(PropuestasInstitucionales,int(copy[campo]))
+                if valor_en:
+                    validos[campo] = valor_en
+                else:
+                    raise ValueError(f"{copy[campo]} no es {campo} válida")
+            
             elif (campo == 'dias'): # dia valido?
+                dias = []
                 for idx, dia in enumerate(copy[campo]):
-                    if not (dia in Dias):
-                        raise ValueError(f"El dia {dia} no es válido")
-                validos[campo] = copy[campo]
+                    dia_nombre = ClientService.obtener_clave_por_valor(Dias,int(dia))
+                    if not dia_nombre:
+                        raise ValueError(f"El dia {dia_nombre} no es válido")
+                    
+                    dias.append(dia_nombre)
+                    
+                validos[campo] = dias
             
             elif (campo == 'profesor_id' or campo == 'conductor_id' or campo == 'auxiliar_pista_id'): # verificar existencia
                 try:
-                    EmployeeService.get_employee_by_id(copy[campo])
-                    validos[campo] = copy[campo]
+                    EmployeeService.get_employee_by_id(int(copy[campo]))
+                    validos[campo] = int(copy[campo])
                 except:
                     raise ValueError(f"El {campo.replace('_',' ')} no es válido")
 
             elif (campo == 'caballo_id'): # verificar existencia 
                 try:
-                    EquestrianService.get_Equestrian_by_id(copy[campo])
-                    validos[campo] = copy[campo]
+                    EquestrianService.get_Equestrian_by_id(int(copy[campo]))
+                    validos[campo] = int(copy[campo])
                 except:
                     raise ValueError(f"El {campo.replace('_',' ')} no es válido")
 
             else: # si no necesita validación --> nombre, apellido, lugar_nacimiento, domicilio, telefono, obs_beca, cert_discapacidad, obra_social, observaciones, sede, atendido_por
                 validos[campo] = copy[campo]
-
+            """ 
+            if type(validos[campo]) == dict:
+            validos[campo] = pickle.dumps(validos[campo]) """
+            
         return validos
 
     @staticmethod
@@ -204,7 +246,7 @@ class ClientService:
         return existing_client
     
     @staticmethod
-    def get_clients(filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool =True, include_deleted: bool =False) -> list:
+    def get_clients(filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like:bool = False) -> tuple:
         """Lista los clientes segun los filtros especificados, en caso de no especificar retorna los primeros 25 clientes
 
         Args:
@@ -214,21 +256,27 @@ class ClientService:
             order_by (str, optional): Campo para ordenar. Defaults to None.
             ascending (bool, optional): Flag de ordenamiento asc o desc. Defaults to True.
             include_deleted (bool, optional): Flag de inclusión eliminados. Defaults to False.
+            like (bool, optional): Flag de busqueda parcial en strings. Defaults to False.
 
         Returns:
             list: Listado de clientes obtenidos a partir de la busqueda
         """
         query = Clients.query.filter_by(deleted=include_deleted)
+        
         if filtro:
-            valid_filters = {key:value for key, value in filtro.items() if hasattr(Clients, key) and value is not None}
-            query = query.filter_by(**valid_filters)
+            for key, value in filtro.items():
+                if hasattr(Clients, key) and value is not None:
+                    if isinstance(value, str) and like:
+                        query = query.filter(getattr(Clients, key).like(f'%{value}%'))
+                    else:
+                        query = query.filter_by(**{key: value})
 
         if order_by:
             if ascending:
                 query = query.order_by(getattr(Clients, order_by).asc())
             else:
                 query = query.order_by(getattr(Clients, order_by).desc())
-                
+        
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
     

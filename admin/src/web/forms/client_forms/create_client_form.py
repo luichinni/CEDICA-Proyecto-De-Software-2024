@@ -38,7 +38,7 @@ class ClientFirstForm(FlaskForm):
     dni = StringField('Dni', validators=[DataRequired(), Length(max=50)])
     nombre = StringField('Nombre/s', validators=[DataRequired(), Length(max=50)])
     apellido = StringField('Apellido/s', validators=[DataRequired(),Length(max=50)])
-    fecha_nacimiento = DateField('Fecha de Nacimiento', format='%Y-%m-%d', validators=[DataRequired()])
+    fecha_nacimiento = DateField('Fecha de Nacimiento', format='%Y-%m-%d', validators=[DataRequired(), validate_not_in_future])
     # lugar de nacimiento -> (localidad y provincia)
     lugar_nacimiento = FormField(LugarNacimiento,label='Lugar de Nacimiento')
     # (calle, número, departamento, localidad, provincia)
@@ -160,14 +160,14 @@ class ClientSixthForm(FlaskForm):
     dias = db.Column(db.PickleType(mutable=True), nullable=False)
 """
 class PropuestaDeTrabajo(FlaskForm):
-    propuesta = SelectField('Propuesta de trabajo institucional',choices=[(prop.value,prop.name.capitalize()) for prop in PropuestasInstitucionales], validators=[DataRequired()])
+    propuesta_trabajo = SelectField('Propuesta de trabajo institucional',choices=[(prop.value,prop.name.capitalize()) for prop in PropuestasInstitucionales], validators=[DataRequired()])
     condicion = BooleanField('Condicion: Marcar para regular, desmarcar para dado de baja', validators=[])
     sede = StringField('Sede',validators=[DataRequired()])
     dias = SelectMultipleField('Dia/s',choices=[(dia.value,dia.name) for dia in Dias])
-    profesor = SelectField('Profesor/a', choices=[], validators=[DataRequired()])
-    conductor = SelectField('Conductor/a', choices=[], validators=[DataRequired()])
-    caballo = SelectField('Caballo', choices=[], validators=[DataRequired()])
-    auxiliar = SelectField('Auxiliar de pista', choices=[], validators=[DataRequired()])
+    profesor_id = SelectField('Profesor/a', choices=[], validators=[DataRequired()])
+    conductor_id = SelectField('Conductor/a', choices=[], validators=[DataRequired()])
+    caballo_id = SelectField('Caballo', choices=[], validators=[DataRequired()])
+    auxiliar_pista_id = SelectField('Auxiliar de pista', choices=[], validators=[DataRequired()])
 
 class ClientSeventhForm(FlaskForm):
     propuesta_trabajo = FormField(PropuestaDeTrabajo,label="Propuesta de Trabajo Institucional")
@@ -191,7 +191,7 @@ Los mismos aportan información complementaria. Junto con la subida del archivo 
 
 class UploadFile(FlaskForm):
     tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs])
-    archivo = FileField('Seleccionar Archivo (PDF, DOC, XLS o JPEG)', validators=[FileRequired(),FileAllowed(['pdf', 'doc', 'xls', 'jpeg'])])
+    archivo = FileField('Seleccionar Archivo (PDF, DOC, XLS o JPEG)', validators=[FileRequired(),FileAllowed(['pdf', 'doc', 'xls', 'jpeg'],"Formato inválido")])
     
 class UploadLink(FlaskForm):
     titulo = StringField('Nombre de referencia', validators=[DataRequired(), Length(max=100)])

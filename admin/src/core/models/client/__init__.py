@@ -17,7 +17,7 @@ class Clients(db.Model):
     domicilio = db.Column(db.String(255), nullable=False)
     telefono = db.Column(db.String(50), nullable=False)
     # Contacto de emergencia:			Tel:
-    contacto_emergencia = db.Column(db.PickleType, nullable=False)
+    contacto_emergencia = db.Column(db.PickleType, nullable=False)# {nombre:,telefono:}
 
     # datos personales 2
     becado = db.Column(db.Boolean, nullable=True)
@@ -105,8 +105,48 @@ class Clients(db.Model):
 
     def to_dict(self):
         return {
-            "id": self.id,
-            'dni': self.dni,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
-        }
+        "dni": self.dni,
+        "nombre": self.nombre,
+        "apellido": self.apellido,
+        "fecha_nacimiento": self.fecha_nacimiento,
+        "lugar_nacimiento": self.lugar_nacimiento,
+        "domicilio": self.domicilio,
+        "telefono": self.telefono,
+        "contacto_emergencia": {
+            "nombre": self.contacto_emergencia.get("nombre"),
+            "telefono": self.contacto_emergencia.get("telefono")
+        },
+        "becado": "Becado" if self.becado else "No becado",
+        "obs_beca": self.obs_beca,
+        "cert_discapacidad": self.cert_discapacidad,
+        "discapacidad": self.discapacidad.name,
+        "asignacion": self.asignacion.name,
+        "pension": self.pension.name,
+        "obra_social": self.obra_social,
+        "nro_afiliado": self.nro_afiliado,
+        "curatela": "Posee" if self.curatela else "No posee",
+        "observaciones": self.observaciones,
+        "institucion_escolar": {
+            "nombre": self.institucion_escolar.get("nombre"),
+            "direccion": self.institucion_escolar.get("direccion"),
+            "telefono": self.institucion_escolar.get("telefono"),
+            "grado": self.institucion_escolar.get("grado"),
+            "observaciones": self.institucion_escolar.get("observaciones")
+        },
+        "atendido_por": self.atendido_por,
+        "tutores_responsables": [{
+            'parentesco': self.tutores_responsables[tutor]['parentesco'],
+            'nombre': self.tutores_responsables[tutor]['nombre'],
+            'apellido': self.tutores_responsables[tutor]['apellido'],
+            'dni': self.tutores_responsables[tutor]['dni'],
+            'domicilio': self.tutores_responsables[tutor]['domicilio']['calle'] + ' N' + self.tutores_responsables[tutor]['domicilio']['numero'] + ', '+  self.tutores_responsables[tutor]['domicilio']['localidad'] + ' ' + self.tutores_responsables[tutor]['domicilio']['provincia'],
+            'telefono': self.tutores_responsables[tutor]['telefono'],
+            'email': self.tutores_responsables[tutor]['email'],
+            'escolaridad': self.tutores_responsables[tutor]['escolaridad'],
+            'ocupacion': self.tutores_responsables[tutor]['ocupacion']
+        } for tutor in self.tutores_responsables],
+        "propuesta_trabajo": self.propuesta_trabajo.name if self.propuesta_trabajo else None,
+        "condicion": "Regular" if self.condicion else "Baja",
+        "sede": self.sede,
+        "dias": self.dias if self.dias else []
+    }

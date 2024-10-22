@@ -23,16 +23,6 @@
             {% set campos = form._fields.keys()|list %}
         
         {{ form.hidden_tag() }}<!-- CSRF token -->
-        
-        {% with messages = get_flashed_messages() %}<!-- Muestra mensaje/s flash -->
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        {% endwith %}
 
         {% for campo in range(campos|length-1)%}
             <div>

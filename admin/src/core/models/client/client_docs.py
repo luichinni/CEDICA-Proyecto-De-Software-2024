@@ -27,5 +27,7 @@ class ClientDocuments(db.Model):
         return {
             "id": self.id,
             'titulo': self.titulo,
+            'tipo': self.tipo,
+            'ubicacion':self.ubicacion,
             "created_at": self.created_at.isoformat(),
         }
