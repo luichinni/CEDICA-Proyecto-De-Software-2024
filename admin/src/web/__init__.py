@@ -87,7 +87,7 @@ def create_app(env="development", static_folder="../../static"):
 
     #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)
-    app.jinja_env.globals.update(check_permissions = check_permissions)
+    app.jinja_env.globals.update(check_permission = check_permissions)
 
     @app.cli.command(name="reset-db")
     def reset_db():
