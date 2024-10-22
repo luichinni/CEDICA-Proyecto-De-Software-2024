@@ -20,7 +20,9 @@ def index():
 
     payments, total, pages = PaymentService.get_payments(page=page, per_page=per_page)
 
-    return render_template('payment/index.html', payments=payments, total=total, pages=pages, current_page=page, per_page=per_page)
+    lista_diccionarios = [payment.to_dict() for payment in payments]
+
+    return render_template('list.html', lista_diccionarios=lista_diccionarios, entidad="payment")
 
 #TODO: VER COMO HAGO PAGINACION ACA
 @bp.route('/search', methods=['GET'])

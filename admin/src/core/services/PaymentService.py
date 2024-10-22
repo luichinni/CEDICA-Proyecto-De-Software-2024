@@ -44,7 +44,7 @@ class PaymentService:
             else:
                 payments_query = payments_query.order_by(getattr(Payment, order_by).desc())
 
-        pagination = payments_query.paginate(page, per_page, error_out=False)
+        pagination = payments_query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
 
     @staticmethod
