@@ -1,0 +1,90 @@
+{% extends 'Layout.html' %}
+{% block title %} {{titulo}} {% endblock %}
+{% block head %}
+  
+ <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+{{ super() }}
+{% endblock %}
+
+{% block content%}
+
+<h1> {{titulo}}</h1>
+<br>
+{% if anterior %}
+    <a href="{{ anterior }}" class="button">Volver</a>
+{% else %}
+    <a href="/" class="button">Volver a inicio</a>
+{% endif %}
+<br>
+
+<div class="tabs">
+    <ul>
+      <li class="is-active" onclick="mostrar('informacion')"><a > Informacion </a></li>
+      <li onclick="mostrar('documents')" ><a>Documentos</a></li>
+      
+    </ul>
+</div>
+
+ 
+<div id="tab-content"  class="is-active" >
+  <div id="informacion" class="tab-content" class="is-active">
+   
+    <section class="section">
+      <ul class="list">  
+      {%for key in diccionario %}
+           
+          <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
+      {%endfor%}
+     </ul>
+   </section>
+   <div class="buttons is-centered">
+    <br>
+      <a href="{{ url_for( entidad + '.update_'+entidad,id = diccionario.id) }}"  class="button is-primary">Editar</a> 
+    <br>
+      <a href="{{ url_for( entidad + '.delete_'+entidad,id = diccionario.id) }}"  class="button is-primary">Eliminar</a>
+    <br>
+   </div>
+ </div>
+  <div id="documents" class="tab-content">
+    <p> Documentos</p>
+     
+    {% include 'files_search_box.html'%}
+  </div>
+</div>
+
+<script>
+
+    function mostrar (tabId)
+    {
+        // Ocultar todo el contenido de las pestañas
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('is-active'));
+      
+        // Mostrar el contenido correspondiente
+        const activeContent = document.getElementById(tabId);
+        activeContent.classList.add('is-active');
+      
+        // Quitar la clase is-active de todas las pestañas
+        const tabs = document.querySelectorAll('.tabs ul li');
+        tabs.forEach(tab => tab.classList.remove('is-active'));
+      
+        // Agregar la clase is-active a la pestaña clicada
+        event.currentTarget.classList.add('is-active');
+
+    }
+    var activo = "{{activo}}"
+    mostrar(activo)
+</script>
+<style>
+    .tab-content {
+        display: none;
+      }
+      
+      .tab-content.is-active {
+        display: block;
+      }
+      
+</style>
+
+{% endblock %}

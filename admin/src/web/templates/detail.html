@@ -15,19 +15,20 @@
          <a href="/" class="button">Volver a inicio</a>
      {% endif %}
      <br>
-     <section>
-       <ul>  
+     <section class="section">
+       <ul class="list">  
        {%for key in diccionario %}
             
            <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
        {%endfor%}
       </ul>
     </section>
-    <h1>{{request.path}}</h1>
+    <div class="buttons is-centered">
      <br>
-     <a href="{{ url_for( entidad + '.update_'+entidad,id = diccionario['id']) }}">Editar</a> 
+     <a href="{{ url_for( entidad + '.update_'+entidad,id = diccionario.id) }}">Editar</a> 
      <br>
-     <a href="{{ url_for( entidad + '.delete_'+entidad,id = diccionario['id']) }}">Eliminar</a>
+     <a href="{{ url_for( entidad + '.delete_'+entidad,id = diccionario.id) }}">Eliminar</a>
      <br>
+    </div>
      
 {% endblock %}
