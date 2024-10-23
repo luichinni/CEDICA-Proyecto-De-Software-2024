@@ -27,7 +27,8 @@ class ClientDocuments(db.Model):
         return {
             "id": self.id,
             'titulo': self.titulo,
-            'tipo': self.tipo,
+            'tipo': str(self.tipo).split('.')[1].replace('_',' ').capitalize(),
+            'es_link': self.es_link,
             'ubicacion':self.ubicacion,
             "created_at": self.created_at.isoformat(),
         }

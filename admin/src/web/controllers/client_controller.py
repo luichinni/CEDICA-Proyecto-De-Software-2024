@@ -8,7 +8,7 @@ from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
 from src.web.handlers import get_int_param, get_str_param, get_bool_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
-from src.web.forms.client_forms.create_client_form import ClientFirstForm, ClientSecondForm, ClientThirdForm, ClientFourthForm, ClientFifthForm, ClientSixthForm, ClientSeventhForm, UploadFile
+from src.web.forms.client_forms.create_client_form import ClientFirstForm, ClientSecondForm, ClientThirdForm, ClientFourthForm, ClientFifthForm, ClientSixthForm, ClientSeventhForm, UploadFile, UploadLink
 from flask import session
 
 
@@ -88,12 +88,6 @@ def search_clients():
     #anterior=request.referrer
     return render_template('search_box.html', entidad='clients', anterior=url_for('home'), form=form, lista_diccionarios=listado, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado JyA')
 
-""" @clients_bp.get('/<int:user_id>')
-@check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda user_id: url_for('clients.search_clients'))
-def detail_clients(user_id):
-    cliente = ClientService.get_client_by_id(user_id)
-    return render_template('client/show_data.html', titulo="Detail Clients",data=cliente) """
 
 @clients_bp.route('/create', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
@@ -232,6 +226,7 @@ def new_clients():
         del session['paso']
         return redirect(url_for('clients.search_clients'))
 
+
 @clients_bp.route('/create/cancelar', methods=['GET','POST'])
 #@check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
 #@handle_error(lambda: url_for('auth.index'))
@@ -242,16 +237,10 @@ def cancelar_form():
         del session['paso']
     return redirect(url_for('clients.search_clients'))
 
+
 @clients_bp.get('/<int:id>')
 def detail_clients(id: int):
-    cliente = ClientService.get_client_by_id(id).to_dict()
-    search_file = ClientFileSearchForm()
-    files = ClientService.get_documents(id)[0]
-    if not files:
-        files = {0:{'id':'0'},1:{'id':'1'}}
-
-    
-    return render_template('different_detail.html', form=search_file, activo="informacion", entidad="clients",titulo=f'{cliente['nombre']} {cliente['apellido']} - {cliente['dni']}',diccionario=cliente, lista_diccionarios=files,anterior=url_for('clients.search_clients'))
+    return redirect(url_for('client_file.search_client_file',id=id,active='informacion'))
 
 @clients_bp.get('/update')
 def update_clients():
@@ -262,13 +251,105 @@ def delete_clients():
     pass
 
 
-clients_files_bp = Blueprint('client_files', __name__,url_prefix='/client_files')
+clients_files_bp = Blueprint('client_file', __name__,url_prefix='/client_file')
 
-@clients_files_bp.route('/<int:id>/upload/', methods=['GET','POST'])
-def new_client_file(id):
-    form = UploadFile()
+@clients_files_bp.route('/upload/<int:id>/<string:es_link>', methods=['GET','POST'])
+def new_client_file(id,es_link):
+    es_link = (es_link.lower() == 'true')
+    form = UploadFile() if not es_link else UploadLink()
     if form.validate_on_submit():
-        flash('archivo','success')
-        return redirect(url_for('clients.search_clients'))
+        flash('Cargado exitosamente','success')
+        ClientService.add_document(id,form.titulo.data,form.archivo.data,form.tipo.data,es_link)
+        return redirect(url_for('client_file.search_client_file',id=id, active='documents'))
     
-    return render_template('form.html',anterior=url_for('clients.search_clients') ,ruta_post=url_for('client_files.new_client_file',id=id),form=form)
+    return render_template('form.html',
+                           anterior=url_for('client_file.search_client_file',
+                                            id=id,
+                                            active='documents'
+                                        ),
+                           ruta_post=url_for('client_file.new_client_file',
+                                             id=id,
+                                             es_link=es_link
+                                        ),
+                           form=form)
+
+@clients_files_bp.get('/update/<int:id>/<string:es_link>')
+def update_client_file(id:int,es_link:str):
+    pass
+
+@clients_files_bp.get('/delete/<int:id>')
+def delete_client_file(id):
+    pass
+
+@clients_files_bp.get('/detail/<int:id>')
+def detail_client_file(id):
+    archivo = ClientService.get_document(id)
+    
+    if not archivo:
+        raise ValueError('No existe el archivo')
+    
+    return redirect(archivo)
+
+@clients_files_bp.get('/search/<int:id>')
+def search_client_file(id):
+    """Lista todos los archivos con paginación."""
+    
+    params = request.args
+    params_dict = params.to_dict()
+    
+    form = ClientFileSearchForm()
+    
+    for param, valor in params_dict.items():
+        if param in form._fields:
+            form._fields[param].data = valor
+    
+    filtro = None
+    
+    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
+        filtro = {
+            params['tipo_filtro']: params.get('busqueda')
+        }
+    
+    
+    order_by = params.get('orden_filtro',None)
+    
+    ascending = (params.get('orden','Ascendente') == 'Ascendente')
+    
+    page = int(getattr(params,'page','1'))
+
+    per_page = int(getattr(params,'per_page','25'))
+
+    print(filtro, order_by,ascending, page, per_page)
+
+    archivos, total, pages = ClientService.get_documents(id,filtro,page,per_page,order_by,ascending, like=True)
+    
+    listado = []
+
+    if archivos:
+        print('entra')
+        for archivo in archivos:
+            listado.append(archivo.to_dict())
+    else:
+        # por si no hay que listar y que no se rompa
+        listado = [{
+        'id': '0',
+        'Titulo':'',
+        'es_link': True,
+        'ubicacion': ''
+    }]
+    
+    datos_cliente = ClientService.get_client_by_id(id).to_dict()
+    
+    #anterior=request.referrer
+    return render_template('different_detail.html', 
+                           diccionario=datos_cliente,
+                           activo="informacion",
+                           entidad='clients',
+                           entidad_archivos='client_file',
+                           anterior=url_for('clients.detail_clients',id=id),
+                           form=form, lista_diccionarios=listado,
+                           total=total,
+                           current_page=page,
+                           per_page=per_page,
+                           pages=pages,titulo='Detalle'
+                        )

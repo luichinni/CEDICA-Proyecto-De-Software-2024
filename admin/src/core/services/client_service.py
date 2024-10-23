@@ -1,5 +1,4 @@
-from datetime import date
-import urllib.parse
+from datetime import date, timedelta
 from src.core.database import db
 from src.core.enums.client_enum import *
 from src.core.services.employee_service import EmployeeService
@@ -7,7 +6,7 @@ from src.core.services.equestrian_service import EquestrianService
 from src.core.models.client import Clients, ClientDocuments
 from src.core.storage import storage
 from urllib.parse import urlparse
-import pickle
+from os import path
 
 class ClientService:
     
@@ -281,7 +280,7 @@ class ClientService:
         return pagination.items, pagination.total, pagination.pages
     
     @staticmethod
-    def add_document(client_id: int | str, document, tipo: TipoDocs, es_link: bool) -> ClientDocuments:
+    def add_document(client_id: int | str, titulo:str, document, tipo: TipoDocs, es_link: bool) -> ClientDocuments:
         """Permite cargarle un documento o link a un cliente
 
         Args:
@@ -298,35 +297,44 @@ class ClientService:
         ubicacion_archivo = ""
         nombre_archivo = ""
         
-        if (tipo not in TipoDocs):
+        if (int(tipo) not in TipoDocs):
             raise ValueError("Tipo de documento no es válido")
         
         if es_link:
-            ubicacion_archivo = document
+            ubicacion_archivo = document # si es link, seria la url
             url_parseada = urlparse(document)
             nombre_archivo = url_parseada.hostname if url_parseada.hostname is not None else url_parseada.netloc # puede tomar por ej: drive.google.com o drive.google.com:port
-            nombre_archivo = "Archivo de \"" + nombre_archivo + "\"" # ej: Archivo de "drive.google.com"
+            nombre_archivo = "Archivo de \"" + nombre_archivo + "\"" if not titulo else titulo # ej: Archivo de "drive.google.com"
             
         else:
-            last_file = cliente.archivos.order_by(ClientDocuments.id.desc()).first()
+            last_file = cliente.archivos
             last_id = 1
             
             if last_file:
-                last_id = last_file.id + 1
-                
-            ubicacion_archivo = cliente.dni + '_' + last_id + '_' + document.filename # ej: 44130359_4_fotocopiadni.pdf
-            nombre_archivo = document.filename
+                ultimo_documento = (
+                    db.session.query(ClientDocuments)
+                    .filter(ClientDocuments.client_id == cliente.id)
+                    .order_by(ClientDocuments.id.desc())
+                    .first()
+                )
+                last_id = ultimo_documento.id + 1
+            
+            nombre_archivo = cliente.dni + '_' + str(last_id) + '_' + (document.filename if not titulo else titulo.replace(' ','_')+path.splitext(document.filename)[1]) # 44130359_4_fotocopiadni.pdf o con titulo 44130359_4_titulo_agregado.pdf
+            ubicacion_archivo = 'client_files/' + nombre_archivo # ej: client_files/44130359_4_fotocopiadni.pdf o 44130359_4_titulo_agregado.pdf
             
             try:
-                storage.client.put_object("grupo23",ubicacion_archivo,document.stream,length=-1)
+                result = storage.client.put_object("grupo23",ubicacion_archivo,document.stream,length=-1, part_size=5 * 1024 * 1024)
+                print("!subido!" , result)
             except:
-                raise ValueError("Hubo un problema al cargar el/los archivos, intenta nuevamente")
+                raise ValueError("Hubo un problema al cargar el archivo, intenta nuevamente")
         
         new_file = ClientDocuments(
-            titulo=nombre_archivo, 
-            tipo=tipo, 
-            ubicacion=ubicacion_archivo, 
-            es_link=es_link)
+                titulo=titulo, 
+                tipo=ClientService.obtener_clave_por_valor(TipoDocs,int(tipo)), 
+                ubicacion=ubicacion_archivo, 
+                es_link=es_link,
+                client_id=client_id
+            )
 
         db.session.add(new_file)
         db.session.commit()
@@ -334,31 +342,61 @@ class ClientService:
         return new_file
     
     @staticmethod
-    def get_documents(client_id: int | str, filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False):
-        """Obtiene por pagina y filtro los documentos de un cliente especifico
+    def get_document(id:int):
+        archivo = ClientDocuments.query.get(id)
+        if archivo.es_link:
+            url = archivo.ubicacion
+        else:
+            formatos = {ext.name:ext.value for ext in ExtensionesPermitidas}
+            headers = {"response-content-type": formatos[path.splitext(archivo.ubicacion)[1][1:].upper()]}  # Cambia según el archivo
+            url = storage.client.presigned_get_object('grupo23',archivo.ubicacion,expires=timedelta(hours=1),response_headers=headers)
+        
+        return url
+    
+    @staticmethod
+    def get_documents(client_id: int | str, filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
+        """
+        Obtiene por página y filtro los documentos de un cliente específico.
 
         Args:
-            client_id (int | str): ID del cliente cuyos documentos son requeridos
+            client_id (int | str): ID del cliente cuyos documentos son requeridos.
             filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
-            page (int, optional): Nro de página requerida. Defaults to 1.
+            page (int, optional): Número de página requerida. Defaults to 1.
             per_page (int, optional): Cantidad de archivos por página. Defaults to 25.
             order_by (str, optional): Campo de orden para los elementos. Defaults to None.
             ascending (bool, optional): Flag de datos ascendentes o descendentes. Defaults to True.
             include_deleted (bool, optional): Flag de inclusión de archivos con borrado lógico. Defaults to False.
+            like (bool, optional): Flag de búsqueda parcial en strings. Defaults to False.
         """
-        query = ClientDocuments.query.filter_by(deleted=include_deleted)
-        if filtro:
-            valid_filters = {key:value for key, value in filtro.items() if hasattr(ClientDocuments, key) and value is not None}
-            query = query.filter_by(**valid_filters)
+        if isinstance(client_id,str):
+            client_id = int(client_id)
+        
+        # Base query, filtrando por cliente y condición de borrado
+        query = ClientDocuments.query.filter(ClientDocuments.client_id == client_id, ClientDocuments.deleted == include_deleted)
 
-        if order_by:
+        # Aplicar filtros
+        if filtro:
+            for key, value in filtro.items():
+                if hasattr(ClientDocuments, key) and value is not None:
+                    # Filtro de string parcial si 'like' está activo
+                    if isinstance(value, str) and like:
+                        query = query.filter(getattr(ClientDocuments, key).like(f'%{value}%'))
+                    else:
+                        query = query.filter(getattr(ClientDocuments, key) == value)
+
+        # Aplicar ordenamiento
+        if order_by and hasattr(ClientDocuments, order_by):
             if ascending:
                 query = query.order_by(getattr(ClientDocuments, order_by).asc())
             else:
                 query = query.order_by(getattr(ClientDocuments, order_by).desc())
-                
+
+        # Realizar paginación
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # Retornar los resultados
         return pagination.items, pagination.total, pagination.pages
+
     
     @staticmethod
     def delete_document(docs_id: int | str):

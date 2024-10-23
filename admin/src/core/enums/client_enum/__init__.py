@@ -68,3 +68,10 @@ class Escolaridad(Enum):
     SECUNDARIO = "Secundario"
     TERCIARIO = "Terciario"
     UNIVERSITARIO = "Universitario"
+    
+    ['pdf', 'doc', 'xls', 'jpeg']
+class ExtensionesPermitidas(Enum):
+    PDF = 'application/pdf'
+    DOC = 'application/doc'
+    XLS = 'application/xls'
+    JPEG = 'image/jpeg'

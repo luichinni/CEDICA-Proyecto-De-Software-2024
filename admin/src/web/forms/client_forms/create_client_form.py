@@ -190,10 +190,11 @@ Los mismos aportan información complementaria. Junto con la subida del archivo 
 """
 
 class UploadFile(FlaskForm):
+    titulo = StringField('Titulo (opcional)')
     tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs])
-    archivo = FileField('Seleccionar Archivo (PDF, DOC, XLS o JPEG)', validators=[FileRequired(),FileAllowed(['pdf', 'doc', 'xls', 'jpeg'],"Formato inválido")])
+    archivo = FileField('Seleccionar Archivo (PDF, DOC, XLS o JPEG)', validators=[FileRequired(),FileAllowed([ext.name.lower() for ext in ExtensionesPermitidas],"Formato inválido")])
     
 class UploadLink(FlaskForm):
     titulo = StringField('Nombre de referencia', validators=[DataRequired(), Length(max=100)])
     tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs], validators=[DataRequired()])
-    link = StringField('URL o Link del Documento', validators=[DataRequired()])
+    archivo = StringField('URL o Link del Documento', validators=[DataRequired()])

@@ -105,6 +105,7 @@ class Clients(db.Model):
 
     def to_dict(self):
         return {
+        "id": self.id,
         "dni": self.dni,
         "nombre": self.nombre,
         "apellido": self.apellido,
