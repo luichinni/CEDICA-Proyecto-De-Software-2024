@@ -63,7 +63,6 @@ def index():
     lista_diccionarios = [employee.to_dict() for employee in employees]
     return render_template('list.html', lista_diccionarios=lista_diccionarios, entidad="employee")
 
-#TODO: VER COMO HACER PAGINACION ACA
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.INDEX.value}")
 def search_employees():
