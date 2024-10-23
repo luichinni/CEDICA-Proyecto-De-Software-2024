@@ -70,7 +70,7 @@ def search_employees():
     form = SearchEmployeeForm()
     employees = []
 
-    if form.validate_on_submit():
+    if form.validate_on_submit(): #add 'or request.args'
         search_params = {}
 
         if form.nombre.data:
@@ -84,14 +84,14 @@ def search_employees():
         if form.puesto_laboral.data:
             search_params['puesto_laboral'] = form.puesto_laboral.data
 
-        employees = EmployeeService.get_employees(filtro=search_params, order_by=form.order_by.data, ascending=form.ascending.data)
+        employees, total, pages = EmployeeService.get_employees(filtro=search_params, order_by=form.order_by.data, ascending=form.ascending.data)
 
-    return render_template('employee/search.html', form=form, employees=employees)
+    return render_template('search_box', form=form, employees=employees)
 
 @bp.route('/edit/<int:id_employee>', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.UPDATE.value}")
 @handle_error(lambda: url_for('employee.index'))
-def edit_employee(employee_id):
+def update_employee(employee_id):
     """Editar un empleado existente"""
     employee = EmployeeService.get_employee_by_id(employee_id)
     if not employee:
@@ -118,3 +118,13 @@ def delete_employee(employee_id):
     EmployeeService.delete_employee(employee_id)
     flash("Se elimino el empleado exitosamente", "success")
     return redirect(url_for('employee.list_employees'))
+
+def detail_employee(employee_id):
+    employee = EmployeeService.get_employee_by_id(employee_id)
+    context = {
+        'titulo': f'Detalle del empleado',
+        'anterior': url_for('employee.index'),
+        'diccionario' : employee.to_dict(),
+        'entidad' : 'employee'
+    }
+    return render_template('detail.html', **context)
