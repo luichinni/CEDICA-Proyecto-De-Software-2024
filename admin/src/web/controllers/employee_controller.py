@@ -20,15 +20,15 @@ def collect_employee_data_from_form(form):
             'email': form.email.data,
             'localidad': form.localidad.data,
             'telefono': form.telefono.data,
-            'profesion': form.profesion.data,
-            'puesto_laboral': form.puesto_laboral.data,
+            'profesion': form.profesion.data.upper(),
+            'puesto_laboral': form.puesto_laboral.data.upper(),
             'fecha_inicio': form.fecha_inicio.data,
             'fecha_cese': form.fecha_cese.data,
             'contacto_emergencia_nombre': form.contacto_emergencia_nombre.data,
             'contacto_emergencia_telefono': form.contacto_emergencia_telefono.data,
             'obra_social': form.obra_social.data,
             'nro_afiliado': form.nro_afiliado.data,
-            'condicion': form.condicion.data,
+            'condicion': form.condicion.data.replace(' ','_').upper(),
             'activo': form.activo.data,
         }
 

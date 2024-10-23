@@ -7,9 +7,6 @@ from src.web.handlers.auth import check_permissions
 from src.core import database
 from src.core.config import config
 
-from flask_bcrypt import Bcrypt
-from flask_session import Session
-
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField,SelectField
 from wtforms.validators import DataRequired
@@ -20,7 +17,7 @@ from src.core.models.user.permission import Permission
 from src.core.models.user.role_permission import RolePermission
 from src.core.models.user.role import Role
 from src.core.models.collection import Collection
-from src.core.models.client import Client
+from src.core.models.client import Clients
 
 from src.core.services.user_service import UserService
 from src.core.services.user_service import RoleService
@@ -30,12 +27,17 @@ from src.core.services.client_service import ClientService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
+<<<<<<< HEAD
+from src.web.controllers.client_controller import clients_bp
+
+=======
 from src.web.controllers.payment_controller import bp as payment_bp
+>>>>>>> b6a379dd7455048d51ece9f60596d4bd240369f8
 from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 
-session = Session()
-bcrypt = Bcrypt()
+from src.core.storage import storage
+from src.core.bcrypy_and_session import bcrypt, session
 
 from src.web.forms.user_forms.create_user_form import CreateUserForm
 
@@ -56,6 +58,7 @@ def create_app(env="development", static_folder="../../static"):
 
     bcrypt.init_app(app)
     session.init_app(app)
+    storage.init_app(app)
 
     @app.route("/")
     def home():
@@ -83,6 +86,7 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(users_bp)
     app.register_blueprint(collection_bp)
     app.register_blueprint(employee_bp)
+    app.register_blueprint(clients_bp)
     app.register_blueprint(payment_bp)
 
     #Registrar funcion en jinja

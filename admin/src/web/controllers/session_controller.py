@@ -9,8 +9,6 @@ from web.forms.auth_forms.login_form import LoginForm
 
 from src.core.services.user_service import UserService
 
-from src.core.bcrypt_y_session import bcrypt
-
 from flask import session
 
 session_bp = Blueprint('auth',__name__,url_prefix='/auth')

@@ -1,4 +1,3 @@
-from os import getenv
 from os import environ
 from dotenv import load_dotenv
 
@@ -11,6 +10,10 @@ class Config(object):
     SESSION_PERMANENT= False
 
 class ProductionConfig(Config):
+    MINIO_SERVER = environ.get("MINIO_SERVER")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
+    MINIO_SECRET = environ.get("MINIO_SECRET")
+    MINIO_SECURE = True
     SQLALCHEMY_DATABASE_URI = environ.get("DATABASE_URL")
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_size": 10,
@@ -19,12 +22,16 @@ class ProductionConfig(Config):
     }
 
 class DevelopmentConfig(Config):
-    DB_USER = getenv('DB_USER')
-    DB_PASSWORD = getenv('DB_PASSWORD')
-    DB_HOST = getenv('DB_HOST')
-    DB_PORT = getenv('DB_PORT')
-    DB_NAME = getenv('DB_NAME')
+    DB_USER = environ.get('DB_USER')
+    DB_PASSWORD = environ.get('DB_PASSWORD')
+    DB_HOST = environ.get('DB_HOST')
+    DB_PORT = environ.get('DB_PORT')
+    DB_NAME = environ.get('DB_NAME')
     SQLALCHEMY_DATABASE_URI = (f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+    MINIO_SERVER = environ.get("MINIO_SERVER")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
+    MINIO_SECRET = environ.get("MINIO_SECRET")
+    MINIO_SECURE = False
 
 class TestingConfig(Config):
     TESTING = True
