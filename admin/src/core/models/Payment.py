@@ -23,3 +23,14 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f"Pago: {self.tipo_pago.name} - {self.monto} on {self.fecha_pago}"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "beneficiario_id": self.beneficiario_id,
+            "monto": self.monto,
+            "fecha_pago": self.fecha_pago,
+            "tipo_pago": self.tipo_pago,
+            "descripcion": self.descripcion,
+            "empleado": self.empleado,
+        }
