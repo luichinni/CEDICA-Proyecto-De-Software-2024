@@ -1,11 +1,14 @@
 {%block files_search_box%}
 
-<a class="button is-primary is-pulled-left" href="{{url_for( entidad + '.new_' + entidad)}}">Agregar</a>
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id, es_link = False)}}">Agregar Documento</a>
+<br>
+<br>
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id,  es_link =True)}}">Agregar Enlace</a>
 <br>
 <br>
 <section class="search_box">
    
-  <form method="POST" action="{{ url_for(entidad + '.search_'+ entidad) }}" onsubmit= "return aplicarfiltro()">
+  <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}">
     {{ form.hidden_tag() }}
 
     <div class="search_input field is-grouped">
@@ -14,18 +17,19 @@
      </div>
     </div>
     <div class="search_selec field is-grouped">
-      <div class="control">
-        <div class="select">
-          
-         <div>
+      <div class="control">  
+        {{ form.tipo_filtro.label(class="label") }}
+        <div class="select">  
+         <div> 
             {{ form.tipo_filtro(class="select") }}
          </div>
         </div>
       </div>
       <div class="control">
+        {{ form.orden_filtro.label(class="label") }}
         <div class="select">
          <div>
-           {{ form.orden_filtro(class="select") }}
+         {{ form.orden_filtro(class="select") }}
         </div>
        </div>
       </div>
@@ -41,6 +45,7 @@
 </form>
  </section>
  <br>
+ <br>
  {% include 'file_list.html'%}
  <br>
 
@@ -49,12 +54,13 @@
 <div class="pagination">
  
   {% if current_page > 1 %}
-      <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page - 1, per_page=per_page, 
+      <a href="{{ url_for(entidad_archivo + '.search', page=current_page - 1, per_page=per_page, 
                               busqueda=request.args.get('busqueda'),
                               tipo_filtro=request.args.get('tipo_filtro'),
                               orden_filtro=request.args.get('orden_filtro'),
                               orden=request.args.get('orden'),
-                               activo='documents') }}" 
+                               activo='documents'
+                               , id=diccionario.id) }}" 
                                class="pagination-previous" >Previous</a>
   {% endif %}
   <br>
@@ -62,46 +68,28 @@
       {% if page_num == current_page %}
           <strong>{{ page_num }}</strong>
       {% else %}
-          <a href="{{ url_for(entidad + '.search_'+ entidad, page=page_num, per_page=per_page, 
+          <a href="{{ url_for(entidad_archivo + '.search', page=page_num, per_page=per_page, 
                               busqueda = request.args.get('busqueda'),
                               tipo_filtro = request.args.get('tipo_filtro'),
                               orden_filtro = request.args.get('orden_filtro'),
                               orden = request.args.get('orden'),
-                               activo='documents' )}}" >{{ page_num }}</a>
+                               activo='documents' , id=diccionario.id)}}" >{{ page_num }}</a>
       {% endif %}
   {% endfor %}
   <br>
   {% if current_page < pages %}
-      <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page + 1, per_page=per_page, 
+      <a href="{{ url_for(entidad_archivo + '.search', page=current_page + 1, per_page=per_page, 
                              busqueda=request.args.get('busqueda'),
                               tipo_filtro=request.args.get('tipo_filtro'),
                               orden_filtro=request.args.get('orden_filtro'),
                               orden=request.args.get('orden'),
-                              activo='documents' )}}" class="pagination-next">Next</a>
+                              activo='documents' , id=diccionario.id)}}" class="pagination-next">Next</a>
   {% endif %}
 </div>
 </nav>
-<p>Total {{entidad}}: {{ total }}</p>
+<p>Total: {{ total }}</p>
 
-<script>
-  function aplicarFiltro() {
-      const busqueda = document.getElementById('busqueda').value;
-      const tipo_filtro = document.getElementById('tipo_filtro').value.trim();
-      const orden = document.getElementById('orden').checked ? 'ascendente' : 'descendente';
-      const activo = document.getElementById
 
-      const params = new URLSearchParams();
-  
-      if (busqueda) params.set('busqueda', busqueda);
-      if (tipo_filtro) params.set('tipo_filtro', tipo_filtro); 
-      if (tipo_filtro) params.set('tipo_orden', tipo_filtro); 
-      params.set('orden', orden);
-      params.set('activo', 'documents')
-  
-      window.location.href = "{{ url_for(entidad+ '.search_'+ entidad) }}?" + params.toString();
-      return false;  // Evita que el formulario se envíe de la forma tradicional.
-  }
-  </script>
 {%endblock %}
  
 

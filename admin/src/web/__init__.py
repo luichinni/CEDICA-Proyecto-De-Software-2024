@@ -27,6 +27,9 @@ from src.core.services.client_service import ClientService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
+from src.web.controllers.client_controller import clients_bp
+
+from src.web.controllers.payment_controller import bp as payment_bp
 
 from src.web.controllers.client_controller import clients_bp
 
@@ -35,6 +38,8 @@ from src.web.controllers.payment_controller import bp as payment_bp
 
 from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
+
+from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 
 from src.core.storage import storage
 from src.core.bcrypy_and_session import bcrypt, session
@@ -88,6 +93,7 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(employee_bp)
     app.register_blueprint(clients_bp)
     app.register_blueprint(payment_bp)
+    app.register_blueprint(equestrians_bp)
 
     #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)
