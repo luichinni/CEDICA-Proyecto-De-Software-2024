@@ -33,13 +33,13 @@ class EmployeeService:
         if not include_admin:
             query = query.filter(Employee.email != AdminData.email)
         if not include_deleted:
-            query = query.filter(deleted=False)
+            query = query.filter(Employee.deleted == False)
         return query.all()
 
     @staticmethod
     def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=25):
         """Obtiene todos los empleados"""
-        employees_query = Employee.query.filter_by(deleted=include_deleted)
+        employees_query = Employee.query.filter_by(Employee.deleted == include_deleted)
         if filtro:
             valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
             employees_query = employees_query.filter_by(**valid_filters)
@@ -83,9 +83,9 @@ class EmployeeService:
     @staticmethod
     def get_employee_by_id(employee_id, include_deleted=False):
         """Busca un empleado por su email"""
-        query = Employee.query.filter_by(id=employee_id)
+        query = Employee.query.filter_by(Employee.id == employee_id)
         if not include_deleted:
-            query = query.filter_by(deleted=False)
+            query = query.filter_by(Employee.deleted == include_deleted)
         if not query:
             raise ValueError(f"No se encontro el empleado con id {employee_id}")
         return query.first()
@@ -93,7 +93,7 @@ class EmployeeService:
     @staticmethod
     def get_employee_by_email(email, include_deleted=False):
         """Busca un empleado por email y lanza un error si no existe."""
-        existing_employee = Employee.query.filter_by(email=email)
+        existing_employee = Employee.query.filter_by(Employee.email == email)
         if not include_deleted:
             existing_employee = existing_employee.filter_by(deleted=False)
         if existing_employee is None:
