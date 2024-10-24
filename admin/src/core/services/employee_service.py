@@ -10,6 +10,10 @@ from datetime import date
 class EmployeeService:
 
     @staticmethod
+    def get_model_fields():
+        return [column.name for column in Employee.__table__.columns]
+
+    @staticmethod
     def add_employee(**kwargs):
         """Crea un empleado"""
         employee = Employee(**kwargs)
@@ -39,7 +43,7 @@ class EmployeeService:
     @staticmethod
     def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=25):
         """Obtiene todos los empleados"""
-        employees_query = Employee.query.filter_by(Employee.deleted == include_deleted)
+        employees_query = Employee.query.filter(Employee.deleted == include_deleted)
         if filtro:
             valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
             employees_query = employees_query.filter_by(**valid_filters)
