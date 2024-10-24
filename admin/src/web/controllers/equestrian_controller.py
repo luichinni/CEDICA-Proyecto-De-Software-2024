@@ -3,21 +3,18 @@ from core.services.equestrian_service import EquestrianService
 from flask import Blueprint, redirect, request, render_template, url_for, flash
 from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm
 
-bp = Blueprint('equestrian', __name__, url_prefix='/equestrians')
-
-
-
+bp = Blueprint('equestrians', __name__, url_prefix='/equestrians')
 
 @bp.route('/create', methods= ['GET','POST'])
-def new_equestrian():
+def new():
 
      pass
 @bp.get('/update')
-def update_equestrian():
+def update():
      pass
 
 @bp.get('/listado')
-def search_equestrian():
+def search():
     """Lista todos los ecuestres con paginación."""
     params = request.args
     params_dict = params.to_dict()
@@ -72,7 +69,7 @@ def search_equestrian():
 
 
 @bp.route.get('/detail/<int:id>')
-def detail_equestrian(equestrian_id):
+def detail(equestrian_id):
       """Muestra los datos o detalles de un ecuestre"""
       equestrian= EquestrianService.get_equestrian_by_id(equestrian_id)
       titulo = 'detalle de: '+ equestrian.nombre
@@ -81,7 +78,7 @@ def detail_equestrian(equestrian_id):
       return render_template('different_detail.html', diccionario=equestrian_dict, titulo= titulo)
 
 @bp.route('/delete/<int:id>', methods=['POST'])
-def delete_equestrian(equestrian_id):
+def delete(equestrian_id):
     """Eliminar un ecuestre de manera logica"""
     equestrian = EquestrianService.get_equestrian_by_id(equestrian_id)
     if not equestrian:
@@ -91,3 +88,31 @@ def delete_equestrian(equestrian_id):
     EquestrianService.delete_equestrian(equestrian_id)
     flash("Se elimino el ecuestre exitosamente", "success")
     return redirect(url_for('equestrian.search_equestrian'))
+
+
+
+bp = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files')
+
+
+
+
+@bp.route('/create', methods= ['GET','POST'])
+def new():
+
+     pass
+@bp.get('/update')
+def update():
+     pass
+
+@bp.get('/listado')
+def search():
+    pass
+
+
+@bp.route.get('/detail/<int:id>')
+def detail(equestrian_id):
+      pass
+
+@bp.route('/delete/<int:id>', methods=['POST'])
+def delete(equestrian_id):
+    pass
