@@ -115,7 +115,7 @@ class CollectionService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_collections(start_date=None, end_date=None, payment_method=None, nombre=None, apellido=None, page=1, per_page=25, order_by_date=False, ascending=True, include_deleted=False):
+    def search_collections(start_date=None, end_date=None, payment_method=None, nombre=None, apellido=None, page=1, per_page=25, order_by_date=True, ascending=False, include_deleted=False):
         """Busca cobros con filtros"""
         query = Collection.query
 
