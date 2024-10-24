@@ -29,18 +29,17 @@
     </div>
     <div class="search_selec field is-grouped">
       <div class="control">
-        <div class="select">
-          
-         <div>
-            {{ form.tipo_filtro.label(class="label") }} 
+        {{ form.tipo_filtro.label(class="label") }}
+         <div class="select">
+         <div> 
             {{ form.tipo_filtro(class="select") }}
          </div>
         </div>
       </div>
       <div class="control">
+        {{ form.orden_filtro.label(class="label") }}
         <div class="select">
-         <div>
-          {{ form.orden_filtro.label(class="label") }} 
+         <div> 
            {{ form.orden_filtro(class="select") }}
         </div>
        </div>
@@ -56,6 +55,7 @@
     </div>
  </form>
  </section>
+ <br>
  <br>
  {% include 'list.html'%}
  <br>
