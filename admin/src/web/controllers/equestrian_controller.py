@@ -8,14 +8,15 @@ bp = Blueprint('equestrian', __name__, url_prefix='/equestrians')
 
 
 
-bp.route('/create', methods= ['GET','POST'])
+@bp.route('/create', methods= ['GET','POST'])
 def new_equestrian():
 
      pass
-
+@bp.get('/update')
 def update_equestrian():
      pass
 
+@bp.get('/listado')
 def search_equestrian():
     """Lista todos los ecuestres con paginación."""
     params = request.args
