@@ -53,7 +53,7 @@ def search():
         if param in form._fields:
             form._fields[param].data = valor
 
-    return render_template('search_box.html', entidad='users', anterior=url_for('home'), form=form, lista_diccionarios=users_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ususarios')
+    return render_template('search_box.html', entidad='user', anterior=url_for('home'), form=form, lista_diccionarios=users_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ususarios')
 
 @bp.get('/<int:user_id>')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.SHOW.value}")
@@ -62,7 +62,7 @@ def detail(user_id):
     """Muestra los detalles de un usuario por su ID.""" 
     
     user = UserService.get_user_by_id(user_id)
-    return render_template('detail.html', titulo='Detalle de usuario', anterior = url_for('user.list_users'), diccionario=user.to_dict(), entidad='users')
+    return render_template('detail.html', titulo='Detalle de usuario', anterior = url_for('user.list_users'), diccionario=user.to_dict(), entidad='user')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.NEW.value}")
