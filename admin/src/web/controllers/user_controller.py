@@ -8,20 +8,9 @@ from src.web.handlers import get_int_param, get_str_param, get_bool_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 from src.web.forms.user_forms.create_user_form import CreateUserForm
 from src.web.forms.user_forms.update_user_form import UpdateUserForm
+from src.web.forms.user_forms.search_user_form import SearchUserForm
 
 bp = Blueprint('user', __name__, url_prefix='/users')
-
-@bp.get('/')
-@check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.INDEX.value}")
-def list_users():
-    """Lista todos los usuarios con paginación."""
-    params = request.args
-    page = get_int_param(params, 'page', 1, optional= True)
-    per_page = get_int_param(params, 'per_page', 25, optional= True)
-    
-    users, total, pages = UserService.get_all_users(page=page, per_page=per_page)
-    
-    return render_template('user/list.html', users=users, total=total, pages=pages, current_page=page, per_page=per_page)
 
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.INDEX.value}")
@@ -48,7 +37,23 @@ def search_users():
         ascending=ascending
     )
 
-    return render_template('user/list.html', users=users, total=total, pages=pages, current_page=page, per_page=per_page)
+    users_list = [user.to_dict() for user in users] if users else [{
+        'id': '0',
+        'email': '',
+        'alias': '',
+        'activo': False,
+        'role': '',
+        'created_at': '',
+        'updated_at': ''
+    }]
+    
+    form = SearchUserForm()
+    
+    for param, valor in params.to_dict().items():
+        if param in form._fields:
+            form._fields[param].data = valor
+
+    return render_template('search_box.html', entidad='users', anterior=url_for('home'), form=form, lista_diccionarios=users_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ususarios')
 
 @bp.get('/<int:user_id>')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.SHOW.value}")
