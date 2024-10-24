@@ -2,12 +2,12 @@ from datetime import datetime, timezone
 from src.core.database import db
 import enum
 from sqlalchemy import Enum
-from .equestrian_docs import DocumentAdditional
 
 # Representa la tabla intermedia de la relacion muchos a muchos entre empleado y ecuestre
 associates= db.Table('associates',
     db.Column('employee_id',db.Integer, db.ForeignKey('employees.id'), primary_key=True) ,
-    db.Column('equestrian_id', db.Integer, db.ForeignKey('equestrians.id'), primary_key=True) 
+    db.Column('equestrian_id', db.Integer, db.ForeignKey('equestrians.id'), primary_key=True),
+    extend_existing=True
 )
 
 class TipoClienteEnum (enum.Enum):

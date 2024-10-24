@@ -1,4 +1,3 @@
-from core.models.equestrian import Equestrian
 from core.services.equestrian_service import EquestrianService
 from flask import Blueprint, redirect, request, render_template, url_for, flash
 from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm
@@ -68,7 +67,7 @@ def search():
 
 
 
-@bp.route.get('/detail/<int:id>')
+@bp.get('/detail/<int:id>')
 def detail(equestrian_id):
       """Muestra los datos o detalles de un ecuestre"""
       equestrian= EquestrianService.get_equestrian_by_id(equestrian_id)
@@ -91,28 +90,28 @@ def delete(equestrian_id):
 
 
 
-bp = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files')
+bp_file = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files')
 
 
 
 
-@bp.route('/create ', methods= ['GET','POST'])
+@bp_file.route('/create ', methods= ['GET','POST'])
 def new():
 
      pass
-@bp.get('/update/<int:id>')
-def update():
+@bp_file.get('/update/<int:id>')
+def update(id):
      pass
 
-@bp.get('/listado')
+@bp_file.get('/listado')
 def search():
     pass
 
 
-@bp.route.get('/detail/<int:id>')
+@bp_file.get('/detail/<int:id>')
 def detail(equestrian_id):
       pass
 
-@bp.route('/delete/<int:id>', methods=['POST'])
+@bp_file.route('/delete/<int:id>', methods=['POST'])
 def delete(equestrian_id):
     pass

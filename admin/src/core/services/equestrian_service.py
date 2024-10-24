@@ -3,6 +3,7 @@ from src.core.database import db
 from src.core.models.equestrian import Equestrian
 from src.core.models.equestrian import SexoEnum
 from src.core.models.equestrian import TipoClienteEnum
+from src.core.models.equestrian.equestrian_docs import DocumentAdditional
 
 class EquestrianService :
     
