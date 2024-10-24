@@ -86,5 +86,4 @@ class Employee(db.Model):
             "nro_afiliado": self.nro_afiliado,
             "condicion": self.condicion,
             "activo": self.activo,
-            "deleted": self.deleted
         }

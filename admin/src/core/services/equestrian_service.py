@@ -65,13 +65,6 @@ class EquestrianService :
         equestrian.deleted = True
         db.session.commit()
         return equestrian
-
-    @staticmethod
-    def get_equestrian_by_id(equestrian_id):
-        equestrian = Equestrian.query.filter_by(id=equestrian_id).first()
-        if not equestrian : 
-            raise ValueError(f"No existe un ecuestre con id: {equestrian_id}")
-        return equestrian
     
     @staticmethod
     def es_enum_valido(valor , enum):
@@ -110,7 +103,7 @@ class EquestrianService :
         return pagination.items, pagination.total, pagination.pages
     
     @staticmethod
-    def get_Equestrian_by_id(equestrian_id, include_deleted=False):
+    def get_equestrian_by_id(equestrian_id, include_deleted=False)-> Equestrian:
         """Obtiene un cobro por su ID"""
         query = Equestrian.query.filter_by(id=equestrian_id)
         if not include_deleted:
@@ -120,3 +113,38 @@ class EquestrianService :
             raise ValueError(f"No existe el ecuestre con ID: {equestrian}")
         return equestrian
     
+
+    @staticmethod
+    def search_equestrian(filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like:bool = False) -> tuple:
+        """Lista los ecuestres segun los filtros especificados, en caso de no especificar retorna los primeros 25 ecuestres
+
+        Args:
+            filtro (dict, optional): Diccionario de { campo: valor_esperado } para filtrar. Defaults to None.
+            page (int, optional): Nro de pagina esperada. Defaults to 1.
+            per_page (int, optional): Cantidad de resultados por pagina. Defaults to 25.
+            order_by (str, optional): Campo para ordenar. Defaults to None.
+            ascending (bool, optional): Flag de ordenamiento asc o desc. Defaults to True.
+            include_deleted (bool, optional): Flag de inclusión eliminados. Defaults to False.
+            like (bool, optional): Flag de busqueda parcial en strings. Defaults to False.
+
+        Returns:
+            list: Listado de clientes obtenidos a partir de la busqueda
+        """
+        query = Equestrian.query.filter_by(deleted=include_deleted)
+        
+        if filtro:
+            for key, value in filtro.items():
+                if hasattr(Equestrian, key) and value is not None:
+                    if isinstance(value, str) and like:
+                        query = query.filter(getattr(Equestrian, key).like(f'%{value}%'))
+                    else:
+                        query = query.filter_by(**{key: value})
+
+        if order_by:
+            if ascending:
+                query = query.order_by(getattr(Equestrian, order_by).asc())
+            else:
+                query = query.order_by(getattr(Equestrian, order_by).desc())
+        
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        return pagination.items, pagination.total, pagination.pages

@@ -4,6 +4,10 @@ from src.core.models.Payment import Payment
 class PaymentService:
 
     @staticmethod
+    def get_model_fields():
+        return [column.name for column in Payment.__table__.columns]
+
+    @staticmethod
     def create_payment(data):
         new_payment = Payment(**data)
         db.session.add(new_payment)
@@ -44,7 +48,7 @@ class PaymentService:
             else:
                 payments_query = payments_query.order_by(getattr(Payment, order_by).desc())
 
-        pagination = payments_query.paginate(page, per_page, error_out=False)
+        pagination = payments_query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
 
     @staticmethod
