@@ -33,7 +33,7 @@ def collect_employee_data_from_form(form):
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.NEW.value}")
-def create_employee():
+def new():
     """Crear un empleado"""
     form = CreateEmployeeForm()
     if form.validate_on_submit():
@@ -41,12 +41,12 @@ def create_employee():
         new_employee_data['email'] : form.email.data
         EmployeeService.add_employee(**new_employee_data)
         flash("Se registro el empleado exitosamente", "success")
-        return redirect(url_for('employee.index'))
+        return redirect(url_for('employee.search'))
     context = {
         'form': form,
         'titulo': 'Crear un empleado',
-        'url_post': url_for('employee.create_employee'),
-        'url_volver': url_for('employee.index')
+        'url_post': url_for('employee.new'),
+        'url_volver': url_for('employee.search')
     }
     return render_template('form.html', **context)
 
@@ -65,7 +65,7 @@ def index():
 
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.INDEX.value}")
-def search_employees():
+def search():
     form = SearchForm()
 
     employee_fields = EmployeeService.get_model_fields()
@@ -119,8 +119,8 @@ def search_employees():
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.UPDATE.value}")
-@handle_error(lambda: url_for('employee.index'))
-def update_employee(employee_id):
+@handle_error(lambda: url_for('employee.search'))
+def update(employee_id):
     """Editar un empleado existente"""
     employee = EmployeeService.get_employee_by_id(employee_id)
     if not employee:
@@ -135,15 +135,15 @@ def update_employee(employee_id):
     context = {
         'form': form,
         'titulo': 'Crear un empleado',
-        'url_post': url_for('employee.update_employee'),
-        'url_volver': url_for('employee.index')
+        'url_post': url_for('employee.update'),
+        'url_volver': url_for('employee.seach')
     }
     return render_template('form.html', **context)
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda: url_for('employee.index'))
-def delete_employee(employee_id):
+@handle_error(lambda: url_for('employee.search'))
+def delete(employee_id):
     """Eliminar un empleado de manera logica"""
     employee = EmployeeService.get_employee_by_id(employee_id)
     if not employee:
@@ -151,12 +151,12 @@ def delete_employee(employee_id):
     else:
         EmployeeService.delete_employee(employee_id)
         flash("Se elimino el empleado exitosamente", "success")
-    return redirect(url_for('employee.index'))
+    return redirect(url_for('employee.search'))
 
 @bp.route('<int:id>', methods=['GET'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda: url_for('employee.index'))
-def detail_employee(employee_id):
+@handle_error(lambda: url_for('employee.search'))
+def detail(employee_id):
     employee = EmployeeService.get_employee_by_id(employee_id)
     if not employee:
         flash(f'Empleado con ID {employee_id} no encontrado', 'warning')
@@ -164,7 +164,7 @@ def detail_employee(employee_id):
 
 
     titulo = f'Detalle del empleado {employee.nombre} {employee.apellido}',
-    anterior = url_for('employee.search_employees'),
+    anterior = url_for('employee.search'),
     diccionario = employee.to_dict(),
     entidad = 'employee'
 
