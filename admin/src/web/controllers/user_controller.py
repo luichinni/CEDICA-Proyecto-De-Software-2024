@@ -15,7 +15,7 @@ bp = Blueprint('user', __name__, url_prefix='/users')
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.INDEX.value}")
 @handle_error(lambda: url_for('user.list_users'))
-def search_users():
+def search():
     """Busca usuarios según criterios específicos con paginación."""
     params = request.args
     
@@ -58,16 +58,16 @@ def search_users():
 @bp.get('/<int:user_id>')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.SHOW.value}")
 @handle_error(lambda user_id: url_for('user.list_users'))
-def user_detail(user_id):
+def detail(user_id):
     """Muestra los detalles de un usuario por su ID.""" 
     
     user = UserService.get_user_by_id(user_id)
-    return render_template('user/detail.html', user=user)
+    return render_template('detail.html', titulo='Detalle de usuario', anterior = url_for('user.list_users'), diccionario=user.to_dict(), entidad='users')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.NEW.value}")
 @handle_error(lambda: url_for('user.list_users'))
-def new_user():
+def new():
     """Muestra el formulario para crear un nuevo usuario y crea el usuario con los datos proporcionados en el formulario."""
     employee_choices = [(e.id, e.email) for e in EmployeeService.get_employees_without_user()]
     if not employee_choices:
@@ -103,7 +103,7 @@ def create_user():
 @bp.route('/<int:user_id>/update', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.UPDATE.value}")
 @handle_error(lambda user_id: url_for('user.list_users'))
-def edit_user(user_id):
+def edit(user_id):
     """Muestra el formulario para editar un usuario existente y actualiza la información.""" 
     user = UserService.get_user_by_id(user_id)
 
@@ -137,7 +137,7 @@ def update_user(user_id):
 @bp.post('/<int:user_id>/delete')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.DESTROY.value}")
 @handle_error(lambda user_id: url_for('user.list_users'))
-def delete_user(user_id):
+def delete(user_id):
     """Elimina un usuario existente.""" 
     UserService.delete_user(user_id)
     flash("Usuario eliminado exitosamente", "success")
@@ -147,7 +147,7 @@ def delete_user(user_id):
 @bp.post('/<int:user_id>/block')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.BLOCK.value}")
 @handle_error(lambda user_id: url_for('user.list_users'))
-def block_user(user_id):
+def block(user_id):
     """Bloquea un usuario existente.""" 
     UserService.block_user(user_id)
     flash("Usuario bloqueado exitosamente", "success")
