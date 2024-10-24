@@ -20,46 +20,39 @@ activa
     <div class="tabs">
         <ul>
             {% for idx,form in enumerate(forms) %}
-                <li class="{% if idx == activa %}is-active{% endif %}"><a href='{{ url_for(entidad + '.new_' + entidad, activa=idx ) }}'>{{ form }}</a></li>
+                <li id="tab-{{idx}}" onclick="mostrar('{{ idx }}')" class="{% if activa == idx %} is-active {% endif %}">
+                    <a>{{ form }}</a>
+                </li>
             {% endfor%}
         </ul>
     </div>
 
     <div>
-        {% set forms_names = forms.keys()|list %}
-        {% set form = forms[forms_names[activa]] %}
         <form method="POST" action="{{ruta_post}}" enctype="multipart/form-data">
-            {% set campos = form._fields.keys()|list %}
-        
-            {{ form.hidden_tag() }}<!-- CSRF token -->
-        
-            {% with messages = get_flashed_messages() %}<!-- Muestra mensaje/s flash -->
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endwith %}
-        
-            {% for campo in range(campos|length-1)%}
-            <div>
-                {{ form[campos[campo]].label }} <!-- Renderiza la etiqueta -->
-                {{ form[campos[campo]] }} <!-- Renderiza el campo de entrada -->
-        
-                <!-- Mostrar mensajes de error -->
-                {% for error in form[campos[campo]].errors %}
-                <span class="error" style="color: red;">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div>
-                <!-- Mostrar mensajes de error -->
-                {% for error in form[campos[campo]].errors %}
-                <span class="error" style="color: red;">{{ error }}</span>
-                {% endfor %}
-        
-            </div>
+            {% for idx, form in enumerate(forms) %}
+            
+                <div id="content-{{idx}}" class="tab-content {% if activa == idx %} is-active {% endif %}">
+                    {% set campos = form._fields.keys()|list %}
+                
+                    {{ form.hidden_tag() }}<!-- CSRF token -->
+                
+                    {% include 'mensaje_flash.html' %}
+                
+                    {% for campo in range(campos|length-1) %}
+                        <div>
+                            {{ form[campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                            {{ form[campos[campo]] }} <!-- Renderiza el campo de entrada -->
+                        </div>
+                        <div>
+                            <!-- Mostrar mensajes de error -->
+                            {% for error in form[campos[campo]].errors %}
+                                <span class="error" style="color: red;">{{ error }}</span>
+                            {% endfor %}
+                    
+                        </div>
+                    {% endfor %}
+                </div>
+            
             {% endfor %}
         
             <button type="submit" class="btn btn-primary">Submit</button>
@@ -67,6 +60,29 @@ activa
     </div>
 
 {% block complementos %}
+<script>
+
+    function mostrar (tabId)
+    {
+        // Ocultar todo el contenido de las pestañas
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('is-active'));
+      
+        // Mostrar el contenido correspondiente
+        const activeContent = document.getElementById("content-"+tabId);
+        activeContent.classList.add('is-active');
+      
+        // Quitar la clase is-active de todas las pestañas
+        const tabs = document.querySelectorAll('.tabs ul li');
+        tabs.forEach(tab => tab.classList.remove('is-active'));
+      
+        // Agregar la clase is-active a la pestaña clicada
+        event.currentTarget.classList.add('is-active');
+
+    }
+    var activa = "{{activa}}"
+    mostrar(activa)
+</script>
 {% endblock %}
 <style>
     /* Centramos el contenido verticalmente */
