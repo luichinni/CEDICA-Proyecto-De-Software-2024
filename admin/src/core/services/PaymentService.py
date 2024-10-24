@@ -4,6 +4,10 @@ from src.core.models.Payment import Payment
 class PaymentService:
 
     @staticmethod
+    def get_model_fields():
+        return [column.name for column in Payment.__table__.columns]
+
+    @staticmethod
     def create_payment(data):
         new_payment = Payment(**data)
         db.session.add(new_payment)
