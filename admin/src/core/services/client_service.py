@@ -329,7 +329,7 @@ class ClientService:
                 raise ValueError("Hubo un problema al cargar el archivo, intenta nuevamente")
         
         new_file = ClientDocuments(
-                titulo=titulo, 
+                titulo=titulo if titulo else nombre_archivo, 
                 tipo=ClientService.obtener_clave_por_valor(TipoDocs,int(tipo)), 
                 ubicacion=ubicacion_archivo, 
                 es_link=es_link,

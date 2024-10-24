@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired, Length, Regexp, Email
 from flask_wtf. file import FileAllowed, FileRequired
 from src.core.enums.client_enum import *
 from src.web.forms.client_forms.client_form_validators import *
+from wtforms.widgets import ListWidget, CheckboxInput
 
 """
 # datos personales
@@ -163,7 +164,11 @@ class PropuestaDeTrabajo(FlaskForm):
     propuesta_trabajo = SelectField('Propuesta de trabajo institucional',choices=[(prop.value,prop.name.capitalize()) for prop in PropuestasInstitucionales], validators=[DataRequired()])
     condicion = BooleanField('Condicion: Marcar para regular, desmarcar para dado de baja', validators=[])
     sede = StringField('Sede',validators=[DataRequired()])
-    dias = SelectMultipleField('Dia/s',choices=[(dia.value,dia.name) for dia in Dias])
+    dias = SelectMultipleField('Dia/s',
+                               choices=[(dia.value, dia.name) for dia in Dias],
+                               widget=ListWidget(prefix_label=False),
+                               option_widget=CheckboxInput(),
+                               validators=[validar_dias])
     profesor_id = SelectField('Profesor/a', choices=[], validators=[DataRequired()])
     conductor_id = SelectField('Conductor/a', choices=[], validators=[DataRequired()])
     caballo_id = SelectField('Caballo', choices=[], validators=[DataRequired()])

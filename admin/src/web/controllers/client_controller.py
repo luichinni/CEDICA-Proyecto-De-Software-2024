@@ -14,7 +14,7 @@ from flask import session
 
 clients_bp = Blueprint('clients', __name__, url_prefix='/clients')
 
-@clients_bp.get('/listado')
+@clients_bp.route('/listado',methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.INDEX.value}")
 #@handle_error(lambda: url_for('home'))
 def search_clients():
@@ -91,12 +91,30 @@ def search_clients():
 
 @clients_bp.route('/create', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('clients.new_clients'))
+#@handle_error(lambda: url_for('clients.new_clients'))
 def new_clients():
-    paso = session.get('paso',default=0)
+    forms = {
+        'Datos personales': ClientFirstForm(),
+        'Detalles': ClientSecondForm(),
+        'Situacion previsional': ClientThirdForm(),
+        'Institución Escolar': ClientFourthForm(),
+        'Atencion': ClientFifthForm(),
+        'Tutores legales': ClientSixthForm(),
+        'Propuesta de trabajo': ClientSeventhForm()
+    }
+
+    activa = int(request.args.get('activa',0))
+    ruta_post = url_for('clients.new_clients')
+    entidad = 'clients'
+    titulo = 'Cargar J&A'
+    url_volver = url_for('clients.search_clients')
+
+    return render_template('client/multi_form.html', activa=activa,forms=forms, ruta_post=ruta_post, entidad=entidad,titulo=titulo,url_volver=url_volver)
+
+    """ paso = session.get('paso',default=0)
     paso = paso if (paso < 7) else 0
     forms = [ClientFirstForm(),ClientSecondForm(), ClientThirdForm(), ClientFourthForm(), ClientFifthForm(), ClientSixthForm(), ClientSeventhForm()]
-    
+
     if (paso == 6) or (paso == 5):
         empleados = [(emp.id, emp.dni + ': ' + emp.nombre + ' ' + emp.apellido) for emp in EmployeeService.get_all_employees()]
         forms[paso if paso == 6 else 6].propuesta_trabajo.profesor_id.choices = empleados
@@ -224,7 +242,7 @@ def new_clients():
         ClientService.create_client(**session['cliente'])
         del session['cliente']
         del session['paso']
-        return redirect(url_for('clients.search_clients'))
+        return redirect(url_for('clients.search_clients')) """
 
 
 @clients_bp.route('/create/cancelar', methods=['GET','POST'])
@@ -240,15 +258,17 @@ def cancelar_form():
 
 @clients_bp.get('/<int:id>')
 def detail_clients(id: int):
-    return redirect(url_for('client_file.search_client_file',id=id,active='informacion'))
+    return redirect(url_for('client_file.search_client_file',id=id))
 
 @clients_bp.get('/update')
 def update_clients():
     pass
 
-@clients_bp.get('/delete')
-def delete_clients():
-    pass
+@clients_bp.post('/delete/<int:id>')
+def delete_clients(id):
+    ClientService.delete_client(id)
+    flash('JyA dado de baja con éxito','success')
+    return redirect(url_for('clients.search_clients'))
 
 
 clients_files_bp = Blueprint('client_file', __name__,url_prefix='/client_file')
@@ -265,7 +285,7 @@ def new_client_file(id,es_link):
     return render_template('form.html',
                            anterior=url_for('client_file.search_client_file',
                                             id=id,
-                                            active='documents'
+                                            activo='documents'
                                         ),
                            ruta_post=url_for('client_file.new_client_file',
                                              id=id,
@@ -275,11 +295,13 @@ def new_client_file(id,es_link):
 
 @clients_files_bp.get('/update/<int:id>/<string:es_link>')
 def update_client_file(id:int,es_link:str):
-    pass
+    return redirect(request.referrer)
 
-@clients_files_bp.get('/delete/<int:id>')
+@clients_files_bp.post('/delete/<int:id>')
 def delete_client_file(id):
-    pass
+    ClientService.delete_document(id)
+    return redirect(request.referrer)
+
 
 @clients_files_bp.get('/detail/<int:id>')
 def detail_client_file(id):
@@ -290,7 +312,7 @@ def detail_client_file(id):
     
     return redirect(archivo)
 
-@clients_files_bp.get('/search/<int:id>')
+@clients_files_bp.route('/search/<int:id>',methods=['GET','POST'])
 def search_client_file(id):
     """Lista todos los archivos con paginación."""
     
@@ -310,6 +332,7 @@ def search_client_file(id):
             params['tipo_filtro']: params.get('busqueda')
         }
     
+    activo = params.get('activo', 'informacion')
     
     order_by = params.get('orden_filtro',None)
     
@@ -322,13 +345,18 @@ def search_client_file(id):
     print(filtro, order_by,ascending, page, per_page)
 
     archivos, total, pages = ClientService.get_documents(id,filtro,page,per_page,order_by,ascending, like=True)
+
     
     listado = []
 
     if archivos:
         print('entra')
         for archivo in archivos:
-            listado.append(archivo.to_dict())
+            dict_archivo = archivo.to_dict()
+            dict_archivo['ubicacion'] = 'Servidor Local' if dict_archivo['ubicacion'].startswith('client_files/') else 'Servidor Externo'
+            dict_archivo['Fecha de carga'] = dict_archivo['created_at']
+            del dict_archivo['created_at']
+            listado.append(dict_archivo)
     else:
         # por si no hay que listar y que no se rompa
         listado = [{
@@ -339,15 +367,16 @@ def search_client_file(id):
     }]
     
     datos_cliente = ClientService.get_client_by_id(id).to_dict()
-    
+
     #anterior=request.referrer
     return render_template('different_detail.html', 
                            diccionario=datos_cliente,
-                           activo="informacion",
+                           activo=activo,
                            entidad='clients',
                            entidad_archivos='client_file',
                            anterior=url_for('clients.detail_clients',id=id),
-                           form=form, lista_diccionarios=listado,
+                           form=form, 
+                           lista_diccionarios=listado,
                            total=total,
                            current_page=page,
                            per_page=per_page,

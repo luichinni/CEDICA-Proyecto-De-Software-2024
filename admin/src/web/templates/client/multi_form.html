@@ -1,0 +1,81 @@
+{%extends "layout.html"%}
+{% block title %}{{titulo}}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+<!-- forms con {'nombre apartado':FlaskForm} -->
+<!-- 
+forms
+ruta_post 
+entidad
+titulo
+url_volver
+activa
+-->
+
+    <div class="tabs">
+        <ul>
+            {% for idx,form in enumerate(forms) %}
+                <li class="{% if idx == activa %}is-active{% endif %}"><a href='{{ url_for(entidad + '.new_' + entidad, activa=idx ) }}'>{{ form }}</a></li>
+            {% endfor%}
+        </ul>
+    </div>
+
+    <div>
+        {% set forms_names = forms.keys()|list %}
+        {% set form = forms[forms_names[activa]] %}
+        <form method="POST" action="{{ruta_post}}" enctype="multipart/form-data">
+            {% set campos = form._fields.keys()|list %}
+        
+            {{ form.hidden_tag() }}<!-- CSRF token -->
+        
+            {% with messages = get_flashed_messages() %}<!-- Muestra mensaje/s flash -->
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+        
+            {% for campo in range(campos|length-1)%}
+            <div>
+                {{ form[campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                {{ form[campos[campo]] }} <!-- Renderiza el campo de entrada -->
+        
+                <!-- Mostrar mensajes de error -->
+                {% for error in form[campos[campo]].errors %}
+                <span class="error" style="color: red;">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div>
+                <!-- Mostrar mensajes de error -->
+                {% for error in form[campos[campo]].errors %}
+                <span class="error" style="color: red;">{{ error }}</span>
+                {% endfor %}
+        
+            </div>
+            {% endfor %}
+        
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+{% block complementos %}
+{% endblock %}
+<style>
+    /* Centramos el contenido verticalmente */
+    .full-height {
+        height: 100vh;
+        /* 100% de la altura de la pantalla */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+{% endblock %}
