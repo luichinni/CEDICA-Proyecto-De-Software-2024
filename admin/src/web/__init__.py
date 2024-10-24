@@ -27,12 +27,9 @@ from src.core.services.client_service import ClientService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
-<<<<<<< HEAD
 from src.web.controllers.client_controller import clients_bp
 
-=======
 from src.web.controllers.payment_controller import bp as payment_bp
->>>>>>> b6a379dd7455048d51ece9f60596d4bd240369f8
 from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 
