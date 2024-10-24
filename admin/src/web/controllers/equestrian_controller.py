@@ -5,11 +5,11 @@ from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm
 
 bp = Blueprint('equestrians', __name__, url_prefix='/equestrians')
 
-@bp.route('/create', methods= ['GET','POST'])
+@bp.route('/create ', methods= ['GET','POST'])
 def new():
 
      pass
-@bp.get('/update')
+@bp.get('/update/<int:id>')
 def update():
      pass
 
@@ -96,11 +96,11 @@ bp = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files')
 
 
 
-@bp.route('/create', methods= ['GET','POST'])
+@bp.route('/create ', methods= ['GET','POST'])
 def new():
 
      pass
-@bp.get('/update')
+@bp.get('/update/<int:id>')
 def update():
      pass
 
