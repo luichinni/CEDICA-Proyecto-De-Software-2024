@@ -33,14 +33,10 @@ def init(UserService, RoleService, EmployeeService, PermissionService, ClientSer
     print("Creando user admin del sistema")
     UserService.create_admin_user()
 
-    print("Creando empleados de ejemplo")
-    EmployeeService.create_example_employees()
     print("Creando roles de ejemplo")
     RoleService.create_example_roles()
     print("Creando permisos de ejemplo")
     PermissionService.create_initial_permissions()
-    print("Creando clientes de ejemplo")
-    ClientService.create_example_clients()
 
     print("Finalizacion de la inicializacion de la base de datos!")
 

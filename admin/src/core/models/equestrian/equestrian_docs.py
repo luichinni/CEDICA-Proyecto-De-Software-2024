@@ -16,16 +16,16 @@ class DocumentAdditional (db.Model):
     """Representa el documento adicional que posee el ecuestre"""
     __tablename__ ='additional_documents'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nombre =db.Column(db.string(60), nullable= False)
+    nombre =db.Column(db.String(60), nullable= False)
     tipo = db.Column(Enum(TipoEnum), nullable=False)
     ruta = db.Column(db.String(255), nullable=False) 
-    es_link = db.column( db.Boolean, defaul= False)
+    es_link = db.Column( db.Boolean, default= False)
 
     deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    equestrian_id = db.column(db.Integer, db.ForeignKey('equestrians.id'), nullable=False)
+    equestrian_id = db.Column(db.Integer, db.ForeignKey('equestrians.id'), nullable=False)
     equestrian =  db.relationship('Equestrian', back_populates='additional_documents', uselist=False)
     
     def __repr__(self):

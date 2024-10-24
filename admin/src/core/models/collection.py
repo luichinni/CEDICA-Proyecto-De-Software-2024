@@ -25,7 +25,7 @@ class Collection(db.Model):
     employee = db.relationship('Employee', backref='collections')
 
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
-    client = db.relationship('Client', backref='collections')
+    client = db.relationship('Clients', backref='collections')
 
     payment_date = db.Column(db.DateTime, nullable=False)
     payment_method = db.Column(db.Enum(PaymentMethod), nullable=False)
