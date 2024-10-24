@@ -12,9 +12,9 @@
   <p>Página de inicio de la aplicación</p>   
      
   {%if not is_authenticated() %} 
-  <a href="{{url_for('auth.index')}}">Iniciar Sesion</a>
+  <a href="{{url_for('auths.index')}}">Iniciar Sesion</a>
   {%else %}
-  <a href="{{url_for('auth.logout')}}">Cerrar Sesion</a>
+  <a href="{{url_for('auths.logout')}}">Cerrar Sesion</a>
   {%endif%}
 
 

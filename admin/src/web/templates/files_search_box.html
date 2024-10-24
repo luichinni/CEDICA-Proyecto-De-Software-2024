@@ -1,14 +1,14 @@
 {%block files_search_box%}
 
-<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new_' + entidad_archivo,  id=diccionario.id, es_link = False)}}">Agregar Documento</a>
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id, es_link = False)}}">Agregar Documento</a>
 <br>
 <br>
-<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new_' + entidad_archivo,  id=diccionario.id,  es_link =True)}}">Agregar Enlace</a>
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id,  es_link =True)}}">Agregar Enlace</a>
 <br>
 <br>
 <section class="search_box">
    
-  <form method="GET" action="{{ url_for(entidad_archivo + '.search_'+ entidad_archivo, id=diccionario.id) }}">
+  <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}">
     {{ form.hidden_tag() }}
 
     <div class="search_input field is-grouped">
@@ -54,7 +54,7 @@
 <div class="pagination">
  
   {% if current_page > 1 %}
-      <a href="{{ url_for(entidad_archivo + '.search_'+ entidad_archivo, page=current_page - 1, per_page=per_page, 
+      <a href="{{ url_for(entidad_archivo + '.search', page=current_page - 1, per_page=per_page, 
                               busqueda=request.args.get('busqueda'),
                               tipo_filtro=request.args.get('tipo_filtro'),
                               orden_filtro=request.args.get('orden_filtro'),
@@ -68,7 +68,7 @@
       {% if page_num == current_page %}
           <strong>{{ page_num }}</strong>
       {% else %}
-          <a href="{{ url_for(entidad_archivo + '.search_'+ entidad_archivo, page=page_num, per_page=per_page, 
+          <a href="{{ url_for(entidad_archivo + '.search', page=page_num, per_page=per_page, 
                               busqueda = request.args.get('busqueda'),
                               tipo_filtro = request.args.get('tipo_filtro'),
                               orden_filtro = request.args.get('orden_filtro'),
@@ -78,7 +78,7 @@
   {% endfor %}
   <br>
   {% if current_page < pages %}
-      <a href="{{ url_for(entidad_archivo + '.search_'+ entidad_archivo, page=current_page + 1, per_page=per_page, 
+      <a href="{{ url_for(entidad_archivo + '.search', page=current_page + 1, per_page=per_page, 
                              busqueda=request.args.get('busqueda'),
                               tipo_filtro=request.args.get('tipo_filtro'),
                               orden_filtro=request.args.get('orden_filtro'),

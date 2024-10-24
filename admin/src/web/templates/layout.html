@@ -17,17 +17,17 @@
                 <ul>
                     {%if is_authenticated()%}
                         {%if check_permission("client_index")%}
-                            <li><a href="{{ url_for('clients.search_clients') }}">J&A</a></li> {% endif %}
+                            <li><a href="{{ url_for('clients.search') }}">J&A</a></li> {% endif %}
                         {%if check_permission( "equestrian_index")%}
-                            <li><a href="{{ url_for('equestrian.search_equestrian') }}">Ecuestre</a></li> {% endif %}
+                            <li><a href="{{ url_for('equestrians.search') }}">Ecuestre</a></li> {% endif %}
                         {%if check_permission("employee_index")%}
-                            <li><a href="{{ url_for('employee.search_employee') }}">Equipo</a></li> {% endif %}
+                            <li><a href="{{ url_for('employees.search') }}">Equipo</a></li> {% endif %}
                         {%if check_permission("collection_index")%}
-                            <li><a href="{{ url_for('collection.search_collection') }}">cobros</a></li> {% endif %}
+                            <li><a href="{{ url_for('collections.search') }}">cobros</a></li> {% endif %}
                         {%if check_permission("pagos_index")%}
-                            <li><a href="{{ url_for('payment.search_payment') }}">Pagos</a></li> {% endif %}
+                            <li><a href="{{ url_for('payments.search') }}">Pagos</a></li> {% endif %}
                         {%if check_permission("user_index")%}
-                            <li><a href="{{ url_for('user.search_user') }}">Usuario</a></li> {% endif %}
+                            <li><a href="{{ url_for('users.search') }}">Usuario</a></li> {% endif %}
                                    
                      {% endif %}
                         </ul>

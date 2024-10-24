@@ -14,12 +14,12 @@
   <a href="/" class="button">Volver a inicio</a>
 {% endif %}
 
-<a class="button is-primary is-pulled-left" href="{{url_for( entidad + '.new_' + entidad)}}">Agregar</a>
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad + '.new' )}}">Agregar</a>
 <br>
 <br>
 <section class="search_box">
    
-  <form method="GET" action="{{ url_for(entidad + '.search_'+ entidad) }}" >
+  <form method="GET" action="{{ url_for(entidad + '.search') }}" >
     {{ form.hidden_tag() }}
 
     <div class="search_input field is-grouped">
@@ -64,7 +64,7 @@
 <nav class="pagination is-rounded" role="navigation" aria-label="pagination">
 <div class="pagination">
   {% if current_page > 1 %}
-      <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page - 1, per_page=per_page, 
+      <a href="{{ url_for(entidad + '.search', page=current_page - 1, per_page=per_page, 
                               busqueda = request.args.get('busqueda'),
                               tipo_filtro = request.args.get('tipo_filtro'),
                               orden_filtro = request.args.get('orden_filtro'),
@@ -76,7 +76,7 @@
       {% if page_num == current_page %}
           <strong>{{ page_num }}</strong>
       {% else %}
-          <a href="{{ url_for(entidad + '.search_'+ entidad, page=page_num, per_page=per_page, 
+          <a href="{{ url_for(entidad + '.search', page=page_num, per_page=per_page, 
                               busqueda = request.args.get('busqueda'),
                               tipo_filtro = request.args.get('tipo_filtro'),
                               orden_filtro = request.args.get('orden_filtro'),
@@ -85,7 +85,7 @@
   {% endfor %}
   
   {% if current_page < pages %}
-      <a href="{{ url_for(entidad + '.search_'+ entidad, page=current_page + 1, per_page=per_page, 
+      <a href="{{ url_for(entidad + '.search', page=current_page + 1, per_page=per_page, 
                              busqueda=request.args.get('busqueda'),
                               tipo_filtro=request.args.get('tipo_filtro'),
                               orden_filtro=request.args.get('orden_filtro'),

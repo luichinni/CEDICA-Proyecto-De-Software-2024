@@ -25,12 +25,12 @@
                        <div class="buttons">
                           {%if check_permission(entidad + "_show")%}
                             <!-- Link to view details -->
-                            <a class="button is-dark is-small" href="{{ url_for( entidad_archivo + '.detail_' + entidad_archivo, id = diccionario.id, es_link = diccionario.es_link) }}" class="card-footer-item">Ver</a>
+                            <a class="button is-dark is-small" href="{{ url_for( entidad_archivo + '.detail', id = diccionario.id, es_link = diccionario.es_link) }}" class="card-footer-item">Ver</a>
                          {%endif%}
                          
                          {%if check_permission(entidad + "_delete")%}
                           <!-- Form to delete the element -->
-                          <form action="{{ url_for( entidad_archivo + '.delete_' + entidad_archivo, id = diccionario.id ) }}" method="post" style="display:inline;">
+                          <form action="{{ url_for( entidad_archivo + '.delete', id = diccionario.id ) }}" method="post" style="display:inline;">
                                <button class="button is-dark is-small" type="submit">Eliminar</button>
                           </form>
                           {%endif%}
