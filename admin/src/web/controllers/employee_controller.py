@@ -8,7 +8,7 @@ from web.handlers.auth import check_permissions
 from web.handlers import handle_error, get_int_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 
-bp = Blueprint('employee', __name__, url_prefix='/employee')
+bp = Blueprint('employees', __name__, url_prefix='/employee')
 
 def collect_employee_data_from_form(form):
     """Retorna los datos del form en formato de diccionario"""

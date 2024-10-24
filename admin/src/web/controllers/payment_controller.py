@@ -7,7 +7,7 @@ from src.web.forms.search_form import SearchForm
 from src.web.handlers.auth import check_permissions
 from web.handlers import handle_error, get_int_param
 
-bp = Blueprint('payment', __name__, url_prefix='/payments')
+bp = Blueprint('payments', __name__, url_prefix='/payments')
 
 #TODO: ADD 'SHOW' FEATURE AND CHECK PERMISSIONS
 
