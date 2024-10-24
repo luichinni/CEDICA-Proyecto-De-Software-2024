@@ -24,7 +24,7 @@ def index():
 
     return render_template('list.html', lista_diccionarios=lista_diccionarios, entidad="payment")
 
-#TODO: VER COMO HAGO PAGINACION ACA
+
 @bp.route('/search', methods=['GET'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
 @handle_error(lambda: url_for('payment.index'))
@@ -39,7 +39,7 @@ def search():
         }
         payments = PaymentService.get_payments(filtro=search_params, order_by=form.order_by.data, ascending=form.ascending.data)
 
-    return render_template('payment/search.html', form=form, payments=payments)
+    return render_template('search_box.html', form=form, payments=payments)
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.name}_{PermissionCategory.NEW.value}")
