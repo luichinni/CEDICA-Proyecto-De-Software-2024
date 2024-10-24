@@ -19,7 +19,7 @@
 <br>
 <section class="search_box">
    
-  <form method="GET" action="{{ url_for(entidad + '.search_'+ entidad) }}" onsubmit= "return aplicarfiltro()">
+  <form method="GET" action="{{ url_for(entidad + '.search_'+ entidad) }}" >
     {{ form.hidden_tag() }}
 
     <div class="search_input field is-grouped">
@@ -32,6 +32,7 @@
         <div class="select">
           
          <div>
+            {{ form.tipo_filtro.label(class="label") }} 
             {{ form.tipo_filtro(class="select") }}
          </div>
         </div>
@@ -39,6 +40,7 @@
       <div class="control">
         <div class="select">
          <div>
+          {{ form.orden_filtro.label(class="label") }} 
            {{ form.orden_filtro(class="select") }}
         </div>
        </div>

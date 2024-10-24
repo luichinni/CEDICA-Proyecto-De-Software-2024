@@ -8,7 +8,7 @@
 {% block content %}
 <section >
    <h1 class="title"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
-            <form method="POST" action="{{ruta_post}}"   >
+            <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
                  {% set campos = form._fields.keys()|list %}
                
                 {{ form.hidden_tag() }}<!-- CSRF token -->
