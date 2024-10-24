@@ -46,7 +46,7 @@ def get_param(params, key, param_type, default=None, optional=False):
         elif param_type == str and isinstance(value, str) and value.strip() != '':
             return value
         elif param_type == bool:
-            if isinstance(value, str):
+            if isinstance(value, str) and value.strip() != '':
                 if value.lower() in ('true', '1', 'yes', 'on', 'y'):
                     return True
                 if value.lower() in ('false', '0', 'no', 'off', 'n'):
