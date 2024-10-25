@@ -69,18 +69,6 @@ class Clients(db.Model):
             'ocupacion':
         },...]
     """
-
-    # actividad q realiza
-    """
-    Propuesta de trabajo institucional: Opciones desplegables: Hipoterapia – Monta Terapéutica – Deporte Ecuestre Adaptado – Actividades Recreativas - Equitación
-    Condición: REGULAR – DE BAJA
-    SEDE: CASJ  -  HLP   - OTRO
-    DÍA: Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo (puede seleccionarse más de un dia)
-    Profesor/a o Terapeuta: miembro del equipo dado de alta en el sistema
-    Conductor/a del Caballo: miembro del equipo dado de alta en el sistema
-    Caballo:caballo cargado en el sistema
-    Auxiliar de Pista:miembro del equipo dado de alta en el sistema
-    """
     propuesta_trabajo = db.Column(db.Enum(PropuestasInstitucionales), nullable=False)
     condicion = db.Column(db.Boolean, nullable=False)
     sede = db.Column(db.String(100), nullable=False)
