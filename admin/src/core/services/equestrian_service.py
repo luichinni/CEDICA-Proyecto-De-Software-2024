@@ -43,7 +43,7 @@ class EquestrianService :
         if tipo_cliente is not None and  EquestrianService.es_enum_valido(tipo_cliente, TipoClienteEnum):
             del dic['tipo_cliente']
 
-        for value in dic.items(): 
+        for key, value in dic.items(): 
             if value is not None :
                EquestrianService.is_instance_with_exception(value, str)
                 
