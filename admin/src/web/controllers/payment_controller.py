@@ -27,7 +27,7 @@ def index():
 
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
-def search_payments():
+def search():
     form = SearchForm()
 
     payment_fields = PaymentService.get_model_fields()
@@ -53,7 +53,7 @@ def search_payments():
                                                             order_by=order_by, ascending=ascending)
     listado = [
       {
-          'Id': payment.id,
+          'id': payment.id,
           'Beneficiario': payment.beneficiario_id, #TODO: DEBERIA APARECER EL NOMBRE DEL BENEFICIARIO MEJOR
           'Monto': payment.monto,
           'Fecha de Pago': payment.fecha_pago,
@@ -61,7 +61,7 @@ def search_payments():
           'Descripcion': payment.descripcion,
           'Empleado' : payment.empleado #TODO: DEBERIA APARECER EL NOMBRE DEL EMPLEADO MEJOR
       } for payment in payments] if payments else [{
-        'Id': '0',
+        'id': '0',
         'Beneficiario': '0',
         'Monto': '0',
         'Fecha de Pago': '',
