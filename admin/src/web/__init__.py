@@ -28,14 +28,10 @@ from src.core.services.client_service import ClientService
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
 from src.web.controllers.client_controller import clients_bp
-
+from src.web.controllers.client_controller import clients_files_bp
 from src.web.controllers.payment_controller import bp as payment_bp
-
-from src.web.controllers.client_controller import clients_bp
-
 from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
-
 from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 
 from src.core.storage import storage
@@ -64,7 +60,6 @@ def create_app(env="development", static_folder="../../static"):
 
     @app.route("/")
     def home():
-        print(os.environ.keys())
         return render_template("home.html")
 
     @app.route("/prueba")
@@ -89,16 +84,18 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(collection_bp)
     app.register_blueprint(employee_bp)
     app.register_blueprint(clients_bp)
+    app.register_blueprint(clients_files_bp)
     app.register_blueprint(payment_bp)
     app.register_blueprint(equestrians_bp)
 
     #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)
     app.jinja_env.globals.update(check_permission = check_permissions)
+    app.jinja_env.globals.update(enumerate = enumerate)
 
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService)
+        database.init(UserService, RoleService, EmployeeService, PermissionService)
 
     return app

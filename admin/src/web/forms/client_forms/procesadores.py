@@ -43,7 +43,10 @@ def procesar_primero(form):
             datos[f1.name] = procesar_domicilio(f1.form)
         
         elif f1.name == 'lugar_nacimiento':
-            datos[f1.name] = f1.form.localidad_nacimiento.data + ' provincia de ' + f1.form.provincia_nacimiento.data
+            datos[f1.name] = {
+                'localidad_nacimiento':f1.form.localidad_nacimiento.data,
+                'provincia_nacimiento':f1.form.provincia_nacimiento.data
+            }
             
         else:
             datos[f1.name] = f1.data
@@ -105,7 +108,7 @@ def procesar_cuarto(form):
     datos = dict()
     datos['institucion_escolar'] = {
         'nombre': form.institucion_escolar.nombre.data,
-        'direccion': procesar_domicilio(form.institucion_escolar),
+        'direccion': procesar_domicilio(form.institucion_escolar.direccion),
         'telefono': form.institucion_escolar.telefono.data,
         'grado': form.institucion_escolar.grado.data,
         'observaciones': form.institucion_escolar.observaciones.data
@@ -123,8 +126,7 @@ def procesar_sexto(form):
     Returns:
         dict: diccionario con los campos del formulario formateados
     """
-    datos = dict()
-    responsables = dict()
+    responsables = {}
     for f5 in form:
         if f5.name == 'csrf_token':
             continue
@@ -141,10 +143,8 @@ def procesar_sexto(form):
                 'escolaridad': tutor_form.escolaridad.data,
                 'ocupacion': tutor_form.ocupacion.data
             }
-    
-    datos['tutores_responsables'] = responsables
-    
-    return datos
+            
+    return {"tutores_responsables":responsables}
 
 
 def procesar_septimo(form):
@@ -168,7 +168,7 @@ def procesar_septimo(form):
             datos[nombre] = f6.data
             
         elif (nombre == 'caballo_id'):
-            EquestrianService.get_Equestrian_by_id(int(f6.data))
+            EquestrianService.get_equestrian_by_id(int(f6.data))
             datos[nombre] = f6.data
             
         else:

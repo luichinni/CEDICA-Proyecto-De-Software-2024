@@ -29,33 +29,33 @@ activa
 
     <div>
         <form method="POST" action="{{ruta_post}}" enctype="multipart/form-data">
+            {% include 'mensaje_flash.html' %}
             {% for idx, form in enumerate(forms) %}
-            
-                <div id="content-{{idx}}" class="tab-content {% if activa == idx %} is-active {% endif %}">
-                    {% set campos = form._fields.keys()|list %}
                 
-                    {{ form.hidden_tag() }}<!-- CSRF token -->
+                <div id="content-{{idx}}" class="tab-content {% if activa == idx %} is-active {% endif %}">
+                    {% set campos = forms[form]._fields.keys()|list %}
+                
+                    {{ forms[form].hidden_tag() }}<!-- CSRF token -->
                 
                     {% include 'mensaje_flash.html' %}
                 
                     {% for campo in range(campos|length-1) %}
                         <div>
-                            {{ form[campos[campo]].label }} <!-- Renderiza la etiqueta -->
-                            {{ form[campos[campo]] }} <!-- Renderiza el campo de entrada -->
-                        </div>
-                        <div>
-                            <!-- Mostrar mensajes de error -->
-                            {% for error in form[campos[campo]].errors %}
-                                <span class="error" style="color: red;">{{ error }}</span>
-                            {% endfor %}
-                    
+                            {{ forms[form][campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                            {{ forms[form][campos[campo]] }} <!-- Renderiza el campo de entrada -->
                         </div>
                     {% endfor %}
+
+                    {% if idx > 0 %}
+                        <button class="button is-secondary" onclick="mostrar('{{ idx - 1 }}')" >Atras</button>
+                    {% endif %}
+                    {% if idx < 6 %}
+                        <button class="button is-primary" onclick="mostrar('{{ idx + 1 }}')" >Siguiente</button>
+                    {% endif %}
                 </div>
-            
             {% endfor %}
-        
-            <button type="submit" class="btn btn-primary">Submit</button>
+            </br>
+            <button type="submit" class="button is-warning">Submit</button>
         </form>
     </div>
 
@@ -77,21 +77,34 @@ activa
         tabs.forEach(tab => tab.classList.remove('is-active'));
       
         // Agregar la clase is-active a la pestaña clicada
-        event.currentTarget.classList.add('is-active');
+        const tab_actual = document.getElementById("tab-"+tabId);
+        tab_actual.classList.add('is-active');
 
+        // Obtener los parámetros actuales de la URL
+        let urlParams = new URLSearchParams(window.location.search);
+
+        // Eliminar el parámetro 'activa'
+        urlParams.delete('activa');
+
+        // Modificar o agregar un nuevo parámetro
+        urlParams.set('activa', tabId);
+
+        // Actualizar la URL sin recargar la página
+        let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + urlParams.toString();
+        window.history.replaceState({ path: newUrl }, '', newUrl);
     }
     var activa = "{{activa}}"
     mostrar(activa)
 </script>
 {% endblock %}
 <style>
-    /* Centramos el contenido verticalmente */
-    .full-height {
-        height: 100vh;
-        /* 100% de la altura de la pantalla */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    .tab-content {
+        display: none;
+      }
+      
+      .tab-content.is-active {
+        display: block;
+      }
+      
 </style>
 {% endblock %}
