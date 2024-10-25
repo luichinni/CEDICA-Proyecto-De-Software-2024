@@ -68,7 +68,7 @@ def index():
 def search():
     form = SearchForm()
 
-    employee_fields = EmployeeService.get_model_fields()
+    employee_fields = ['Nombre', 'Apellido', 'DNI', 'Email', 'Puesto Laboral']
     form.tipo_filtro.choices = [(campo, campo.replace('_',' ').capitalize()) for campo in employee_fields]
     form.orden_filtro.choices = [(campo, campo.replace('_', ' ').capitalize()) for campo in employee_fields]
 
