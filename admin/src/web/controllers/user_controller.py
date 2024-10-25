@@ -107,7 +107,7 @@ def new():
     if form.validate_on_submit():
         return create_user()
            
-    return render_template('form.html', form=form)
+    return render_template('form.html', form=form, url_volver=url_for('users.search'))
 
 def create_user():
     """Crea un nuevo usuario con los datos proporcionados en el formulario.""" 
@@ -141,7 +141,7 @@ def update(id):
     if form.validate_on_submit():
         return update_user(id)
 
-    return render_template('form.html', form=form)
+    return render_template('form.html', form=form, url_volver=url_for('users.search'))
 
 def update_user(id):
     """Actualiza la información de un usuario existente.""" 

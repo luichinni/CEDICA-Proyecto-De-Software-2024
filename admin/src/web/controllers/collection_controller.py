@@ -1,4 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
+from src.core.admin_data import AdminData
 from src.core.models.collection import PaymentMethod
 from src.core.services.collection_service import CollectionService
 from src.core.services.employee_service import EmployeeService
@@ -8,7 +9,7 @@ from src.web.handlers import handle_error, get_int_param, get_bool_param, get_st
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 from src.web.forms.collection_forms.create_collection_form import CreateCollectionForm
 from src.web.forms.collection_forms.update_collection_form import UpdateCollectionForm
-#from src.web.forms.collection_forms.search_collection_form import SearchCollectionForm
+#TODO: luego usar esto => from src.web.forms.collection_forms.search_collection_form import SearchCollectionForm
 from web.forms.search_form import SearchForm
 import re
 
@@ -105,7 +106,8 @@ def detail(id):
 @handle_error(lambda: url_for('collections.search'))
 def new():
     """Muestra el formulario para crear un nuevo cobro.""" 
-    employee_choices = [(e.id, e.email) for e in EmployeeService.get_employees()[0]]
+    admin_email = AdminData.email
+    employee_choices = [(e.id, e.email) for e in EmployeeService.get_employees()[0] if e.email != admin_email]
     if not employee_choices:
         raise ValueError("No hay empleados registrados.")
     
@@ -115,7 +117,7 @@ def new():
     if form.validate_on_submit():
         return create_collection()
         
-    return render_template('form.html', form=form)
+    return render_template('form.html', form=form, url_volver=url_for('collections.search'))
 
 def create_collection():
     """Crea un nuevo cobro."""
@@ -154,7 +156,7 @@ def update(id):
     if form.validate_on_submit():
         return update_collection(id)
 
-    return render_template('form.html', form=form)
+    return render_template('form.html', form=form, url_volver=url_for('collections.search'))
 
 def update_collection(collection_id):
     """Actualiza un cobro existente."""
