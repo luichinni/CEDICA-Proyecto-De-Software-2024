@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
+from core.enums.equestrian_enum import SexoEnum, TipoClienteEnum
 from src.core.database import db
 import enum
 from sqlalchemy import Enum
+
 
 # Representa la tabla intermedia de la relacion muchos a muchos entre empleado y ecuestre
 associates= db.Table('associates',
@@ -9,18 +11,7 @@ associates= db.Table('associates',
     db.Column('equestrian_id', db.Integer, db.ForeignKey('equestrians.id'), primary_key=True),
     extend_existing=True
 )
-
-class TipoClienteEnum (enum.Enum):
-    HIPOTERAPIA = 1
-    MONTA_TERAPEUTICA = 2 
-    DEPORTE_ECUESTRE_ADAPTADO = 3
-    ACTIVIDADES_RECREATIVAS = 4
-    EQUITACION = 5
-
-class SexoEnum(enum.Enum):
-    FEMENINO = 1
-    MASCULINO = 2
-
+ 
 class Equestrian (db.Model):
     """Representa un ecuestre """
     __tablename__ = 'equestrians'
@@ -40,11 +31,11 @@ class Equestrian (db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     empleados_asociados = db.relationship('Employee',secondary=associates,back_populates='equestrians_asociados')
-    additional_documents = db.relationship('DocumentAdditional', back_populates='equestrian')
+    equestrian_documents = db.relationship('EquestrianDocument', back_populates='equestrian')
 
     def __repr__(self):
         return f"""Ecuestre: 
-            nombre: {self.nombre},
+            'nombre': {self.nombre},
             sexo: {self.sexo.value},
             raza: {self.raza},
             pelaje: {self.pelaje},
@@ -67,8 +58,8 @@ class Equestrian (db.Model):
             "raza": self.raza,
             "pelaje": self.pelaje,
             "compra": compra,
-            "fecha_nacimiento": self.fecha_nacimiento,
-            "fecha_ingreso": self.fecha_ingreso,
+            "fecha_nacimiento": self.fecha_nacimiento.isoformat(),
+            "fecha_ingreso": self.fecha_ingreso.isoformat(),
             "sede_asignada": self.sede_asignada,
             "tipo_de_jya_asignado": self.tipo_de_jya_asignado.value
         }
