@@ -11,11 +11,11 @@ from src.web.forms.collection_forms.search_collection_form import SearchCollecti
 from src.web.forms.collection_forms.create_collection_form import CreateCollectionForm
 from src.web.forms.collection_forms.update_collection_form import UpdateCollectionForm
 
-bp = Blueprint('collection', __name__, url_prefix='/collections')
+bp = Blueprint('collections', __name__, url_prefix='/collections')
 
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}")
-@handle_error(lambda: url_for('collection.list_collections'))
+@handle_error(lambda: url_for('home'))
 def search():
     """Busca cobros con filtros."""
     params = request.args
@@ -63,19 +63,19 @@ def search():
         if param in form._fields:
             form._fields[param].data = valor
 
-    return render_template('search_box.html', entidad='collection', anterior=url_for('home'), form=form, lista_diccionarios=collections_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de cobros')
+    return render_template('search_box.html', entidad='collections', anterior=url_for('home'), form=form, lista_diccionarios=collections_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de cobros')
 
 @bp.get('/<int:collection_id>')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda collection_id: url_for('collection.list_collections'))
+@handle_error(lambda collection_id: url_for('collections.search'))
 def detail(collection_id):
     """Obtiene un cobro por ID."""
     collection = CollectionService.get_collection_by_id(collection_id)
-    return render_template('detail.html', titulo='Detalle de cobro', anterior = url_for('collection.list'), diccionario=collection.to_dict(), entidad='collection')
+    return render_template('detail.html', titulo='Detalle de cobro', anterior = url_for('collections.search'), diccionario=collection.to_dict(), entidad='collections')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('collection.list_collections'))
+@handle_error(lambda: url_for('collections.search'))
 def new():
     """Muestra el formulario para crear un nuevo cobro.""" 
     employee_choices = [(e.id, e.email) for e in EmployeeService.get_all_employees()]
@@ -116,11 +116,11 @@ def create_collection():
         observations=get_str_param(params, 'observations', "Sin observaciones", optional=True)
     )
     flash("Cobro creado exitosamente", "success")
-    return redirect(url_for('collection.list_collections'))
+    return redirect(url_for('collections.search'))
 
 @bp.route('/<int:collection_id>/update', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}")
-@handle_error(lambda collection_id: url_for('collection.list_collections'))
+@handle_error(lambda collection_id: url_for('collections.search'))
 def edit(collection_id):
     """Muestra el formulario para editar un cobro existente.""" 
     collection = CollectionService.get_collection_by_id(collection_id)
@@ -148,13 +148,13 @@ def update_collection(collection_id):
         observations=get_str_param(params, 'observations', optional=True)
     )
     flash("Cobro actualizado exitosamente", "success")
-    return redirect(url_for('collection.collection_detail', collection_id=collection_id))
+    return redirect(url_for('collections.detail', collection_id=collection_id))
 
 @bp.post('/<int:collection_id>/delete')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda collection_id: url_for('collection.list_collections'))
+@handle_error(lambda collection_id: url_for('collections.search'))
 def delete(collection_id):
     """Elimina un cobro de forma lógica."""
     CollectionService.delete_collection(collection_id)
     flash("Cobro eliminado exitosamente", "success")
-    return redirect(url_for('collection.list_collections'))
+    return redirect(url_for('collections.search'))
