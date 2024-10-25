@@ -46,7 +46,7 @@ class EquestrianService :
         fecha_ingreso = kwargs.get('fecha_ingreso')
         if fecha_ingreso is not None and EquestrianService.ensure_datetime(fecha_ingreso):
              del dic['fecha_ingreso']
-             
+
         fecha_nacimiento = kwargs.get('fecha_nacimiento')
         if fecha_nacimiento is not None and EquestrianService.validate_date(fecha_nacimiento):
             del dic['fecha_nacimiento']
@@ -105,7 +105,7 @@ class EquestrianService :
     
     @staticmethod
     def get_all_equestrian (page=1, per_page=25, include_deleted=False):
-        """Lista todos los cobros"""
+        """Lista todos los ecuestres"""
         query = Equestrian.query
         if not include_deleted:
             query = query.filter_by(deleted=False)
@@ -116,7 +116,7 @@ class EquestrianService :
     
     @staticmethod
     def get_equestrian_by_id(equestrian_id, include_deleted=False)-> Equestrian:
-        """Obtiene un cobro por su ID"""
+        """Obtiene un ecuestre por su ID"""
         query = Equestrian.query.filter_by(id=equestrian_id)
         if not include_deleted:
             query = query.filter_by(deleted=False)
@@ -140,7 +140,7 @@ class EquestrianService :
             like (bool, optional): Flag de busqueda parcial en strings. Defaults to False.
 
         Returns:
-            list: Listado de clientes obtenidos a partir de la busqueda
+            list: Listado de ecuestres obtenidos a partir de la busqueda
         """
         query = Equestrian.query.filter_by(deleted=include_deleted)
         
@@ -221,9 +221,9 @@ class EquestrianService :
                 )
                 last_id = ultimo_documento.id + 1
             
-            nombre_archivo = ecuestre.dni + '_' + str(last_id) + '_' + (document.filename if not titulo else titulo.replace(' ','_')+path.splitext(document.filename)[1])  
-            # 44130359_4_fotocopiadni.pdf o con titulo 44130359_4_titulo_agregado.pdf
-            ubicacion_archivo = 'equestrian_files/' + nombre_archivo  # ej: equestrian_files/44130359_4_fotocopiadni.pdf o 44130359_4_titulo_agregado.pdf
+            nombre_archivo = str(ecuestre.id) + '_' + str(last_id) + '_' + (document.filename if not titulo else titulo.replace(' ','_')+path.splitext(document.filename)[1])  
+            # 1234_4_fotocopiadni.pdf o con titulo 44130359_4_titulo_agregado.pdf
+            ubicacion_archivo = 'equestrian_files/' + nombre_archivo  # ej: equestrian_files/1234_4_fotocopiadni.pdf o 1234_4_titulo_agregado.pdf
             
             
             try:
@@ -233,7 +233,7 @@ class EquestrianService :
                 raise ValueError("Hubo un problema al cargar el archivo, intenta nuevamente")
         
         new_file = EquestrianDocument(
-                titulo=titulo, 
+                titulo=nombre_archivo, 
                 tipo=EquestrianService.obtener_clave_por_valor(TipoEnum,int(tipo)), 
                 ubicacion=ubicacion_archivo, 
                 es_link=es_link,
@@ -255,14 +255,22 @@ class EquestrianService :
             url = storage.client.presigned_get_object('grupo23',archivo.ubicacion,expires=timedelta(hours=1),response_headers=headers)
         
         return url
-    
     @staticmethod
-    def get_documents(equestrian_id: int | str, filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
+    def get_document_by_id(id: int)-> EquestrianDocument:
+        """Obtiene un ecuestre por su ID"""
+        archivo=  EquestrianDocument.query.get(id)
+         
+        if not archivo:
+            raise ValueError(f"No existe el documento con ID: {id}")
+        return archivo
+    
+
+    def get_documents(equestrian_id: int | str, filtro: dict = None, extension: str = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
         """
         Obtiene por página y filtro los documentos de un ecuestre específico.
 
         Args:
-            equestrian_id (int | str): ID del ecuestre cuyos documentos son requeridos.
+            equestrian_id (int | str): ID del cliente cuyos documentos son requeridos.
             filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
             page (int, optional): Número de página requerida. Defaults to 1.
             per_page (int, optional): Cantidad de archivos por página. Defaults to 25.
@@ -274,32 +282,32 @@ class EquestrianService :
         if isinstance(equestrian_id,str):
             equestrian_id = int(equestrian_id)
         
-        # Base query, filtrando por cliente y condición de borrado
         query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id, EquestrianDocument.deleted == include_deleted)
 
-        # Aplicar filtros
         if filtro:
             for key, value in filtro.items():
                 if hasattr(EquestrianDocument, key) and value is not None:
-                    # Filtro de string parcial si 'like' está activo
                     if isinstance(value, str) and like:
                         query = query.filter(getattr(EquestrianDocument, key).like(f'%{value}%'))
                     else:
                         query = query.filter(getattr(EquestrianDocument, key) == value)
+                    
+        if extension:
+            extension = extension.lower()
+            if extension != 'link':
+                query = query.filter(EquestrianDocument.ubicacion.like(f'%.{extension}'))
+            elif extension == 'link':
+                query = query.filter_by(es_link=True)
 
-        # Aplicar ordenamiento
         if order_by and hasattr(EquestrianDocument, order_by):
             if ascending:
                 query = query.order_by(getattr(EquestrianDocument, order_by).asc())
             else:
                 query = query.order_by(getattr(EquestrianDocument, order_by).desc())
 
-        # Realizar paginación
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
-        # Retornar los resultados
         return pagination.items, pagination.total, pagination.pages
-
     
     @staticmethod
     def delete_document(docs_id: int | str):
@@ -309,5 +317,44 @@ class EquestrianService :
             docs_id (int | str): ID del documento o link a dar de baja
         """
         document = EquestrianDocument.query.get(docs_id)
+        if not document :
+            raise ValueError(f'No existe el ecuestre con id: {docs_id}')
         document.deleted = True
         db.session.commit()
+    @staticmethod
+    def update_document(document_id: int | str, titulo:str, tipo: TipoEnum, url:str, es_link: bool) -> EquestrianDocument:
+        """Permite actualizar un documento o link a un ecuestre
+
+        Args:
+            document_id (int | str): ID del documento al que se actualizará
+            titulo (Any): titulo nuevo para documento
+            tipo (TipoDocs): Tipo del documento
+            url (str): url actualizada
+            es_link (bool): Flag de confirmación si es link
+
+        Returns:
+            EquestrianDocuments: Retorna el objeto con la información del archivo guardado
+        """
+        archivo = EquestrianService.get_document_by_id(document_id)
+        
+        ubicacion_archivo = url
+        nombre_archivo = titulo
+        
+        if (int(tipo) not in TipoEnum):
+            raise ValueError("Tipo de documento no es válido")
+        
+        if es_link:
+            url_parseada = urlparse(ubicacion_archivo)
+            nombre_archivo = url_parseada.hostname if url_parseada.hostname is not None else url_parseada.netloc # puede tomar por ej: drive.google.com o drive.google.com:port
+            nombre_archivo = "Archivo de \"" + nombre_archivo + "\"" if not titulo else titulo # ej: Archivo de "drive.google.com"
+            archivo.ubicacion = ubicacion_archivo
+            
+        else:
+            partes = str(archivo.titulo).split('_')
+            nombre_archivo = partes[0] + '_' + partes[1] + '_' + titulo # 1234_4_titulo_agregado
+        
+        archivo.titulo = nombre_archivo
+
+        db.session.commit()
+        
+        return archivo

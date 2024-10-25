@@ -16,3 +16,7 @@ class EquestrianCreateForm(FlaskForm):
     sede_asignada = StringField('Sede Asignada', validators=[DataRequired()])
     tipo_de_jya_asignado = SelectField('Tipo de Cliente', 
                     choices=[(opcion.name, opcion.name.replace('_',' ').capitalize()) for opcion in TipoClienteEnum ], validators=[DataRequired()])
+
+
+class AddEmployeeAssing(FlaskForm):
+    empleado = SelectField('Asignar empleado', choices=[], validators=[DataRequired()])
