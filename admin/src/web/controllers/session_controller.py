@@ -23,13 +23,13 @@ def index():
         id_user = UserService.check_user(form.email.data, form.password.data)
     
         if (not id_user):
-            return redirect(url_for('auths.index'))
+            return redirect(url_for('auths.index', titulo='Inicio de Sesión!'))
 
         session["id"] = id_user
         flash('Iniciado Correctamente','success')
         return redirect('/')
     
-    return render_template('form.html',ruta_post=url_for('auths.login'),form=LoginForm())
+    return render_template('form.html',ruta_post=url_for('auths.index'),form=LoginForm(), titulo='Inicio de Sesión!')
 
 @session_bp.get("/logout")
 def logout():
