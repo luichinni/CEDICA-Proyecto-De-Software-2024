@@ -1,0 +1,110 @@
+{%extends "layout.html"%}
+{% block title %}{{titulo}}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+<!-- forms con {'nombre apartado':FlaskForm} -->
+<!-- 
+forms
+ruta_post 
+entidad
+titulo
+url_volver
+activa
+-->
+
+    <div class="tabs">
+        <ul>
+            {% for idx,form in enumerate(forms) %}
+                <li id="tab-{{idx}}" onclick="mostrar('{{ idx }}')" class="{% if activa == idx %} is-active {% endif %}">
+                    <a>{{ form }}</a>
+                </li>
+            {% endfor%}
+        </ul>
+    </div>
+
+    <div>
+        <form method="POST" action="{{ruta_post}}" enctype="multipart/form-data">
+            {% include 'mensaje_flash.html' %}
+            {% for idx, form in enumerate(forms) %}
+                
+                <div id="content-{{idx}}" class="tab-content {% if activa == idx %} is-active {% endif %}">
+                    {% set campos = forms[form]._fields.keys()|list %}
+                
+                    {{ forms[form].hidden_tag() }}<!-- CSRF token -->
+                
+                    {% include 'mensaje_flash.html' %}
+                
+                    {% for campo in range(campos|length-1) %}
+                        <div>
+                            {{ forms[form][campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                            {{ forms[form][campos[campo]] }} <!-- Renderiza el campo de entrada -->
+                        </div>
+                    {% endfor %}
+
+                    {% if idx > 0 %}
+                        <button class="button is-secondary" onclick="mostrar('{{ idx - 1 }}')" >Atras</button>
+                    {% endif %}
+                    {% if idx < 6 %}
+                        <button class="button is-primary" onclick="mostrar('{{ idx + 1 }}')" >Siguiente</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            </br>
+            <button type="submit" class="button is-warning">Submit</button>
+        </form>
+    </div>
+
+{% block complementos %}
+<script>
+
+    function mostrar (tabId)
+    {
+        // Ocultar todo el contenido de las pestañas
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('is-active'));
+      
+        // Mostrar el contenido correspondiente
+        const activeContent = document.getElementById("content-"+tabId);
+        activeContent.classList.add('is-active');
+      
+        // Quitar la clase is-active de todas las pestañas
+        const tabs = document.querySelectorAll('.tabs ul li');
+        tabs.forEach(tab => tab.classList.remove('is-active'));
+      
+        // Agregar la clase is-active a la pestaña clicada
+        const tab_actual = document.getElementById("tab-"+tabId);
+        tab_actual.classList.add('is-active');
+
+        // Obtener los parámetros actuales de la URL
+        let urlParams = new URLSearchParams(window.location.search);
+
+        // Eliminar el parámetro 'activa'
+        urlParams.delete('activa');
+
+        // Modificar o agregar un nuevo parámetro
+        urlParams.set('activa', tabId);
+
+        // Actualizar la URL sin recargar la página
+        let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + urlParams.toString();
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+    }
+    var activa = "{{activa}}"
+    mostrar(activa)
+</script>
+{% endblock %}
+<style>
+    .tab-content {
+        display: none;
+      }
+      
+      .tab-content.is-active {
+        display: block;
+      }
+      
+</style>
+{% endblock %}

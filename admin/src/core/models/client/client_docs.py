@@ -6,9 +6,6 @@ class ClientDocuments(db.Model):
     __tablename__ = "client_documents"
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    """
-    título, fecha en la que se agregó el enlace, tipo
-    """
     titulo = db.Column(db.Text, nullable=False)
     tipo = db.Column(db.Enum(TipoDocs), nullable=False)
     ubicacion = db.Column(db.Text, nullable=False)
@@ -27,8 +24,8 @@ class ClientDocuments(db.Model):
         return {
             "id": self.id,
             'titulo': self.titulo,
-            'tipo': str(self.tipo).split('.')[1].replace('_',' ').capitalize(),
+            'tipo': self.tipo,
             'es_link': self.es_link,
             'ubicacion':self.ubicacion,
-            "created_at": self.created_at.isoformat(),
+            "created_at": self.created_at,
         }
