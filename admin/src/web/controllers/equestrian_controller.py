@@ -1,4 +1,3 @@
-from core.models.equestrian import Equestrian
 from core.services.equestrian_service import EquestrianService
 from flask import Blueprint, redirect, request, render_template, url_for, flash
 from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm
@@ -7,7 +6,6 @@ bp = Blueprint('equestrians', __name__, url_prefix='/equestrians')
 
 @bp.route('/create ', methods= ['GET','POST'])
 def new():
-
      pass
 @bp.get('/update/<int:id>')
 def update():
@@ -64,11 +62,11 @@ def search():
         'Fecha ingreso': '',
     }]
     
-    return render_template('search_box.html', entidad='equestrian', anterior=url_for('home'), form=form, lista_diccionarios=listado, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ecuestres')
+    return render_template('search_box.html', entidad='equestrians', anterior=url_for('home'), form=form, lista_diccionarios=listado, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ecuestres')
 
 
 
-@bp.route.get('/detail/<int:id>')
+@bp.route('/detail/<int:id>')
 def detail(equestrian_id):
       """Muestra los datos o detalles de un ecuestre"""
       equestrian= EquestrianService.get_equestrian_by_id(equestrian_id)
@@ -91,11 +89,12 @@ def delete(equestrian_id):
 
 
 
-bp = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files')
+
+#bp = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files')
 
 
 
-
+"""
 @bp.route('/create ', methods= ['GET','POST'])
 def new():
 
@@ -104,15 +103,11 @@ def new():
 def update():
      pass
 
-@bp.get('/listado')
-def search():
-    pass
 
-
-@bp.route.get('/detail/<int:id>')
+@bp.route('/detail/<int:id>')
 def detail(equestrian_id):
       pass
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 def delete(equestrian_id):
-    pass
+    pass                 """

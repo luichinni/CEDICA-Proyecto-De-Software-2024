@@ -17,7 +17,7 @@ clients_bp = Blueprint('clients', __name__, url_prefix='/clients')
 @clients_bp.get('/listado')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.INDEX.value}")
 #@handle_error(lambda: url_for('home'))
-def search_clients():
+def search():
     """Lista todos los clientes con paginación."""
     """params = request.args.keys()
     
@@ -91,8 +91,8 @@ def search_clients():
 
 @clients_bp.route('/create', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('clients.new_clients'))
-def new_clients():
+@handle_error(lambda: url_for('clients.search'))
+def new():
     paso = session.get('paso',default=0)
     paso = paso if (paso < 7) else 0
     forms = [ClientFirstForm(),ClientSecondForm(), ClientThirdForm(), ClientFourthForm(), ClientFifthForm(), ClientSixthForm(), ClientSeventhForm()]
@@ -219,12 +219,12 @@ def new_clients():
     if paso <= 6:
         form = forms[paso]
         
-        return render_template('/client/paginated_form.html', form=form, ruta_post=url_for('.new_clients'), activa=paso,tabs=["Datos Personales", "Detalles", "Situacion previsional", "Institucion Escolar", "Atención", "Tutores Legales", "Propuesta de Trabajo"])
+        return render_template('/client/paginated_form.html', form=form, ruta_post=url_for('clients.new'), activa=paso,tabs=["Datos Personales", "Detalles", "Situacion previsional", "Institucion Escolar", "Atención", "Tutores Legales", "Propuesta de Trabajo"])
     else:
         ClientService.create_client(**session['cliente'])
         del session['cliente']
         del session['paso']
-        return redirect(url_for('clients.search_clients'))
+        return redirect(url_for('clients.search'))
 
 
 @clients_bp.route('/create/cancelar', methods=['GET','POST'])
@@ -235,19 +235,19 @@ def cancelar_form():
         del session['cliente']
     if session.get('paso',0):
         del session['paso']
-    return redirect(url_for('clients.search_clients'))
+    return redirect(url_for('clients.search'))
 
 
 @clients_bp.get('/<int:id>')
-def detail_clients(id: int):
+def detail(id: int):
     return redirect(url_for('client_file.search_client_file',id=id,active='informacion'))
 
 @clients_bp.get('/update')
-def update_clients():
+def update():
     pass
 
 @clients_bp.get('/delete')
-def delete_clients():
+def delete():
     pass
 
 

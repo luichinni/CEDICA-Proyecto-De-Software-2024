@@ -11,11 +11,11 @@ from src.core.services.user_service import UserService
 
 from flask import session
 
-session_bp = Blueprint('auth',__name__,url_prefix='/auth')
+session_bp = Blueprint('auths',__name__,url_prefix='/auth')
 
 @session_bp.get("/")
 def index():
-    return render_template('form.html',ruta_post=url_for('auth.login'),form=LoginForm())
+    return render_template('form.html',ruta_post=url_for('auths.login'),form=LoginForm())
     
 @session_bp.post("/")
 def login():
@@ -24,7 +24,7 @@ def login():
     id_user = UserService.check_user(datos.email.data, datos.password.data)
     
     if (not id_user):
-        return redirect(url_for('auth.index'))
+        return redirect(url_for('auths.index'))
 
     session["id"] = id_user
     flash('Iniciado Correctamente','success')
@@ -37,4 +37,4 @@ def logout():
         session.clear()
     
     flash('Sesión cerrada correctamente!')
-    return redirect(url_for('auth.index'))
+    return redirect(url_for('auths.index'))
