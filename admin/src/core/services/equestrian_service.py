@@ -1,8 +1,14 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
+from core.enums.client_enum import ExtensionesPermitidas
+from sqlalchemy import Enum
 from src.core.database import db 
 from src.core.models.equestrian import Equestrian
 from src.core.models.equestrian import SexoEnum
 from src.core.models.equestrian import TipoClienteEnum
+from src.core.models.equestrian.equestrian_docs import EquestrianDocument, TipoEnum
+from urllib.parse import urlparse
+from src.core.storage import storage
+from os import path 
 
 class EquestrianService :
     
@@ -10,6 +16,8 @@ class EquestrianService :
     def ensure_datetime(fecha_ingreso): 
         if isinstance(fecha_ingreso, datetime):
            return fecha_ingreso
+        elif isinstance(fecha_ingreso, date): 
+           return datetime(fecha_ingreso.year, fecha_ingreso.month, fecha_ingreso.day, tzinfo=timezone.utc)
         elif isinstance(fecha_ingreso, str):
             try:
                  return datetime.strptime(fecha_ingreso, '%Y-%m-%d').replace(tzinfo=timezone.utc)
@@ -19,9 +27,9 @@ class EquestrianService :
             raise TypeError("La fecha ingresada debe ser un objeto datetime o una cadena.")
 
     @staticmethod
-    def validate_date(fecha_ingreso):
-        fecha_ingreso = EquestrianService.ensure_datetime(fecha_ingreso)
-        return fecha_ingreso <= datetime.now(timezone.utc) 
+    def validate_date(fecha_nacimiento):
+        fecha_nacimiento = EquestrianService.ensure_datetime(fecha_nacimiento)
+        return fecha_nacimiento <= datetime.now(timezone.utc) 
     
     @staticmethod
     def validar_arguments(**kwargs):
@@ -36,14 +44,18 @@ class EquestrianService :
             del dic['compra']
 
         fecha_ingreso = kwargs.get('fecha_ingreso')
-        if fecha_ingreso is not None and EquestrianService.validate_date(fecha_ingreso):
-            del dic['fecha_ingreso'] 
+        if fecha_ingreso is not None and EquestrianService.ensure_datetime(fecha_ingreso):
+             del dic['fecha_ingreso']
+
+        fecha_nacimiento = kwargs.get('fecha_nacimiento')
+        if fecha_nacimiento is not None and EquestrianService.validate_date(fecha_nacimiento):
+            del dic['fecha_nacimiento']
 
         tipo_cliente = kwargs.get('tipo_cliente') 
         if tipo_cliente is not None and  EquestrianService.es_enum_valido(tipo_cliente, TipoClienteEnum):
             del dic['tipo_cliente']
-
-        for key, value in dic.items(): 
+        print(dic)
+        for value in dic.values(): 
             if value is not None :
                EquestrianService.is_instance_with_exception(value, str)
                 
@@ -93,7 +105,7 @@ class EquestrianService :
     
     @staticmethod
     def get_all_equestrian (page=1, per_page=25, include_deleted=False):
-        """Lista todos los cobros"""
+        """Lista todos los ecuestres"""
         query = Equestrian.query
         if not include_deleted:
             query = query.filter_by(deleted=False)
@@ -104,13 +116,13 @@ class EquestrianService :
     
     @staticmethod
     def get_equestrian_by_id(equestrian_id, include_deleted=False)-> Equestrian:
-        """Obtiene un cobro por su ID"""
+        """Obtiene un ecuestre por su ID"""
         query = Equestrian.query.filter_by(id=equestrian_id)
         if not include_deleted:
             query = query.filter_by(deleted=False)
         equestrian = query.first()
         if not equestrian:
-            raise ValueError(f"No existe el ecuestre con ID: {equestrian}")
+            raise ValueError(f"No existe el ecuestre con ID: {equestrian_id}")
         return equestrian
     
 
@@ -128,7 +140,7 @@ class EquestrianService :
             like (bool, optional): Flag de busqueda parcial en strings. Defaults to False.
 
         Returns:
-            list: Listado de clientes obtenidos a partir de la busqueda
+            list: Listado de ecuestres obtenidos a partir de la busqueda
         """
         query = Equestrian.query.filter_by(deleted=include_deleted)
         
@@ -148,3 +160,201 @@ class EquestrianService :
         
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
+
+    @staticmethod
+    def obtener_clave_por_valor(enum_class: Enum, valor):
+        """Retorna la Key segun el valor asociado del enum
+
+        Args:
+            enum_class (Enum): Enumerable a analizar
+            valor (Any): Clave a buscar
+
+        Returns:
+            (Any | None): Valor de la clave si es encontrado, sino None
+        """
+        if not (valor in enum_class):
+            return None
+        
+        for valor_enum in enum_class:
+            if valor == valor_enum.value:
+                return valor_enum.name
+
+
+
+    @staticmethod
+    def add_document(equestrian_id: int | str, titulo:str, document, tipo: TipoEnum, es_link: bool) -> EquestrianDocument:
+        """Permite cargarle un documento o link a un ecuestre
+
+        Args:
+            equestrian_id (int | str): ID del ecuestre al que se le añadirá el document
+            document (Any): Documento o link a agregar
+            tipo (TipoEnum): Tipo del documento
+            es_link (bool): Flag de confirmación si es link
+
+        Returns:
+           EquestrianDocument: Retorna el objeto con la información del archivo guardado
+        """
+        ecuestre = EquestrianService.get_equestrian_by_id(equestrian_id)
+        
+        ubicacion_archivo = ""
+        nombre_archivo = ""
+        
+        if (int(tipo) not in TipoEnum):
+            raise ValueError("Tipo de documento no es válido")
+        
+        if es_link:
+            ubicacion_archivo = document # si es link, seria la url
+            url_parseada = urlparse(document)
+            nombre_archivo = url_parseada.hostname if url_parseada.hostname is not None else url_parseada.netloc # puede tomar por ej: drive.google.com o drive.google.com:port
+            nombre_archivo = "Archivo de \"" + nombre_archivo + "\"" if not titulo else titulo # ej: Archivo de "drive.google.com"
+            
+        else:
+            last_file = ecuestre.equestrian_documents
+            last_id = 1
+            
+            if last_file:
+                ultimo_documento = (
+                    db.session.query(EquestrianDocument)
+                    .filter(EquestrianDocument.equestrian_id == ecuestre.id)
+                    .order_by(EquestrianDocument.id.desc())
+                    .first()
+                )
+                last_id = ultimo_documento.id + 1
+            
+            nombre_archivo = str(ecuestre.id) + '_' + str(last_id) + '_' + (document.filename if not titulo else titulo.replace(' ','_')+path.splitext(document.filename)[1])  
+            # 1234_4_fotocopiadni.pdf o con titulo 44130359_4_titulo_agregado.pdf
+            ubicacion_archivo = 'equestrian_files/' + nombre_archivo  # ej: equestrian_files/1234_4_fotocopiadni.pdf o 1234_4_titulo_agregado.pdf
+            
+            
+            try:
+                result = storage.client.put_object("grupo23",ubicacion_archivo,document.stream,length=-1, part_size=5 * 1024 * 1024)
+                print("!subido!" , result)
+            except:
+                raise ValueError("Hubo un problema al cargar el archivo, intenta nuevamente")
+        
+        new_file = EquestrianDocument(
+                titulo=nombre_archivo, 
+                tipo=EquestrianService.obtener_clave_por_valor(TipoEnum,int(tipo)), 
+                ubicacion=ubicacion_archivo, 
+                es_link=es_link,
+                equestrian_id=equestrian_id  )
+
+        db.session.add(new_file)
+        db.session.commit()
+        
+        return new_file
+    
+    @staticmethod
+    def get_document(id:int):
+        archivo = EquestrianDocument.query.get(id)
+        if archivo.es_link:
+            url = archivo.ubicacion
+        else:
+            formatos = {ext.name:ext.value for ext in ExtensionesPermitidas}
+            headers = {"response-content-type": formatos[path.splitext(archivo.ubicacion)[1][1:].upper()]}  # Cambia según el archivo
+            url = storage.client.presigned_get_object('grupo23',archivo.ubicacion,expires=timedelta(hours=1),response_headers=headers)
+        
+        return url
+    @staticmethod
+    def get_document_by_id(id: int)-> EquestrianDocument:
+        """Obtiene un ecuestre por su ID"""
+        archivo=  EquestrianDocument.query.get(id)
+         
+        if not archivo:
+            raise ValueError(f"No existe el documento con ID: {id}")
+        return archivo
+    
+
+    def get_documents(equestrian_id: int | str, filtro: dict = None, extension: str = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
+        """
+        Obtiene por página y filtro los documentos de un ecuestre específico.
+
+        Args:
+            equestrian_id (int | str): ID del cliente cuyos documentos son requeridos.
+            filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
+            page (int, optional): Número de página requerida. Defaults to 1.
+            per_page (int, optional): Cantidad de archivos por página. Defaults to 25.
+            order_by (str, optional): Campo de orden para los elementos. Defaults to None.
+            ascending (bool, optional): Flag de datos ascendentes o descendentes. Defaults to True.
+            include_deleted (bool, optional): Flag de inclusión de archivos con borrado lógico. Defaults to False.
+            like (bool, optional): Flag de búsqueda parcial en strings. Defaults to False.
+        """
+        if isinstance(equestrian_id,str):
+            equestrian_id = int(equestrian_id)
+        
+        query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id, EquestrianDocument.deleted == include_deleted)
+
+        if filtro:
+            for key, value in filtro.items():
+                if hasattr(EquestrianDocument, key) and value is not None:
+                    if isinstance(value, str) and like:
+                        query = query.filter(getattr(EquestrianDocument, key).like(f'%{value}%'))
+                    else:
+                        query = query.filter(getattr(EquestrianDocument, key) == value)
+                    
+        if extension:
+            extension = extension.lower()
+            if extension != 'link':
+                query = query.filter(EquestrianDocument.ubicacion.like(f'%.{extension}'))
+            elif extension == 'link':
+                query = query.filter_by(es_link=True)
+
+        if order_by and hasattr(EquestrianDocument, order_by):
+            if ascending:
+                query = query.order_by(getattr(EquestrianDocument, order_by).asc())
+            else:
+                query = query.order_by(getattr(EquestrianDocument, order_by).desc())
+
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        return pagination.items, pagination.total, pagination.pages
+    
+    @staticmethod
+    def delete_document(docs_id: int | str):
+        """Eliminación lógica de un documento o link en particular
+
+        Args:
+            docs_id (int | str): ID del documento o link a dar de baja
+        """
+        document = EquestrianDocument.query.get(docs_id)
+        if not document :
+            raise ValueError(f'No existe el ecuestre con id: {docs_id}')
+        document.deleted = True
+        db.session.commit()
+    @staticmethod
+    def update_document(document_id: int | str, titulo:str, tipo: TipoEnum, url:str, es_link: bool) -> EquestrianDocument:
+        """Permite actualizar un documento o link a un ecuestre
+
+        Args:
+            document_id (int | str): ID del documento al que se actualizará
+            titulo (Any): titulo nuevo para documento
+            tipo (TipoDocs): Tipo del documento
+            url (str): url actualizada
+            es_link (bool): Flag de confirmación si es link
+
+        Returns:
+            EquestrianDocuments: Retorna el objeto con la información del archivo guardado
+        """
+        archivo = EquestrianService.get_document_by_id(document_id)
+        
+        ubicacion_archivo = url
+        nombre_archivo = titulo
+        
+        if (int(tipo) not in TipoEnum):
+            raise ValueError("Tipo de documento no es válido")
+        
+        if es_link:
+            url_parseada = urlparse(ubicacion_archivo)
+            nombre_archivo = url_parseada.hostname if url_parseada.hostname is not None else url_parseada.netloc # puede tomar por ej: drive.google.com o drive.google.com:port
+            nombre_archivo = "Archivo de \"" + nombre_archivo + "\"" if not titulo else titulo # ej: Archivo de "drive.google.com"
+            archivo.ubicacion = ubicacion_archivo
+            
+        else:
+            partes = str(archivo.titulo).split('_')
+            nombre_archivo = partes[0] + '_' + partes[1] + '_' + titulo # 1234_4_titulo_agregado
+        
+        archivo.titulo = nombre_archivo
+
+        db.session.commit()
+        
+        return archivo
