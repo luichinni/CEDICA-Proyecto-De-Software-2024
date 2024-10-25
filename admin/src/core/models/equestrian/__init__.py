@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from core.enums.equestrian_enum import SexoEnum, TipoClienteEnum
 from src.core.database import db
-import enum
-from sqlalchemy import Enum
 
 
 # Representa la tabla intermedia de la relacion muchos a muchos entre empleado y ecuestre
