@@ -6,32 +6,17 @@ from src.core.services.client_service import ClientService
 from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error, get_int_param, get_bool_param, get_str_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
+from src.web.forms.collection_forms.search_collection_form import SearchCollectionForm
 
 from src.web.forms.collection_forms.create_collection_form import CreateCollectionForm
 from src.web.forms.collection_forms.update_collection_form import UpdateCollectionForm
 
-bp = Blueprint('collection', __name__, url_prefix='/collection')
-
-@bp.get('/')
-@check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}")
-def list_collections():
-    """Lista todos los cobros."""
-    params = request.args
-    page = get_int_param(params, 'page', 1, optional=True)
-    per_page = get_int_param(params, 'per_page', 25, optional=True)
-    include_deleted = get_bool_param(params, 'include_deleted', False, optional=True)
-
-    collections, total, pages = CollectionService.get_all_collections(
-        page=page, 
-        per_page=per_page, 
-        include_deleted=include_deleted
-    )
-    return render_template('collection/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
+bp = Blueprint('collections', __name__, url_prefix='/collections')
 
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}")
-@handle_error(lambda: url_for('collection.list_collections'))
-def search_collections():
+@handle_error(lambda: url_for('home'))
+def search():
     """Busca cobros con filtros."""
     params = request.args
 
@@ -42,8 +27,8 @@ def search_collections():
     apellido = get_str_param(params, 'apellido', optional=True)
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 25, optional=True)
-    order_by_date = get_bool_param(params, 'order_by_date', optional=True)
-    ascending = get_bool_param(params, 'ascending', optional=True)
+    order_by_date = get_bool_param(params, 'order_by_date', default=True, optional=True)
+    ascending = get_bool_param(params, 'ascending', default=False, optional=True)
     include_deleted = get_bool_param(params, 'include_deleted', optional=True)
 
     collections, total, pages = CollectionService.search_collections(
@@ -58,20 +43,40 @@ def search_collections():
         ascending=ascending,
         include_deleted=include_deleted
     )
-    return render_template('collection/list.html', collections=collections, total=total, pages=pages, current_page=page, per_page=per_page)
+    
+    
+    collections_list = [collection.to_dict() for collection in collections] if collections else [{
+        'id': '0',
+        "employee_id": '',
+        "client_id": '',
+        "payment_date": '',
+        "payment_method": '',
+        "amount": '',
+        "remarks": '',
+        "created_at": '',
+        "updated_at": ''
+    }]
+    
+    form = SearchCollectionForm()
+    
+    for param, valor in params.to_dict().items():
+        if param in form._fields:
+            form._fields[param].data = valor
+
+    return render_template('search_box.html', entidad='collections', anterior=url_for('home'), form=form, lista_diccionarios=collections_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de cobros')
 
 @bp.get('/<int:collection_id>')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda collection_id: url_for('collection.list_collections'))
-def collection_detail(collection_id):
+@handle_error(lambda collection_id: url_for('collections.search'))
+def detail(collection_id):
     """Obtiene un cobro por ID."""
     collection = CollectionService.get_collection_by_id(collection_id)
-    return render_template('collection/detail.html', collection=collection)
+    return render_template('detail.html', titulo='Detalle de cobro', anterior = url_for('collections.search'), diccionario=collection.to_dict(), entidad='collections')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('collection.list_collections'))
-def new_collection():
+@handle_error(lambda: url_for('collections.search'))
+def new():
     """Muestra el formulario para crear un nuevo cobro.""" 
     employee_choices = [(e.id, e.email) for e in EmployeeService.get_all_employees()]
     if not employee_choices:
@@ -111,12 +116,12 @@ def create_collection():
         observations=get_str_param(params, 'observations', "Sin observaciones", optional=True)
     )
     flash("Cobro creado exitosamente", "success")
-    return redirect(url_for('collection.list_collections'))
+    return redirect(url_for('collections.search'))
 
 @bp.route('/<int:collection_id>/update', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}")
-@handle_error(lambda collection_id: url_for('collection.list_collections'))
-def edit_collection(collection_id):
+@handle_error(lambda collection_id: url_for('collections.search'))
+def edit(collection_id):
     """Muestra el formulario para editar un cobro existente.""" 
     collection = CollectionService.get_collection_by_id(collection_id)
 
@@ -143,13 +148,13 @@ def update_collection(collection_id):
         observations=get_str_param(params, 'observations', optional=True)
     )
     flash("Cobro actualizado exitosamente", "success")
-    return redirect(url_for('collection.collection_detail', collection_id=collection_id))
+    return redirect(url_for('collections.detail', collection_id=collection_id))
 
 @bp.post('/<int:collection_id>/delete')
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda collection_id: url_for('collection.list_collections'))
-def delete_collection(collection_id):
+@handle_error(lambda collection_id: url_for('collections.search'))
+def delete(collection_id):
     """Elimina un cobro de forma lógica."""
     CollectionService.delete_collection(collection_id)
     flash("Cobro eliminado exitosamente", "success")
-    return redirect(url_for('collection.list_collections'))
+    return redirect(url_for('collections.search'))

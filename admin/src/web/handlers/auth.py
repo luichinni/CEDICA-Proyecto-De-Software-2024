@@ -22,7 +22,6 @@ def check_permissions(required_permission):
         @wraps(func)
         @login_required
         def wrapper(*args, **kwargs):
-            print(required_permission)
             current_user_id = get_current_user_id()
             if not UserService.user_has_permission(required_permission, current_user_id):
                 return abort(401) 

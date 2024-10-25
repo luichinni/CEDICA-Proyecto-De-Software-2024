@@ -8,25 +8,14 @@ from src.web.handlers import get_int_param, get_str_param, get_bool_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 from src.web.forms.user_forms.create_user_form import CreateUserForm
 from src.web.forms.user_forms.update_user_form import UpdateUserForm
+from src.web.forms.user_forms.search_user_form import SearchUserForm
 
-bp = Blueprint('user', __name__, url_prefix='/users')
-
-@bp.get('/')
-@check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.INDEX.value}")
-def list_users():
-    """Lista todos los usuarios con paginación."""
-    params = request.args
-    page = get_int_param(params, 'page', 1, optional= True)
-    per_page = get_int_param(params, 'per_page', 25, optional= True)
-    
-    users, total, pages = UserService.get_all_users(page=page, per_page=per_page)
-    
-    return render_template('user/list.html', users=users, total=total, pages=pages, current_page=page, per_page=per_page)
+bp = Blueprint('users', __name__, url_prefix='/users')
 
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.INDEX.value}")
-@handle_error(lambda: url_for('user.list_users'))
-def search_users():
+@handle_error(lambda: url_for('home'))
+def search():
     """Busca usuarios según criterios específicos con paginación."""
     params = request.args
     
@@ -48,21 +37,37 @@ def search_users():
         ascending=ascending
     )
 
-    return render_template('user/list.html', users=users, total=total, pages=pages, current_page=page, per_page=per_page)
+    users_list = [user.to_dict() for user in users] if users else [{
+        'id': '0',
+        'email': '',
+        'alias': '',
+        'activo': False,
+        'role': '',
+        'created_at': '',
+        'updated_at': ''
+    }]
+    
+    form = SearchUserForm()
+    
+    for param, valor in params.to_dict().items():
+        if param in form._fields:
+            form._fields[param].data = valor
+
+    return render_template('search_box.html', entidad='users', anterior=url_for('home'), form=form, lista_diccionarios=users_list, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ususarios')
 
 @bp.get('/<int:user_id>')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda user_id: url_for('user.list_users'))
-def user_detail(user_id):
+@handle_error(lambda user_id: url_for('users.search'))
+def detail(user_id):
     """Muestra los detalles de un usuario por su ID.""" 
     
     user = UserService.get_user_by_id(user_id)
-    return render_template('user/detail.html', user=user)
+    return render_template('detail.html', titulo='Detalle de usuario', anterior = url_for('users.search'), diccionario=user.to_dict(), entidad='users')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('user.list_users'))
-def new_user():
+@handle_error(lambda: url_for('users.search'))
+def new():
     """Muestra el formulario para crear un nuevo usuario y crea el usuario con los datos proporcionados en el formulario."""
     employee_choices = [(e.id, e.email) for e in EmployeeService.get_employees_without_user()]
     if not employee_choices:
@@ -93,12 +98,12 @@ def create_user():
         role_id=get_int_param(params, "role_id", optional=False)
     )
     flash("Usuario creado exitosamente", "success")
-    return redirect(url_for('user.user_detail', user_id=user.id))
+    return redirect(url_for('users.detail', user_id=user.id))
 
 @bp.route('/<int:user_id>/update', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.UPDATE.value}")
-@handle_error(lambda user_id: url_for('user.list_users'))
-def edit_user(user_id):
+@handle_error(lambda user_id: url_for('users.search'))
+def edit(user_id):
     """Muestra el formulario para editar un usuario existente y actualiza la información.""" 
     user = UserService.get_user_by_id(user_id)
 
@@ -127,23 +132,23 @@ def update_user(user_id):
         role_id=get_int_param(params, "role_id", optional=True)
     )
     flash("Usuario actualizado exitosamente", "success")
-    return redirect(url_for('user.user_detail', user_id=user_id))
+    return redirect(url_for('users.detail', user_id=user_id))
 
 @bp.post('/<int:user_id>/delete')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda user_id: url_for('user.list_users'))
-def delete_user(user_id):
+@handle_error(lambda user_id: url_for('users.search'))
+def delete(user_id):
     """Elimina un usuario existente.""" 
     UserService.delete_user(user_id)
     flash("Usuario eliminado exitosamente", "success")
-    return redirect(url_for('user.list_users'))
+    return redirect(url_for('users.search'))
 
 
 @bp.post('/<int:user_id>/block')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.BLOCK.value}")
-@handle_error(lambda user_id: url_for('user.list_users'))
-def block_user(user_id):
+@handle_error(lambda user_id: url_for('users.search'))
+def block(user_id):
     """Bloquea un usuario existente.""" 
     UserService.block_user(user_id)
     flash("Usuario bloqueado exitosamente", "success")
-    return redirect(url_for('user.list_users'))
+    return redirect(url_for('users.search'))

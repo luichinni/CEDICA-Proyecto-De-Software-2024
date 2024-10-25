@@ -9,3 +9,7 @@ def OtroCertificadoRequired(form, field):
 def validate_not_in_future(form, field):
     if field.data > date.today():
         raise ValidationError('La fecha no puede ser mayor a la fecha actual.')
+
+def validar_dias(self, field):
+        if not field.data:
+            raise ValidationError('Debes seleccionar al menos un día.')

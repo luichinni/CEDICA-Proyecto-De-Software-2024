@@ -62,6 +62,8 @@ class Employee(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
+    equestrians_asociados = db.relationship('Equestrian', secondary='associates',back_populates='empleados_asociados')
+
     def __repr__(self):
         return f"Empleado {self.nombre} {self.apellido} {self.dni}"
 
