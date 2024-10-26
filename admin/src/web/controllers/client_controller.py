@@ -367,13 +367,13 @@ def search(id):
     }]
     
     datos_cliente = ClientService.get_client_by_id(id).to_dict()
-    
+
     profesor = EmployeeService.get_employee_by_id(int(datos_cliente['profesor_id']))
     conductor = EmployeeService.get_employee_by_id(int(datos_cliente['conductor_id']))
     auxiliar = EmployeeService.get_employee_by_id(int(datos_cliente['auxiliar_pista_id']))
     caballo = EquestrianService.get_equestrian_by_id(int(datos_cliente['caballo_id']))
     
-    datos_cliente = {
+    datos_front = {
         'id':datos_cliente['id'],
         'DNI': datos_cliente['dni'],
         'Nombre': datos_cliente['nombre'],
@@ -401,17 +401,6 @@ def search(id):
         'Nro de afiliado': datos_cliente['nro_afiliado'],
         'Posee curatela': 'Sí' if datos_cliente['curatela'] else 'No',
         'Observaciones': datos_cliente['observaciones'],
-        'Institución escolar actual': datos_cliente['institucion_escolar']['nombre'],
-        'Dirección de la institución escolar': datos_cliente['institucion_escolar']['direccion']['calle'] 
-            + ' n' 
-            + datos_cliente['institucion_escolar']['direccion']['numero']
-            + ', '
-            + datos_cliente['institucion_escolar']['direccion']['localidad']
-            + ' provincia de '
-            + datos_cliente['institucion_escolar']['direccion']['provincia'],
-        'Teléfono de la institución escolar': datos_cliente['institucion_escolar']['telefono'],
-        'Grado actual al que concurre': datos_cliente['institucion_escolar']['grado'],
-        'Observaciones de la institución escolar': datos_cliente['institucion_escolar']['observaciones'],
         'Profesionales que lo atienden': datos_cliente['atendido_por'],
         'Tutores responsables':'',
         'Propuesta de trabajo institucional': datos_cliente['propuesta_trabajo'],
@@ -423,9 +412,25 @@ def search(id):
         'Ecuestre asignado': caballo.nombre,
         'Auxiliar de pista asignado': auxiliar.nombre + ' ' + auxiliar.apellido + ' - ' + auxiliar.dni
     }
+    
+    if datos_cliente.get('institucion_escolar',None):
+        datos_front = {
+            **datos_front,
+            'Institución escolar actual': datos_cliente['institucion_escolar']['nombre'],
+            'Dirección de la institución escolar': datos_cliente['institucion_escolar']['direccion']['calle'] 
+                + ' n' 
+                + datos_cliente['institucion_escolar']['direccion']['numero']
+                + ', '
+                + datos_cliente['institucion_escolar']['direccion']['localidad']
+                + ' provincia de '
+                + datos_cliente['institucion_escolar']['direccion']['provincia'],
+            'Teléfono de la institución escolar': datos_cliente['institucion_escolar']['telefono'],
+            'Grado actual al que concurre': datos_cliente['institucion_escolar']['grado'],
+            'Observaciones de la institución escolar': datos_cliente['institucion_escolar']['observaciones']
+        }
 
     return render_template('different_detail.html', 
-                           diccionario=datos_cliente,
+                           diccionario=datos_front,
                            activo=activo,
                            entidad='clients',
                            entidad_archivo='client_files',

@@ -27,6 +27,7 @@ class EmployeeService:
         if not employee:
             raise ValueError(f"No existe el empleado con id {employee_id} empleado")
         employee.deleted = True
+        db.session.commit()
         return employee
 
     
@@ -47,6 +48,8 @@ class EmployeeService:
         if filtro:
             valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
             employees_query = employees_query.filter_by(**valid_filters)
+
+
 
         if order_by:
             if ascending:

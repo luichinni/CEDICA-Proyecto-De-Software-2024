@@ -2,7 +2,7 @@ import os
 from flask import Flask, flash
 from flask import render_template
 from web.handlers import error
-from src.web.handlers.auth import is_authenticated
+from src.web.handlers.auth import has_permission, is_authenticated
 from src.web.handlers.auth import check_permissions
 from src.core import database
 from src.core.config import config
@@ -24,6 +24,7 @@ from src.core.services.user_service import RoleService
 from src.core.services.employee_service import EmployeeService
 from src.core.services.permission_service import PermissionService 
 from src.core.services.client_service import ClientService
+from src.core.services.equestrian_service import EquestrianService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
@@ -92,12 +93,12 @@ def create_app(env="development", static_folder="../../static"):
 
     #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)
-    app.jinja_env.globals.update(check_permission = check_permissions)
+    app.jinja_env.globals.update(check_permission = has_permission)
     app.jinja_env.globals.update(enumerate = enumerate)
 
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, EmployeeService, PermissionService)
+        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService)
 
     return app

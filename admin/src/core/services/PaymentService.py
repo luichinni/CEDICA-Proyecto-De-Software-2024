@@ -1,5 +1,6 @@
 from src.core.database import db
 from src.core.models.Payment import Payment
+from sqlalchemy import and_
 
 class PaymentService:
 
@@ -39,8 +40,14 @@ class PaymentService:
         """Toma pagos basado en los filtros y el orden"""
         payments_query = Payment.query.filter_by(deleted=include_deleted)
         if filtro:
-            valid_filters = {key:value for key, value in filtro.items() if hasattr(Payment, key) and value is not None}
-            payments_query = payments_query.filter_by(**valid_filters)
+            if 'tipo_pago' in filtro:
+                payments_query = payments_query.filter(Payment.tipo_pago == filtro['tipo_pago'])
+            elif 'rango_fechas' in filtro:
+                rango = filtro['rango_fechas']
+                desde = rango.get('desde')
+                hasta = rango.get('hasta')
+
+                payments_query = payments_query.filter(and_(Payment.fecha_pago >= desde, Payment.fecha_page <= hasta))
 
         if order_by:
             if ascending:

@@ -36,6 +36,13 @@ class PuestoLaboralEnum(enum.Enum):
     AUXILIAR_DE_MANTENIMIENTO = 11
     OTRO = 12
 
+    @classmethod
+    def from_value(cls, value):
+        for method in cls:
+            if method.name.capitalize() == value:
+                return method
+        raise ValueError(f"No se encontró un puesto laboral con el valor: {value}")
+
 class Employee(db.Model):
     """Representa un miembro del equipo de CEDICA"""
     __tablename__ = 'employees'
@@ -86,6 +93,6 @@ class Employee(db.Model):
             "contacto_emergencia_telefono": self.contacto_emergencia_telefono,
             "obra_social": self.obra_social,
             "nro_afiliado": self.nro_afiliado,
-            "condicion": self.condicion,
+            "condicion": self.condicion.name.capitalize(),
             "activo": self.activo,
         }

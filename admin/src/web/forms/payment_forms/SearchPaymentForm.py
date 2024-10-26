@@ -1,22 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, BooleanField, DateField
+from wtforms import StringField, SelectField, SubmitField, BooleanField, DateField, FormField
 from wtforms.validators import Optional
 from src.core.enums.payment_enum.PaymentEnum import PaymentEnum
+from web.forms.search_form import SearchForm
 
-class SearchPaymentForm(FlaskForm):
+class RangoFechas(FlaskForm):
+    fecha_desde = DateField('Fecha desde', format='%Y-%m-%d')
+    fecha_hasta = DateField('Fecha hasta', format='%Y-%m-%d')
+
+class SearchPaymentForm(SearchForm):
     """Form para buscar pagos por diferentes criterios"""
-    fecha_inferior = DateField('Fecha inferior',format='%Y-%m-%d', validators=[Optional()])
-    fecha_superior = DateField('Fecha superior',format='%Y-%m-%d', validators=[Optional()])
-    tipo_pago = SelectField('Tipo de pago', choices=[
-        (tipo.name, tipo.value) for tipo in PaymentEnum
-    ], validators=[Optional()])
-    order_by = SelectField('Ordenar por', choices=[
-        ('fecha_pago', 'Fecha del pago'),
-    ], validators=[Optional()])
+    rango_fechas = FormField(RangoFechas)
+    tipo_pago = SelectField('Tipo de pago',
+                            choices=[(tipo.name, tipo.name.capitalize().replace('_', ' ')) for tipo in PaymentEnum])
 
-    ascending = SelectField('Orden', choices=[
-        ('asc', 'Ascendente'),
-        ('desc', 'Descendente')
-    ], validators=[Optional()])
+    submit = SubmitField('Aplicar')
 
-    submit = SubmitField('Buscar')
