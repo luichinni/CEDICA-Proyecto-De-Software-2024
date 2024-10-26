@@ -1,22 +1,20 @@
 {%extends "layout.html"%}
-{% block title %}Formulario{% endblock %}
+{% block title %}{{titulo}}{% endblock %}
 
 {% block head %}
   {{ super() }}
 {% endblock %}
 
 {% block content %}
-
-            <h1 class="title">Formulario Dinámico </h1>
-            <form method="POST" action="{{ruta_post}}"   >
+<section >
+   <h1 class="title"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
+            <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
                  {% set campos = form._fields.keys()|list %}
-             <!--   <h1>'el form : '{{form._fields}}</h1>
-                <h1>'los campos : '{{campos}}</h1>-->
                
                 {{ form.hidden_tag() }}<!-- CSRF token -->
                
+
                 {% for campo in range(campos|length-1)%}
-                   
                     <div>
                         {{ form[campos[campo]].label }}  <!-- Renderiza la etiqueta -->
                         {{ form[campos[campo]] }}        <!-- Renderiza el campo de entrada -->
@@ -26,16 +24,27 @@
                             <span class="error" style="color: red;">{{ error }}</span>
                         {% endfor %}
                     </div>
+                    <div>
+                        <!-- Mostrar mensajes de error -->
+                        {% for error in form[campos[campo]].errors %}
+                            <span class="error" style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                        
+                    </div>
                 {% endfor %}
 
+             <button type="submit" class="button">Submit</button>
             </form>
 
+     
+    <br> 
+    <a href="{{ url_volver }}"  class="button">Volver</a>
+    <br> 
 
-            
-        </form>
-    </div>
-   
 </section>
+
+{% block complementos %} 
+{% endblock %}
 <style>
     /* Centramos el contenido verticalmente */
     .full-height {

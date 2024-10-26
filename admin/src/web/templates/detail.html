@@ -1,0 +1,45 @@
+{% extends 'Layout.html'%}
+{% block title %}  {{titulo}} {%endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+{{ super() }}
+{% endblock %}
+
+{%block content%}
+   
+     <h1> {{titulo}}</h1>
+     <br>
+     {% if anterior %}
+         <a href="{{ anterior }}" class="button">Volver</a>
+     {% else %}
+         <a href="/" class="button">Volver a inicio</a>
+     {% endif %}
+     <br>
+     <section class="section">
+       <ul class="list">  
+       {%for key in diccionario %}
+            
+           <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
+       {%endfor%}
+      </ul>
+    </section>
+    <div class="buttons is-centered">
+     <br>
+     <a href="{{ url_for( entidad + '.update',id = diccionario.id) }}">Editar</a> 
+     <br>
+     <form action="{{ url_for(entidad + '.delete', id=diccionario.id) }}" method="POST" style="display:inline;">
+    <button type="submit" >
+        Eliminar
+    </button>
+</form>
+     <br>
+     {%if check_permission(entidad +'_block')%}
+     <!-- Form to block the element -->
+     <form action="{{ url_for('users.block', user_id= diccionario['id']) }}" method="post" style="display:inline;">
+        <button class="button is-primary is-small" type="submit">Bloquear</button>
+     </form>
+     {%endif%}
+
+    </div>
+     
+{% endblock %}

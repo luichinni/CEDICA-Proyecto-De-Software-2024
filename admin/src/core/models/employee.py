@@ -3,6 +3,8 @@ import enum
 from sqlalchemy import Enum
 from datetime import datetime, timezone
 
+from src.core.models.equestrian import associates
+
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
     PSICOMOTRICISTA = 2
@@ -34,6 +36,13 @@ class PuestoLaboralEnum(enum.Enum):
     AUXILIAR_DE_MANTENIMIENTO = 11
     OTRO = 12
 
+    @classmethod
+    def from_value(cls, value):
+        for method in cls:
+            if method.name.capitalize() == value:
+                return method
+        raise ValueError(f"No se encontró un puesto laboral con el valor: {value}")
+
 class Employee(db.Model):
     """Representa un miembro del equipo de CEDICA"""
     __tablename__ = 'employees'
@@ -60,6 +69,8 @@ class Employee(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
+    equestrians_asociados = db.relationship('Equestrian', secondary='associates',back_populates='empleados_asociados')
+
     def __repr__(self):
         return f"Empleado {self.nombre} {self.apellido} {self.dni}"
 
@@ -82,7 +93,6 @@ class Employee(db.Model):
             "contacto_emergencia_telefono": self.contacto_emergencia_telefono,
             "obra_social": self.obra_social,
             "nro_afiliado": self.nro_afiliado,
-            "condicion": self.condicion,
+            "condicion": self.condicion.name.capitalize(),
             "activo": self.activo,
-            "deleted": self.deleted
         }

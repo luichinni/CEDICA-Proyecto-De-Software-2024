@@ -8,6 +8,9 @@ class PermissionCategory(Enum):
     BLOCK = "block"
 
 class PermissionModel(Enum):
-    USER = "user"
-    COLLECTION = "collection"
-    EMPLOYEE = "employee"
+    USER = "users"
+    COLLECTION = "collections"
+    EMPLOYEE = "employees"
+    CLIENT = "clients"
+    PAYMENT = "payments"
+    EQUESTRIAN = "equestrians"

@@ -1,0 +1,51 @@
+{%block file_list%}
+<div class="container">
+    <div class="table-container has-text-centered">
+     <table class="table is-fullwidth">
+         <thead>
+             <tr>
+              {% for key in lista_diccionarios[0].keys() %}
+                 {%if key != 'id' and key != 'es_link'%}
+                      <th>{{ key | capitalize }}</th>
+                 {%endif%}
+              {% endfor %}
+               <th>Acciones</th>
+             </tr>
+         </thead>
+         <tbody>
+             {% for diccionario in lista_diccionarios %}
+                <tr id="{{diccionario['id'] }}">
+                    {% for key in diccionario.keys() %}
+                        {%if key != 'id' and key != 'es_link'%}
+                          <td>{{ diccionario[key] }}</td>
+                        {%endif%}
+                     {% endfor %}
+                     
+                   <td  class="card-footer">
+                       <div class="buttons">
+                          {%if check_permission(entidad + "_show")%}
+                            <!-- Link to view details -->
+                            <a class="button is-dark is-small" href="{{ url_for( entidad_archivo + '.detail', id = diccionario.id, es_link = diccionario.es_link) }}" class="card-footer-item">Ver</a>
+                         {%endif%}
+                         {%if check_permission(entidad + "_update")%}
+                         <!--Link to edit -->
+                         <a class="button is-primary is-small" href="{{ url_for( entidad_archivo + '.update',id = diccionario['id'], es_link = diccionario.es_link, id_entidad=id_entidad) }}" class="card-footer-item">Editar</a>                                    
+                         {%endif%}
+                         {%if check_permission(entidad + "_delete")%}
+                          <!-- Form to delete the element -->
+                          <form action="{{ url_for( entidad_archivo + '.delete', id = diccionario.id , id_entidad=id_entidad)}}" method="post" style="display:inline;">
+                               <button class="button is-dark is-small" type="submit">Eliminar</button>
+                          </form>
+                          {%endif%}
+                             
+                        </div>
+                    </td>
+                </tr>    
+             {% endfor %}     
+         </tbody>
+     </table>
+ </div>
+</div>
+
+
+{%endblock%}

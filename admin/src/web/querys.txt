@@ -1,0 +1,65 @@
+-- ==============================================================================================================================================
+-- ##############################################################################################################################################
+-- ==============================================================================================================================================
+
+INSERT INTO public.employees (
+    nombre, apellido, dni, domicilio, email, localidad, telefono, profesion, puesto_laboral, 
+    fecha_inicio, fecha_cese, contacto_emergencia_nombre, contacto_emergencia_telefono, 
+    obra_social, nro_afiliado, condicion, activo, deleted
+) VALUES 
+('Juan', 'Pérez', '12345678', 'Calle Falsa 123', 'juan.perez@example.com', 'Ciudad', '123456789', 
+    'PSICOLOGO', 'TERAPEUTA', '01/01/2024', NULL, 'Ana Pérez', '987654321', 'Obra Social A', 'AB123456', 
+    'VOLUNTARIO', true, false),
+    
+('María', 'González', '23456789', 'Avenida Siempre Viva 456', 'maria.gonzalez@example.com', 'Ciudad', '234567890', 
+    'PSICOMOTRICISTA', 'ADMINISTRATIVO', '10/01/2024', NULL, 'Luis González', '876543210', 'Obra Social B', 'CD234567', 
+    'PERSONAL_RENTADO', true, false),
+
+('Pedro', 'Lopez', '34567890', 'Boulevard 789', 'pedro.lopez@example.com', 'Ciudad', '345678901', 
+    'MEDICO', 'CONDUCTOR', '15/01/2024', NULL, 'Laura Lopez', '765432109', 'Obra Social C', 'EF345678', 
+    'VOLUNTARIO', true, false),
+
+('Lucía', 'Martínez', '45678901', 'Plaza Central 101', 'lucia.martinez@example.com', 'Ciudad', '456789012', 
+    'KINESIOLOGO', 'TERAPEUTA', '20/01/2024', NULL, 'Carlos Martínez', '654321098', 'Obra Social D', 'GH456789', 
+    'PERSONAL_RENTADO', true, false),
+
+('Fernando', 'Sánchez', '56789012', 'Camino Real 202', 'fernando.sanchez@example.com', 'Ciudad', '567890123', 
+    'TERAPISTA_OCUPACIONAL', 'AUXILIAR_DE_PISTA', '25/01/2024', NULL, 'Elena Sánchez', '543210987', 'Obra Social E', 'IJ567890', 
+    'VOLUNTARIO', true, false);
+
+-- ==============================================================================================================================================
+-- ##############################################################################################################################################
+-- ==============================================================================================================================================
+
+INSERT INTO public.equestrians (
+    nombre, sexo, raza, pelaje, compra, fecha_nacimiento, fecha_ingreso, sede_asignada, tipo_de_jya_asignado, deleted
+) VALUES 
+('Estrella', 'FEMENINO', 'Pura Sangre', 'Castaño', false, '01/01/2024', '01/01/2024', 'Sede A', 'HIPOTERAPIA', false),
+
+('Valiente', 'MASCULINO', 'Appaloosa', 'Alazán', true, '01/01/2024', '10/01/2024', 'Sede B', 'MONTA_TERAPEUTICA', false),
+
+('Rayo', 'MASCULINO', 'Andaluz', 'Negro', false, '01/01/2024', '15/01/2024', 'Sede A', 'DEPORTE_ECUESTRE_ADAPTADO', false),
+
+('Luz', 'FEMENINO', 'Árabe', 'Tordo', true, '01/01/2024', '20/01/2024', 'Sede C', 'ACTIVIDADES_RECREATIVAS', false),
+
+('Nube', 'FEMENINO', 'Mestizo', 'Bayo', false, '01/01/2024', '25/01/2024', 'Sede B', 'EQUITACION', false);
+
+-- ==============================================================================================================================================
+-- ##############################################################################################################################################
+-- ==============================================================================================================================================
+
+-- Connect Employee ID 1 with Equestrian ID 1
+INSERT INTO public.associates (employee_id, equestrian_id) VALUES (1, 1);
+
+-- Connect Employee ID 2 with Equestrian ID 2
+INSERT INTO public.associates (employee_id, equestrian_id) VALUES (2, 2);
+
+-- Connect Employee ID 3 with Equestrian ID 3
+INSERT INTO public.associates (employee_id, equestrian_id) VALUES (3, 3);
+
+-- Connect Employee ID 4 with Equestrian ID 4
+INSERT INTO public.associates (employee_id, equestrian_id) VALUES (4, 4);
+
+-- ==============================================================================================================================================
+-- ##############################################################################################################################################
+-- ==============================================================================================================================================

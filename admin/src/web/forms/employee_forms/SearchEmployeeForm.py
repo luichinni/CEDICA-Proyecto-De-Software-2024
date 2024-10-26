@@ -11,7 +11,7 @@ class SearchEmployeeForm(FlaskForm):
     dni = StringField('DNI', validators=[Optional()])
     email = StringField('Email', validators=[Optional()])
     puesto_laboral = SelectField('Puesto Laboral', choices=[
-        (puesto_laboral.name, puesto_laboral.name.replace('_',' ').title()) for puesto_laboral in PuestoLaboralEnum], validators=[Optional()])
+        (puesto_laboral.name, puesto_laboral.name.replace('_',' ').upper()) for puesto_laboral in PuestoLaboralEnum], validators=[Optional()])
     order_by = SelectField('Ordenar por', choices=[
         ('nombre', 'Nombre'),
         ('apellido', 'Apellido'),

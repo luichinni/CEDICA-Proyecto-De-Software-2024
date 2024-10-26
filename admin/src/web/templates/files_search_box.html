@@ -1,0 +1,100 @@
+{%block files_search_box%}
+
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id, es_link = False)}}">Agregar Documento</a>
+<br>
+<br>
+<a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id,  es_link =True)}}">Agregar Enlace</a>
+<br>
+<br>
+<section class="search_box">
+   
+  <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}">
+    {{ form.hidden_tag() }}
+
+    <div class="search_input field is-grouped">
+      <div class="control is-expanded">
+        {{ form.busqueda(class="input", placeholder="Buscar...") }}
+     </div>
+    </div>
+    <div class="search_selec field is-grouped">
+      <div class="control">  
+        {{ form.tipo_filtro.label(class="label") }}
+        <div class="select">  
+         <div> 
+            {{ form.tipo_filtro(class="select") }}
+         </div>
+        </div>
+      </div>
+      <div class="control">
+        {{ form.orden_filtro.label(class="label") }}
+        <div class="select">
+         <div>
+         {{ form.orden_filtro(class="select") }}
+        </div>
+       </div>
+      </div>
+    <div class="control">
+      {{ form.orden(class="radio") }}
+      <label class="radio">{{ form.orden[0] }}</label>
+      <label class="radio">{{ form.orden[1] }}</label>
+  </div>
+
+    <div>
+        {{ form.submit(class="button is-info") }}  <!-- Botón para enviar el formulario -->
+    </div>
+</form>
+ </section>
+ <br>
+ <br>
+ {% include 'file_list.html'%}
+ <br>
+
+<!-- Pagination controls -->
+<nav class="pagination is-rounded" role="navigation" aria-label="pagination">
+<div class="pagination">
+ 
+  {% if current_page > 1 %}
+      <a href="{{ url_for(entidad_archivo + '.search', page=current_page - 1, per_page=per_page, 
+                              busqueda=request.args.get('busqueda'),
+                              tipo_filtro=request.args.get('tipo_filtro'),
+                              orden_filtro=request.args.get('orden_filtro'),
+                              orden=request.args.get('orden'),
+                               activo='documents'
+                               , id=diccionario.id) }}" 
+                               class="pagination-previous" >Previous</a>
+  {% endif %}
+  <br>
+  {% for page_num in range(1, pages + 1) %}
+      {% if page_num == current_page %}
+          <strong>{{ page_num }}</strong>
+      {% else %}
+          <a href="{{ url_for(entidad_archivo + '.search', page=page_num, per_page=per_page, 
+                              busqueda = request.args.get('busqueda'),
+                              tipo_filtro = request.args.get('tipo_filtro'),
+                              orden_filtro = request.args.get('orden_filtro'),
+                              orden = request.args.get('orden'),
+                               activo='documents' , id=diccionario.id)}}" >{{ page_num }}</a>
+      {% endif %}
+  {% endfor %}
+  <br>
+  {% if current_page < pages %}
+      <a href="{{ url_for(entidad_archivo + '.search', page=current_page + 1, per_page=per_page, 
+                             busqueda=request.args.get('busqueda'),
+                              tipo_filtro=request.args.get('tipo_filtro'),
+                              orden_filtro=request.args.get('orden_filtro'),
+                              orden=request.args.get('orden'),
+                              activo='documents' , id=diccionario.id)}}" class="pagination-next">Next</a>
+  {% endif %}
+</div>
+</nav>
+<p>Total: {{ total }}</p>
+
+
+{%endblock %}
+ 
+
+ 
+
+ 
+
+

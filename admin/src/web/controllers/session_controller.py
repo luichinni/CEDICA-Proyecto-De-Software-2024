@@ -9,28 +9,27 @@ from web.forms.auth_forms.login_form import LoginForm
 
 from src.core.services.user_service import UserService
 
-from src.core.bcrypt_y_session import bcrypt
-
 from flask import session
 
-session_bp = Blueprint('auth',__name__,url_prefix='/auth')
+session_bp = Blueprint('auths',__name__,url_prefix='/auths')
 
-@session_bp.get("/")
+@session_bp.route("/",methods=['GET','POST'])
 def index():
-    return render_template('form.html',ruta_post=url_for('auth.login'),form=LoginForm())
+    form = LoginForm()
     
-@session_bp.post("/")
-def login():
-    datos = LoginForm()
+    if request.method == 'POST':
+        form.validate_on_submit()
+        
+        id_user = UserService.check_user(form.email.data, form.password.data)
     
-    id_user = UserService.check_user(datos.email.data, datos.password.data)
-    
-    if (not id_user):
-        return redirect(url_for('auth.index'))
+        if (not id_user):
+            return redirect(url_for('auths.index', titulo='Inicio de Sesión!'))
 
-    session["id"] = id_user
-    flash('Iniciado Correctamente','success')
-    return redirect('/')
+        session["id"] = id_user
+        flash('Iniciado Correctamente','success')
+        return redirect('/')
+    
+    return render_template('form.html',ruta_post=url_for('auths.index'),form=LoginForm(), titulo='Inicio de Sesión!')
 
 @session_bp.get("/logout")
 def logout():
@@ -39,4 +38,4 @@ def logout():
         session.clear()
     
     flash('Sesión cerrada correctamente!')
-    return redirect(url_for('auth.index'))
+    return redirect(url_for('auths.index'))

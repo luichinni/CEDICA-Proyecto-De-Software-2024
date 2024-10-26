@@ -1,0 +1,24 @@
+<!-- Mostrar mensajes flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+ {% if messages %}
+ <article class="message is-{{ category }}" id="flash-message">
+    <div class="message-header">
+     <ul>
+     {% for category, message in messages %}
+         <li class="{{ category }}">{{ message }}</li>
+     {% endfor %}
+     </ul>
+    </div>
+ </article>
+ <script>
+    // Espera 15 segundos antes de ocultar el mensaje flash
+    setTimeout(function() {
+      var flashMessage = document.getElementById("flash-message");
+      if (flashMessage) {
+        flashMessage.style.display = "none";
+      }
+    }, 10000); // 15000 ms = 15 segundos
+  </script>
+
+ {% endif %}
+{% endwith %}

@@ -2,48 +2,59 @@
 <html lang="es">
     <head>
         {% block head %}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>{% block title %}{% endblock %}</title>
         {% endblock %}
     </head>
-    <body>
-        <header>
+    <body >
+        <header >
             <div class="logo">
                 <img src="{{ url_for('static', filename='cedica-icon.png') }}" alt="User Icon" class="user-icon">
             </div>
             <nav>
+
                 <ul>
-                    <li><a href="#">J&A</a></li>
-                    <li><a href="#">Ecuestre</a></li>
-                    <li><a href="#">Equipo</a></li>
-                </ul>
+                    {%if is_authenticated()%}
+                        {%if check_permission("clients_index")%}
+                            <li><a href="{{ url_for('clients.search') }}">J&A</a></li> {% endif %}
+                        {%if check_permission("equestrians_index")%}
+                            <li><a href="{{ url_for('equestrians.search') }}">Ecuestre</a></li> {% endif %}
+                        {%if check_permission("employees_index")%}
+                            <li><a href="{{ url_for('employees.search') }}">Equipo</a></li> {% endif %}
+                        {%if check_permission("collections_index")%}
+                            <li><a href="{{ url_for('collections.search') }}">cobros</a></li> {% endif %}
+                        {%if check_permission("payments_index")%}
+                            <li><a href="{{ url_for('payments.search') }}">Pagos</a></li> {% endif %}
+                        {%if check_permission("users_index")%}
+                            <li><a href="{{ url_for('users.search') }}">Usuario</a></li> {% endif %}
+                                   
+                     {% endif %}
+                        </ul>
             </nav>
-            <div class="user-menu">
-                <img src="{{ url_for('static', filename='user-icon.png') }}" alt="User Icon" class="user-icon">
-                <div class="user-dropdown">
-                    <a href="#">Perfil</a>
-                    <a href="#">Cerrar sesión</a>
+            {%if is_authenticated() %} 
+                <div class="user-menu">
+                    <img src="{{ url_for('static', filename='user-icon.png') }}" alt="User Icon" class="user-icon">
+                    <div class="user-dropdown">
+                        <a href="#">Perfil</a>
+                        <a href="{{url_for('auths.logout')}}">Cerrar sesión</a>
+                    </div>
                 </div>
-            </div>
-        </header>
-        <div id="container"> 
-                        
-            <!-- Mostrar mensajes flash -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <ul>
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                    </ul>
                 {% endif %}
-            {% endwith %}
+            </header>
+            {% include 'mensaje_flash.html' %}
+           <div id="container"> 
+             {% block content %} 
+             {% endblock %}
             
-            {% block content %} 
-            {% endblock %}
-        </div>
-        <footer>
-            {% block footer %} {% endblock %}
+           </div>
+        <footer >
+           
+            {% block footer %} Final de pagina{% endblock %}
+          
         </footer>
+
+        
+        
     </body>
 </html>

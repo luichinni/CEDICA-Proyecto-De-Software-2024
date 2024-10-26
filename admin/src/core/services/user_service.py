@@ -7,7 +7,7 @@ from src.core.models.user.role_permission import RolePermission
 from src.core.admin_data import AdminData
 from src.web.handlers import validate_params
 import re
-from src.core.bcrypt_y_session import bcrypt
+from src.core.bcrypy_and_session import bcrypt
 
 class UserService:
     
@@ -87,7 +87,7 @@ class UserService:
     @staticmethod
     def update_user(user_id, alias=None, password=None, activo=None, role_id=None):
         """Actualiza un usuario existente."""
-        user = UserService.get_user_by_id(user_id)
+        user = UserService.get_user_by_id(user_id, include_blocked=True)
         if user.role.name == AdminData.role_name: 
             raise ValueError("No se permite interactuar con el usuario System Admin ni con sus datos.")
 
@@ -110,7 +110,7 @@ class UserService:
     @validate_params
     def delete_user(user_id):
         """Elimina un usuario por su ID de forma lógica."""
-        user = UserService.get_user_by_id(user_id)
+        user = UserService.get_user_by_id(user_id, include_blocked=True)
         
         UserService.validate_role_id(user.role_id)
         
@@ -166,7 +166,7 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def get_all_users(page=1, per_page=25, include_deleted=False, include_blocked=False):
+    def get_all_users(page=1, per_page=25, include_deleted=False, include_blocked=True):
         """Obtiene todos los usuarios."""
         query = User.query
         
@@ -194,7 +194,7 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True, include_deleted=False, include_blocked=False):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query
 

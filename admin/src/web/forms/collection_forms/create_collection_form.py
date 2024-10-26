@@ -6,8 +6,8 @@ from src.core.models.collection import PaymentMethod
 class CreateCollectionForm(FlaskForm):
     employee_id = SelectField('Empleado', coerce=int, validators=[DataRequired(message="El empleado es requerido.")])
     
-    client_id = SelectField('Cliente', coerce=int, validators=[DataRequired(message="El cliente es requerido.")])
-    
+    client_dni = StringField('Cliente', validators=[DataRequired(message="El cliente es requerido.")])   
+
     payment_date = DateField('Fecha de Pago', format='%Y-%m-%d', validators=[DataRequired(message="La fecha de pago es requerida.")])
     
     payment_method = SelectField('Método de Pago', choices=[(method.value, method.value) for method in PaymentMethod],
