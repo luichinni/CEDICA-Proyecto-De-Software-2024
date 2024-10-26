@@ -314,6 +314,7 @@ def search(id):
                            per_page=per_page,
                            pages=pages,
                            titulo='Detalle',
+                           titulo='Detalle'
                         )
      
 
@@ -333,6 +334,7 @@ def detail(id):
 @bp_file.route('/delete/<int:id>/<int:id_entidad>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}")
 @handle_error(lambda: url_for('equestrian_files.search')) 
+@handle_error(lambda: url_for('equestrian_files.search'))
 def delete(id:int, id_entidad:int):
     EquestrianService.delete_document(id)
     flash("Se elimino el documento exitosamente", "success")
