@@ -47,7 +47,7 @@ class Collection(db.Model):
             "payment_date": self.payment_date.isoformat(),
             "payment_method": self.payment_method.value,
             "amount": self.amount,
-            "remarks": self.remarks,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "observations": self.observations,
+            #"created_at": self.created_at.isoformat(),
+            #"updated_at": self.updated_at.isoformat()
         }

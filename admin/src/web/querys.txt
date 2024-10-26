@@ -32,17 +32,17 @@ INSERT INTO public.employees (
 -- ==============================================================================================================================================
 
 INSERT INTO public.equestrians (
-    nombre, sexo, raza, pelaje, compra, fecha_ingreso, sede_asignada, tipo_cliente, deleted
+    nombre, sexo, raza, pelaje, compra, fecha_nacimiento, fecha_ingreso, sede_asignada, tipo_de_jya_asignado, deleted
 ) VALUES 
-('Estrella', 'FEMENINO', 'Pura Sangre', 'Castaño', false, '01/01/2024', 'Sede A', 'HIPOTERAPIA', false),
+('Estrella', 'FEMENINO', 'Pura Sangre', 'Castaño', false, '01/01/2024', '01/01/2024', 'Sede A', 'HIPOTERAPIA', false),
 
-('Valiente', 'MASCULINO', 'Appaloosa', 'Alazán', true, '10/01/2024', 'Sede B', 'MONTA_TERAPEUTICA', false),
+('Valiente', 'MASCULINO', 'Appaloosa', 'Alazán', true, '01/01/2024', '10/01/2024', 'Sede B', 'MONTA_TERAPEUTICA', false),
 
-('Rayo', 'MASCULINO', 'Andaluz', 'Negro', false, '15/01/2024', 'Sede A', 'DEPORTE_ECUESTRE_ADAPTADO', false),
+('Rayo', 'MASCULINO', 'Andaluz', 'Negro', false, '01/01/2024', '15/01/2024', 'Sede A', 'DEPORTE_ECUESTRE_ADAPTADO', false),
 
-('Luz', 'FEMENINO', 'Árabe', 'Tordo', true, '20/01/2024', 'Sede C', 'ACTIVIDADES_RECREATIVAS', false),
+('Luz', 'FEMENINO', 'Árabe', 'Tordo', true, '01/01/2024', '20/01/2024', 'Sede C', 'ACTIVIDADES_RECREATIVAS', false),
 
-('Nube', 'FEMENINO', 'Mestizo', 'Bayo', false, '25/01/2024', 'Sede B', 'EQUITACION', false);
+('Nube', 'FEMENINO', 'Mestizo', 'Bayo', false, '01/01/2024', '25/01/2024', 'Sede B', 'EQUITACION', false);
 
 -- ==============================================================================================================================================
 -- ##############################################################################################################################################

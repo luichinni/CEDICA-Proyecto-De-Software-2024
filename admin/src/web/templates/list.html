@@ -25,7 +25,7 @@
                                     <div class="buttons">
                                         {%if check_permission(entidad + "_show")%}
                                         <!-- Link to view details -->
-                                     <a class="button is-dark is-small" href="{{ url_for( entidad + '.detail', id = diccionario['id']) }}" class="card-footer-item">Ver Detalles</a>
+                                     <a class="button is-dark is-small" href="{{ url_for( entidad + '.detail',id = diccionario['id']) }}" class="card-footer-item">Ver Detalles</a>
                                      {%endif%}
                                      {%if check_permission(entidad + "_update")%}
                                     <!--Link to edit -->
@@ -38,7 +38,7 @@
                                     </form>
                                     {%endif%}
                                    
-                                    {%if check_permission(entidad +'_block')%}
+                                    {%if entidad == 'users' and check_permission(entidad +'_block')%}
                                       <!-- Form to block the element -->
                                       <form action="{{ url_for('users.block', user_id= diccionario['id']) }}" method="post" style="display:inline;">
                                          <button class="button is-primary is-small" type="submit">Bloquear</button>

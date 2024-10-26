@@ -30,6 +30,7 @@ class User(db.Model):
             'alias': self.alias,
             'activo': self.activo,
             'role': self.role.name, 
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
+            'blocked': self.blocked, 
+            #'created_at': self.created_at.isoformat(),
+            #'updated_at': self.updated_at.isoformat(),
         }
