@@ -55,7 +55,13 @@ def create_example_client(ClientService):
         apellido='Pérez',
         fecha_nacimiento=datetime.strptime('2010-05-12', '%Y-%m-%d').date(),
         lugar_nacimiento='Buenos Aires',
-        domicilio='Av. Siempre Viva 742',
+        domicilio={
+            'calle':'50',
+            'numero':'234',
+            'departamento':None,
+            'localidad':'La Palta',
+            'provincia':'Buenos Aires'
+        },
         telefono='123456789',
         contacto_emergencia={"nombre": "Ana Pérez", "telefono": "987654321"},
         becado=True,
@@ -70,7 +76,7 @@ def create_example_client(ClientService):
         observaciones='No observaciones adicionales',
         institucion_escolar=None,
         atendido_por='Dr. Smith',
-        tutores_responsables={
+        tutores_responsables=[{
             "parentesco": "Padre",
             "nombre": "Carlos Pérez",
             "apellido": "Pérez",
@@ -80,7 +86,7 @@ def create_example_client(ClientService):
             "email": "padre@gmail.com",
             "escolaridad": "Universitario",
             "ocupacion": "Ingeniero"
-        },
+        }],
         propuesta_trabajo=1,
         condicion=True,
         sede='CASJ',

@@ -23,15 +23,15 @@
                             
                                 <td  class="card-footer">
                                     <div class="buttons">
-                                        {%if check_permission(entidad + "_show")%}
-                                        <!-- Link to view details -->
+                                     {%if check_permission(entidad + '_show')%}
+                                     <!-- Link to view details -->
                                      <a class="button is-dark is-small" href="{{ url_for( entidad + '.detail',id = diccionario['id']) }}" class="card-footer-item">Ver Detalles</a>
                                      {%endif%}
                                      {%if check_permission(entidad + "_update")%}
                                     <!--Link to edit -->
                                     <a class="button is-primary is-small" href="{{ url_for( entidad + '.update',id = diccionario['id']) }}" class="card-footer-item">Editar</a>                                    
                                     {%endif%}
-                                    {%if check_permission(entidad + "_delete")%}
+                                    {%if check_permission(entidad + "_destroy")%}
                                     <!-- Form to delete the element -->
                                     <form action="{{ url_for( entidad + '.delete', id = diccionario.id ) }}" method="post" style="display:inline;">
                                         <button class="button is-dark is-small" type="submit">Eliminar</button>
