@@ -1,3 +1,4 @@
+from core.enums.client_enum import AsignacionFamiliar, Condicion, Pension
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 
@@ -54,7 +55,10 @@ def create_example_client(ClientService):
         nombre='Juan',
         apellido='Pérez',
         fecha_nacimiento=datetime.strptime('2010-05-12', '%Y-%m-%d').date(),
-        lugar_nacimiento='Buenos Aires',
+        lugar_nacimiento={
+            'localidad_nacimiento':'La Plata',
+            'provincia_nacimiento':'Buenos Aires'    
+        },
         domicilio={
             'calle':'50',
             'numero':'234',
@@ -66,10 +70,10 @@ def create_example_client(ClientService):
         contacto_emergencia={"nombre": "Ana Pérez", "telefono": "987654321"},
         becado=True,
         obs_beca='Beca otorgada por buenos desempeños',
-        cert_discapacidad=None,
+        cert_discapacidad=Condicion.NO_POSEE.value,
         discapacidad='1',
-        asignacion='No percibe',
-        pension=2,
+        asignacion=AsignacionFamiliar.NO_PERCIBE.value,
+        pension=Pension.NO_ES_BENEFICIARIO.value,
         obra_social='Obra Social Ejemplo',
         nro_afiliado='0123456789',
         curatela=False,

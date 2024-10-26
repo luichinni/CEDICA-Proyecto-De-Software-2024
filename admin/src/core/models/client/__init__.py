@@ -12,6 +12,15 @@ class Clients(db.Model):
     apellido = db.Column(db.String(50), nullable=False)
     fecha_nacimiento = db.Column(db.DateTime, nullable=False)
     lugar_nacimiento = db.Column(db.PickleType, nullable=False)
+    """
+    {
+        'calle':,
+        'numero':,
+        'departamento':,
+        'localidad':,
+        'provincia':
+    }
+    """
     domicilio = db.Column(db.PickleType, nullable=False)
     telefono = db.Column(db.String(50), nullable=False)
     contacto_emergencia = db.Column(db.PickleType, nullable=False)
@@ -118,7 +127,7 @@ class Clients(db.Model):
             "observaciones": self.observaciones,
             "institucion_escolar": self.institucion_escolar,
             "atendido_por": self.atendido_por,
-            "tutores_responsables": [self.tutores_responsables[tutor] for tutor in self.tutores_responsables],
+            "tutores_responsables": self.tutores_responsables,
             "propuesta_trabajo": self.propuesta_trabajo,
             "condicion": self.condicion,
             "sede": self.sede,
