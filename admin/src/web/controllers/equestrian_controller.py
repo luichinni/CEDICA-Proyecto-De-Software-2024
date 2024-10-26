@@ -6,12 +6,14 @@ from web.forms.equestrian_form.file_search_equestrian import EquestrianFileSearc
 from web.forms.equestrian_form.create_equestrian import EquestrianCreateForm
 from web.forms.equestrian_form.new_equestrian_file import UploadFile, UploadLink
 from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm 
+from web.handlers import handle_error
 from web.handlers.auth import check_permissions
 
 bp = Blueprint('equestrians', __name__, url_prefix='/equestrians')
 
 @bp.route('/create ', methods= ['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.NEW.value}") 
+@handle_error(lambda: url_for('equestrians.search'))
 def new():
     """Crear un empleado"""
     form = EquestrianCreateForm()
@@ -42,6 +44,7 @@ def new():
  
 @bp.route('/update/<int:id>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
+@handle_error(lambda: url_for('equestrians.search'))
 def update(id): 
     """Editar un ecuestre existente"""
     id= int(id)
@@ -79,6 +82,7 @@ def update(id):
 
 @bp.get('/listado')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}")
+@handle_error(lambda: url_for('home'))
 def search():
     """Lista todos los ecuestres con paginación."""
     params = request.args
@@ -134,7 +138,8 @@ def search():
 
 
 @bp.get('/detail/<int:id>')
-@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}") 
+@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}")
+@handle_error(lambda: url_for('equestrians.search')) 
 def detail(id):
       """Muestra los datos o detalles de un ecuestre"""
      
@@ -143,6 +148,7 @@ def detail(id):
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}")
+@handle_error(lambda: url_for('equestrians.search'))
 def delete(id):
     """Eliminar un ecuestre de manera logica"""
     equestrian = EquestrianService.get_equestrian_by_id(id)
@@ -160,6 +166,7 @@ bp_file = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files'
 
 @bp_file.route('/create/<int:id>/<string:es_link>', methods= ['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.NEW.value}") 
+@handle_error(lambda: url_for('equestrian_files.search'))
 def new(id,es_link): 
     es_link = (es_link.lower() == 'true')
     form = UploadFile() if not es_link else UploadLink()
@@ -181,6 +188,7 @@ def new(id,es_link):
 
 @bp_file.route('/update/<int:id>/<string:es_link>/<int:id_entidad>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
+@handle_error(lambda: url_for('equestrian_files.search'))
 def  update(id:int, id_entidad: int,es_link:str):
     es_link = es_link=='True'
     
@@ -225,6 +233,7 @@ def  update(id:int, id_entidad: int,es_link:str):
 
 @bp_file.get('/listado/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}") 
+@handle_error(lambda: url_for('home'))
 def search(id):
     """Lista todos los archivos con paginacion."""
     params = request.args
@@ -293,7 +302,6 @@ def search(id):
     
     datos_equestrian = EquestrianService.get_equestrian_by_id(id).to_dict()
 
-    return render_template('different_detail.html', 
                            diccionario=datos_equestrian,
                            activo=activo,
                            entidad='equestrians',
@@ -305,13 +313,14 @@ def search(id):
                            current_page=page,
                            per_page=per_page,
                            pages=pages,
-                           titulo='Detalle'
+                           titulo='Detalle',
                         )
      
 
 
 @bp_file.get('/detail/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}") 
+@handle_error(lambda: url_for('equestrian_files.search'))
 def detail(id):
     archivo = EquestrianService.get_document(id)
     
@@ -322,7 +331,8 @@ def detail(id):
 
 
 @bp_file.route('/delete/<int:id>/<int:id_entidad>', methods=['POST'])
-@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}") 
+@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}")
+@handle_error(lambda: url_for('equestrian_files.search')) 
 def delete(id:int, id_entidad:int):
     EquestrianService.delete_document(id)
     flash("Se elimino el documento exitosamente", "success")
