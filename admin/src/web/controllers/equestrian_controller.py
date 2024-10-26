@@ -314,7 +314,6 @@ def search(id):
                            current_page=page,
                            per_page=per_page,
                            pages=pages,
-                           titulo='Detalle',
                            titulo='Detalle'
                         )
      
