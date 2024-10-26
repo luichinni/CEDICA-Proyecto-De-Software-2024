@@ -50,6 +50,8 @@
       <label class="radio">{{ form.orden[1] }}</label>
    </div>
 
+   {% block campos_extra %} {% endblock %}
+
     <div>
         {{ form.submit(class="button is-info") }}  <!-- Botón para enviar el formulario -->
     </div>

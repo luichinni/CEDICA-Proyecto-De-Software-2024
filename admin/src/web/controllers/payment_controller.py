@@ -2,14 +2,14 @@ from flask import render_template, Blueprint, redirect, url_for, flash, request
 
 from core.enums.permission_enums import PermissionModel, PermissionCategory
 from src.core.services.PaymentService import PaymentService
+from src.core.services.employee_service import EmployeeService
 from src.web.forms.payment_forms.PaymentForm import PaymentForm
-from src.web.forms.search_form import SearchForm
 from src.web.handlers.auth import check_permissions
+from web.forms.payment_forms.SearchPaymentForm import SearchPaymentForm
 from web.handlers import handle_error, get_int_param
 
 bp = Blueprint('payments', __name__, url_prefix='/payments')
 
-#TODO: ADD 'SHOW' FEATURE AND CHECK PERMISSIONS
 
 @bp.route('/', methods=['GET'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
@@ -28,63 +28,75 @@ def index():
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
 def search():
-    form = SearchForm()
+    form = SearchPaymentForm()
 
-    payment_fields = PaymentService.get_model_fields()
-    form.tipo_filtro.choices = [(campo, campo.replace('_',' ').capitalize()) for campo in payment_fields]
-    form.orden_filtro.choices = [(campo, campo.replace('_', ' ').capitalize()) for campo in payment_fields]
+    form.tipo_filtro.choices = [('rango_fechas','Rango de fechas'), ('tipo_pago','Tipo de pago')]
+    form.orden_filtro.choices = [('fecha_pago', 'Fecha de pago')]
 
     params = request.args
     page = int(params.get('page', 1))
     per_page = int(params.get('per_page', 25))
-    order_by = params.get('order_by', None)
     ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
+
+    order_by = 'fecha_pago'
 
     filtro = None
     for param, valor in params.items():
         if param in form._fields:
             form._fields[param].data = valor
 
-    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
-        filtro = {
-            params['tipo_filtro']: params.get('busqueda')
+    if params.get('tipo_pago'):
+        filtro['tipo_pago'] = params.get('tipo_pago')
+    elif params.get('rango_fechas-fecha_hasta') and params.get('rango_fechas-fecha_desde'):
+        filtro['rango_fechas'] = {
+            'desde': params.get('rango_fechas-fecha_desde'),
+            'hasta': params.get('rango_fechas-fecha_hasta')
         }
-    payments, total, pages = PaymentService.get_payments(filtro=filtro, page=page, per_page=per_page,
-                                                            order_by=order_by, ascending=ascending)
+
+
+    pagos, total, pages = PaymentService.get_payments(
+        filtro=filtro,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending
+    )
+
     listado = [
-      {
-          'id': payment.id,
-          'Beneficiario': payment.beneficiario_id, #TODO: DEBERIA APARECER EL NOMBRE DEL BENEFICIARIO MEJOR
-          'Monto': payment.monto,
-          'Fecha de Pago': payment.fecha_pago,
-          'Tipo de Pago': payment.tipo_pago,
-          'Descripcion': payment.descripcion,
-          'Empleado' : payment.empleado #TODO: DEBERIA APARECER EL NOMBRE DEL EMPLEADO MEJOR
-      } for payment in payments] if payments else [{
+        {
+            'id': pago.id,
+            'Fecha de Pago': pago.fecha_pago,
+            'Monto': pago.monto,
+            'Tipo de Pago': pago.tipo_pago.name,
+            'Descripción': pago.descripcion,
+        } for pago in pagos
+    ] if pagos else [{
         'id': '0',
-        'Beneficiario': '0',
-        'Monto': '0',
         'Fecha de Pago': '',
+        'Monto': '',
         'Tipo de Pago': '',
-        'Descripcion': '',
-        'Empleado': '0'
+        'Descripción': ''
     }]
 
-    return render_template('search_box.html',
-                                              form=form,
-                                              entidad='employees',
-                                              anterior=url_for('home'),
-                                              lista_diccionarios=listado,
-                                              total=total,
-                                              current_page=page,
-                                              per_page =per_page,
-                                              pages=pages,
-                                              titulo='Listado de empleados')
+    return render_template(
+        'search_payment.html',
+        form=form,
+        entidad='payments',
+        anterior=url_for('home'),
+        lista_diccionarios=listado,
+        total=total,
+        current_page=page,
+        per_page=per_page,
+        pages=pages,
+        titulo='Listado de Pagos'
+    )
 
 @bp.route('/create', methods=['GET', 'POST'])
-@check_permissions(f"{PermissionModel.PAYMENT.name}_{PermissionCategory.NEW.value}")
-def create_payment():
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.NEW.value}")
+def new():
     form = PaymentForm()
+    empleados = EmployeeService.get_all_employees()
+    form.beneficiario.choices = [(empleado.id, f"{empleado.nombre.capitalize()} {empleado.apellido.capitalize()}") for empleado in empleados]
     if form.validate_on_submit():
         new_payment = {
             'beneficiario_id': form.beneficiario.data,
@@ -95,23 +107,33 @@ def create_payment():
         }
         PaymentService.create_payment(new_payment)
         flash('Pago registrado exitosamente', 'success')
-        return redirect(url_for('payment.index'))
-    return render_template('payment/create.html', form=form)
+        return redirect(url_for('payments.search'))
+    context = {
+        'form': form,
+        'titulo': 'Cargar un pago',
+        'url_post': url_for('payments.new'),
+        'url_volver': url_for('payments.search')
+    }
+    return render_template('form.html', **context)
 
-@bp.route('/delete/<int:payment_id>', methods=['POST'])
-@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.DESTROY}")
-@handle_error(lambda: url_for('payment.index'))
-def delete_payment(payment_id):
+@bp.route('/delete/<int:id>', methods=['POST'])
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.DESTROY.value}")
+@handle_error(lambda: url_for('payments.search'))
+def delete(payment_id):
     payment = PaymentService.get_payment_by_id(payment_id)
-    flash('Pago eliminado exitosamente', 'success')
-    return redirect(url_for('payment.index'))
+    if not payment:
+        flash("El pago seleccionado no existe", "danger")
+    else:
+        PaymentService.delete_payment(payment_id)
+        flash('Pago eliminado exitosamente', 'success')
+    return redirect(url_for('payments.search'))
 
-@bp.route('/edit/<int:payment_id>', methods=['GET', 'POST'])
-@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.UPDATE}")
-@handle_error(lambda: url_for('payment.index'))
-def update_payment(payment_id):
+@bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.UPDATE.value}")
+@handle_error(lambda: url_for('payments.search'))
+def update(payment_id):
     payment = PaymentService.get_payment_by_id(payment_id)
-    form = PaymentForm()
+    form = PaymentForm(obj=payment)
     if form.validate_on_submit():
         updated_payment = {
             'beneficiario_id': form.beneficiario.data,
@@ -122,6 +144,29 @@ def update_payment(payment_id):
         }
         PaymentService.update_payment(payment_id, updated_payment)
         flash('Pago actualizado exitosamente', 'success')
-        return redirect(url_for('payment.index'))
-    return render_template('payment/edit.html', form=form, payment=payment)
+        return redirect(url_for('payments.search'))
+    context = {
+        'form': form,
+        'titulo': 'Editar un pago',
+        'url_post': url_for('payments.update'),
+        'url_volver': url_for('payments.search')
+    }
+    return render_template('form.html', **context)
+
+@bp.route('<int:id>', methods=['GET'])
+@check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.SHOW.value}")
+@handle_error(lambda: url_for('payments.search'))
+def detail(id):
+    payment = PaymentService.get_payment_by_id(id)
+    if not id:
+        flash(f'Pago con ID {id} no encontrado', 'warning')
+        return redirect(url_for('payments.search'))
+
+
+    titulo = f'Detalle del pago {payment.nombre} {payment.apellido}',
+    anterior = url_for('payments.search'),
+    diccionario = payment.to_dict(),
+    entidad = 'payments'
+
+    return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario= diccionario, entidad=entidad )
 
