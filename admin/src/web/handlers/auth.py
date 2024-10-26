@@ -29,6 +29,9 @@ def check_permissions(required_permission):
         return wrapper
     return decorator
 
+def has_permission(required_permission):
+    return UserService.user_has_permission(required_permission, get_current_user_id())
+
 '''
 funcion de ejemplo:
 
