@@ -1,3 +1,4 @@
+from core.enums.permission_enums import PermissionCategory, PermissionModel
 from src.core.models.user.role import Role
 from src.core.database import db
 from src.core.admin_data import AdminData
@@ -48,8 +49,56 @@ class RoleService:
         
     @staticmethod
     def create_example_roles():
-        """Crea roles de ejemplo."""
-        RoleService.create_role("Técnica")
-        RoleService.create_role("Ecuestre")
-        RoleService.create_role("Voluntariado")
-        RoleService.create_role("Administración")
+        from core.services.permission_service import PermissionService
+        permisos = dict()
+        for category in PermissionCategory:
+            for model in PermissionModel:
+                nombre = f"{model.value}_{category.value}"
+                permisos[nombre] = PermissionService.get_permission_by_name(nombre).id
+                
+        
+        """Crea roles base con sus respectivos permisos."""
+        tecnica = RoleService.create_role("Técnica").id
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.INDEX.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.UPDATE.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.DESTROY.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.SHOW.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}"],tecnica)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}"],tecnica)
+        
+        ecuestre = RoleService.create_role("Ecuestre").id
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}"],ecuestre)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}"],ecuestre)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}"],ecuestre)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.NEW.value}"],ecuestre)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}"],ecuestre)
+        
+        administracion = RoleService.create_role("Administración").id
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.SHOW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.UPDATE.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.NEW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.DESTROY.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.PAYMENT.value}_{PermissionCategory.SHOW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.PAYMENT.value}_{PermissionCategory.UPDATE.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.PAYMENT.value}_{PermissionCategory.NEW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.PAYMENT.value}_{PermissionCategory.DESTROY.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.UPDATE.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CLIENT.value}_{PermissionCategory.DESTROY.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.SHOW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.DESTROY.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}"],administracion)
+        
+        voluntariado = RoleService.create_role("Voluntariado").id
+        # no tiene permisos de nada
