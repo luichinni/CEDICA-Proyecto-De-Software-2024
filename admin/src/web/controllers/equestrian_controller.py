@@ -302,6 +302,7 @@ def search(id):
     
     datos_equestrian = EquestrianService.get_equestrian_by_id(id).to_dict()
 
+    return render_template('different_detail.html', 
                            diccionario=datos_equestrian,
                            activo=activo,
                            entidad='equestrians',
