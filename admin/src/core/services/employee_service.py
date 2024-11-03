@@ -62,8 +62,7 @@ class EmployeeService:
     
     @staticmethod
     def get_employees_without_user():
-        """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados,
-        siempre y cuando no tengan ningún usuario activo."""
+        """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados."""
         
         # Subconsulta: obtener empleados que tienen usuarios no eliminados
         subquery = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
@@ -72,7 +71,7 @@ class EmployeeService:
         query = Employee.query.outerjoin(User).filter(
             (Employee.user == None) | (User.deleted == True)
         ).filter(
-            Employee.id.notin_(subquery)  # Excluir empleados con usuarios activos
+            Employee.id.notin_(subquery)  # Excluir empleados con usuarios no eliminados
         )
         
         return query.all()
