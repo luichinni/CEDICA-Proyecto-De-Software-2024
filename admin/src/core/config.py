@@ -1,5 +1,6 @@
 from os import environ
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv(dotenv_path='.env')
 
@@ -7,7 +8,8 @@ class Config(object):
     TESTING = False
     SECRET_KEY= environ.get('SECRET_KEY_PASS','my_precious') # "my_precious"
     SESSION_TYPE= "filesystem"
-    SESSION_PERMANENT= False
+    SESSION_PERMANENT= True
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
 class ProductionConfig(Config):
     MINIO_SERVER = environ.get("MINIO_SERVER")
@@ -20,6 +22,8 @@ class ProductionConfig(Config):
         "pool_recycle": 60,
         "pool_pre_ping": True,
     }
+    GOOGLE_CLIENT_ID = environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = environ.get('GOOGLE_CLIENT_SECRET')
 
 class DevelopmentConfig(Config):
     DB_USER = environ.get('DB_USER')
@@ -32,6 +36,8 @@ class DevelopmentConfig(Config):
     MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
     MINIO_SECRET = environ.get("MINIO_SECRET")
     MINIO_SECURE = False
+    GOOGLE_CLIENT_ID = environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = environ.get('GOOGLE_CLIENT_SECRET')
 
 class TestingConfig(Config):
     TESTING = True
