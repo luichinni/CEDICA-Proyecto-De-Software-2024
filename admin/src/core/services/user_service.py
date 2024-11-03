@@ -22,7 +22,7 @@ class UserService:
         Returns:
             int: valor que representa la ID del usuario si es que existe, sino None.
         """
-        user = UserService.search_users(email=email,activo=True)[0]
+        user = UserService.search_users(email=email,activo=True, include_deleted=False, include_blocked=False)[0]
         id_return = None
         if not user:
             return id_return
@@ -121,11 +121,11 @@ class UserService:
     @validate_params
     def block_user(user_id):
         """Bloquea un usuario por su ID."""
-        user = UserService.get_user_by_id(user_id)
+        user = UserService.get_user_by_id(user_id, include_blocked=True)
         
         UserService.validate_role_id(user.role_id)
         
-        user.blocked = True
+        user.blocked = not user.blocked
         db.session.commit()
     
     @staticmethod
