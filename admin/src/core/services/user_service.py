@@ -66,8 +66,10 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def create_user(employee_id, alias, password, role_id, activo=True):
+    def create_user(employee_id, alias, password, role_id = None, activo=True):
         """Crea un nuevo usuario."""
+        if role_id is None:
+            role_id = RoleService.get_role_by_name("New User").id
         UserService.validate_password(password)
         hash = bcrypt.generate_password_hash(password.encode("utf-8"))
         password = hash.decode("utf-8")# encripta

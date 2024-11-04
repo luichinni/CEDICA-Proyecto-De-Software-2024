@@ -56,6 +56,7 @@ class RoleService:
                 nombre = f"{model.value}_{category.value}"
                 permisos[nombre] = PermissionService.get_permission_by_name(nombre).id
                 
+        RoleService.create_role("New User").id
         
         """Crea roles base con sus respectivos permisos."""
         tecnica = RoleService.create_role("Técnica").id
@@ -100,5 +101,12 @@ class RoleService:
         PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}"],administracion)
         PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}"],administracion)
         
-        voluntariado = RoleService.create_role("Voluntariado").id
-        # no tiene permisos de nada
+        voluntariado = RoleService.create_role("Voluntariado").id # no tiene permisos de nada
+
+        editor = RoleService.create_role("Editor").id
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.INDEX.value}"],editor)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.SHOW.value}"],editor)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.UPDATE.value}"],editor)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.NEW.value}"],editor)
+        
+
