@@ -28,7 +28,7 @@ def search():
     date_pattern = r"^\d{4}-\d{2}-\d{2}$"
 
     page = int(value) if key == 'page' and value and value.isdigit() else 1 
-    per_page = int(value) if key == 'per_page' and value and value.isdigit() else 25 
+    per_page = int(value) if key == 'per_page' and value and value.isdigit() else 5
     
 
     start_date = value if key == 'start_date' and value and re.match(date_pattern, value) else None
@@ -46,7 +46,7 @@ def search():
     nombre = get_str_param(params, 'nombre', optional=True)
     apellido = get_str_param(params, 'apellido', optional=True)
     page = get_int_param(params, 'page', 1, optional=True)
-    per_page = get_int_param(params, 'per_page', 25, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by_date = get_bool_param(params, 'order_by_date', default=True, optional=True)
     ascending = get_bool_param(params, 'ascending', default=False, optional=True)
     include_deleted = get_bool_param(params, 'include_deleted', optional=True)

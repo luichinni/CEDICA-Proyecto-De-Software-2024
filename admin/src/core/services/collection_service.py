@@ -94,7 +94,7 @@ class CollectionService:
 
     @staticmethod
     @validate_params
-    def get_all_collections(page=1, per_page=25, include_deleted=False):
+    def get_all_collections(page=1, per_page=5, include_deleted=False):
         """Lista todos los cobros"""
         query = Collection.query
         if not include_deleted:
@@ -115,7 +115,7 @@ class CollectionService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_collections(start_date=None, end_date=None, payment_method=None, nombre=None, apellido=None, page=1, per_page=25, order_by_date=True, ascending=False, include_deleted=False):
+    def search_collections(start_date=None, end_date=None, payment_method=None, nombre=None, apellido=None, page=1, per_page=5, order_by_date=True, ascending=False, include_deleted=False):
         """Busca cobros con filtros"""
         query = Collection.query
 

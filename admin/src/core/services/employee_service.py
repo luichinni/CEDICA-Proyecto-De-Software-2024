@@ -42,7 +42,7 @@ class EmployeeService:
         return query.all()
 
     @staticmethod
-    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=25):
+    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=5):
         """Obtiene todos los empleados"""
         employees_query = Employee.query.filter_by(deleted = include_deleted)
         if filtro:

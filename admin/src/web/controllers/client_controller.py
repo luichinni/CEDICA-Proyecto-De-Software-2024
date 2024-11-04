@@ -45,7 +45,7 @@ def search():
     
     page = int(params.get('page','1'))
 
-    per_page = int(params.get('per_page','25'))
+    per_page = int(params.get('per_page','5'))
 
     clients, total, pages = ClientService.get_clients(filtro,page,per_page,order_by,ascending, like=True)
     
@@ -344,7 +344,7 @@ def search(id):
     
     page = int(params.get('page','1'))
 
-    per_page = int(params.get('per_page','25'))
+    per_page = int(params.get('per_page','5'))
     
     archivos, total, pages = ClientService.get_documents(id,filtro,extension,page,per_page,order_by,ascending, like=True)
     
