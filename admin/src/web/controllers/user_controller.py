@@ -29,7 +29,7 @@ def search():
     role_id = int(value) if key == 'role_id' and value and value.isdigit() else None 
     
     page = int(value) if key == 'page' and value and value.isdigit() else 1 
-    per_page = int(value) if key == 'per_page' and value and value.isdigit() else 25 
+    per_page = int(value) if key == 'per_page' and value and value.isdigit() else 5
     
     order_by = value if key == 'orden_filtro' else 'created_at'
     ascending = params.get('orden','Ascendente') == 'Ascendente'
@@ -39,7 +39,7 @@ def search():
     activo = get_bool_param(params, 'activo', optional= True) 
     role_id = get_int_param(params, 'role_id', optional= True) 
     page = get_int_param(params, 'page', 1, optional= True) 
-    per_page = get_int_param(params, 'per_page', 25, optional= True) 
+    per_page = get_int_param(params, 'per_page', 5, optional= True) 
     order_by = get_str_param(params, 'order_by', 'created_at', optional= True)
     ascending = get_bool_param(params, 'ascending', True, optional= True)
     '''

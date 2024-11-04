@@ -36,7 +36,7 @@ class PaymentService:
         return payment
 
     @staticmethod
-    def get_payments(filtro=None, order_by=None, ascending=False, include_deleted=False, page=1, per_page=25):
+    def get_payments(filtro=None, order_by=None, ascending=False, include_deleted=False, page=1, per_page=5):
         """Toma pagos basado en los filtros y el orden"""
         payments_query = Payment.query.filter_by(deleted=include_deleted)
         if filtro:
