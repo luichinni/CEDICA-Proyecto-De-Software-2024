@@ -23,6 +23,7 @@ from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 from src.web.controllers.equestrian_controller import bp_file as equestrian_file_bp
+from src.web.controllers.reports_controller import bp as reports_bp
 
 from src.core.storage import storage
 from src.core.bcrypy_and_session import bcrypt, session
@@ -54,8 +55,9 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(clients_bp)
     app.register_blueprint(clients_files_bp)
     app.register_blueprint(payment_bp)
-    app.register_blueprint(equestrians_bp)
+    app.register_blueprint(equestrians_bp) 
     app.register_blueprint(equestrian_file_bp)
+    app.register_blueprint(reports_bp) 
 
     #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)

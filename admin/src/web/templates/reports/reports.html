@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% block title %}Reporte de Datos{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  {{ super() }}
+{% endblock %}
+{% block content %}
+
+<a href="/" class="button">Volver a inicio</a>
+
+<div class="container mt-5">
+  <h1 class="title">Reporte de Datos</h1>
+  <h2 class="subtitle">Elige qué reporte ver</h2>
+
+  <!-- Botones para navegar a los distintos reportes -->
+  <a href="/reports/charts" class="button is-link mb-3">Ver gráficos</a>
+  <a href="/reports/debtors" class="button is-link mb-3">Ver clientes deudores</a>
+  <a href="/reports/proposals_rank" class="button is-link mb-3">Ver ranking de las propuestas de trabajos más solicitadas</a>
+
+  <!-- Formulario para ingresar parámetros -->
+  <form action="/reports/historical_payments" method="get" class="box">
+    <div class="field">
+      <label class="label">Fecha de inicio</label>
+      <div class="control">
+        <input class="input" type="date" name="start_date" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Fecha de fin</label>
+      <div class="control">
+        <input class="input" type="date" name="end_date" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Nombre</label>
+      <div class="control">
+        <input class="input" type="text" name="nombre" placeholder="Nombre" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Apellido</label>
+      <div class="control">
+        <input class="input" type="text" name="apellido" placeholder="Apellido" required>
+      </div>
+    </div>
+
+    <div class="control">
+      <button type="submit" class="button is-link mb-3">Ver reporte histórico de cobros en un rango de fechas asociado a una persona</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
