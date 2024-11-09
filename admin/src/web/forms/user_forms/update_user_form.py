@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SelectField, SubmitField
 from wtforms.validators import Optional, Length, EqualTo, Regexp, ValidationError
-from src.core.models.user.role import Role
+from src.core.services.role_service import RoleService
 
 class UpdateUserForm(FlaskForm):
     alias = StringField('Alias', validators=[
@@ -29,8 +29,11 @@ class UpdateUserForm(FlaskForm):
 
     submit = SubmitField('Actualizar Usuario')
 
-    def populate_obj(self, user):
-        """Rellena el formulario con los datos del usuario existente."""
-        self.alias.data = user.alias
-        self.role_id.data = user.role_id  # Asumiendo que role_id es un entero
-        self.activo.data = user.activo
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        role_choices = [(r.id, r.name) for r in RoleService.get_all_roles()]
+        if not role_choices:
+            raise ValueError("No hay roles disponibles.")
+        
+        self.role_id.choices = role_choices

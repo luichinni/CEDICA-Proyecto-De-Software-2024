@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block content %}
-  {% if anterior %}
-    <a href="{{ anterior }}" class="button">Volver</a>
-  {% else %}
-    <a href="/" class="button">Volver a inicio</a>
-  {% endif %}
+  <h1 class="title is-2 has-text-centered has-text-weight-bold">
+    {{ "Listado de " + entidad | default("Listado", true) }}
+  </h1>
+
+  <a href="/" class="button">Volver a inicio</a>
 
   <a class="button is-primary is-pulled-left" href="{{ url_for(entidad + '.new') }}">Agregar</a>
   <br><br>

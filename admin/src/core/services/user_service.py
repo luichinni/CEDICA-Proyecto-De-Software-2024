@@ -207,7 +207,7 @@ class UserService:
             query = query.filter_by(blocked=False)
 
         if email:
-            query = query.filter(User.employee.has(email=email)) 
+            query = query.join(User.employee).filter(Employee.email.ilike(f'%{email}%'))
 
         if activo is not None:
             query = query.filter(User.activo == activo)

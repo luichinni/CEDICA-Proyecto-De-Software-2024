@@ -15,9 +15,11 @@ class UpdateCollectionForm(FlaskForm):
     
     submit = SubmitField('Actualizar Colección')
 
-    def populate_obj(self, collection):
+    def __init__(self, collection, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
         """Llena el formulario con los datos del objeto Collection."""
-        self.payment_date.data = collection.payment_date.date() if collection.payment_date else None  # Asegúrate de que solo obtienes la fecha
+        self.payment_date.data = collection.payment_date.date() if collection.payment_date else None 
         self.payment_method.data = collection.payment_method.value
         self.amount.data = collection.amount
         self.observations.data = collection.observations

@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo, Regexp
+from src.core.services.role_service import RoleService
+from src.core.services.employee_service import EmployeeService
 
 class CreateUserForm(FlaskForm):
     employee_id = SelectField('Empleado', coerce=int, validators=[DataRequired(message="El empleado es requerido.")])
@@ -29,3 +31,19 @@ class CreateUserForm(FlaskForm):
     activo = BooleanField('Activo')
     
     submit = SubmitField('Crear Usuario')
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        employee_choices = [(e.id, e.email) for e in EmployeeService.get_employees_without_user()]
+        if not employee_choices:
+            raise ValueError("No hay empleados sin usuario disponibles.")
+        
+        role_choices = [(r.id, r.name) for r in RoleService.get_all_roles()]
+        if not role_choices:
+            raise ValueError("No hay roles disponibles.")
+        
+        
+        self.employee_id.choices = employee_choices
+        self.role_id.choices = role_choices
