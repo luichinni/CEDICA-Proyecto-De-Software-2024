@@ -53,6 +53,7 @@ class RoleService:
         permisos = dict()
         for category in PermissionCategory:
             for model in PermissionModel:
+                if category == PermissionCategory.BLOCK and model != PermissionModel.USER: continue
                 nombre = f"{model.value}_{category.value}"
                 permisos[nombre] = PermissionService.get_permission_by_name(nombre).id
                 
