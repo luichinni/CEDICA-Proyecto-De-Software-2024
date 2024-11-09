@@ -2,7 +2,7 @@
      <div class="container">
            <div class="table-container has-text-centered">
             <table class="table is-fullwidth">
-                {%if lista_diccionarios%}
+                {% if lista_diccionarios and lista_diccionarios[0]['id'] != 0 and lista_diccionarios[0]['id'] != '0' %}
                 <div>
                     <thead>
                         <tr>
@@ -43,7 +43,7 @@
                                         {%if entidad == 'users' and check_permission(entidad +'_block')%}
                                         <!-- Form to block the element -->
                                         <form action="{{ url_for('users.block', user_id= diccionario['id']) }}" method="post" style="display:inline;">
-                                            <button class="button is-primary is-small" type="submit">Bloquear</button>
+                                            <button class="button is-primary is-small" type="submit">Bloquear/Desbloquear</button>
                                         </form>
                                         {%endif%}
                                     </div>

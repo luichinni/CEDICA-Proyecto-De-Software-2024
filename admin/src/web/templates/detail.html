@@ -25,10 +25,10 @@
     </section>
     <div class="buttons is-centered">
      <br>
-     <a href="{{ url_for( entidad + '.update',id = diccionario.id) }}">Editar</a> 
+     <a href="{{ url_for( entidad + '.update',id = diccionario.id) }} " class="button is-primary">Editar</a> 
      <br>
      <form action="{{ url_for(entidad + '.delete', id=diccionario.id) }}" method="POST" style="display:inline;">
-    <button type="submit" >
+    <button type="submit" class="button is-danger">
         Eliminar
     </button>
 </form>
@@ -36,7 +36,7 @@
      {%if check_permission(entidad +'_block')%}
      <!-- Form to block the element -->
      <form action="{{ url_for('users.block', user_id= diccionario['id']) }}" method="post" style="display:inline;">
-        <button class="button is-primary is-small" type="submit">Bloquear</button>
+        <button class="button is-danger" type="submit">Bloquear/Desbloquear</button>
      </form>
      {%endif%}
 
