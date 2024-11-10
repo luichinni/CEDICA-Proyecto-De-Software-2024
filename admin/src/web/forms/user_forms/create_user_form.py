@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectField, SubmitField
+from wtforms import StringField, PasswordField, RadioField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo, Regexp
 from src.core.services.role_service import RoleService
 from src.core.services.employee_service import EmployeeService
@@ -28,7 +28,7 @@ class CreateUserForm(FlaskForm):
 
     role_id = SelectField('Rol', coerce=int, validators=[DataRequired(message="El rol es requerido.")])
     
-    activo = BooleanField('Activo')
+    activo = RadioField('Activo', choices=[('1', 'Si   .'), ('0', 'No')], default='1')
     
     submit = SubmitField('Crear Usuario')
 

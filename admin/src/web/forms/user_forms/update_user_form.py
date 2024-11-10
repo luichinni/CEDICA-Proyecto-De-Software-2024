@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, RadioField, SelectField, SubmitField
 from wtforms.validators import Optional, Length, EqualTo, Regexp, ValidationError
 from src.core.services.role_service import RoleService
 
@@ -25,7 +25,7 @@ class UpdateUserForm(FlaskForm):
 
     role_id = SelectField('Rol', coerce=int, validators=[Optional()])
 
-    activo = BooleanField('Activo')
+    activo = RadioField('Activo', choices=[('1', 'Si   .'), ('0', 'No')], default='1')
 
     submit = SubmitField('Actualizar Usuario')
 
@@ -37,3 +37,5 @@ class UpdateUserForm(FlaskForm):
             raise ValueError("No hay roles disponibles.")
         
         self.role_id.choices = role_choices
+
+        self.activo.data = '1' if kwargs.get("activo", False) else '0'

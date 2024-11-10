@@ -48,7 +48,7 @@ def detail(id):
     """Muestra los detalles de un usuario por su ID.""" 
     
     user = UserService.get_user_by_id(id, include_blocked=True)
-    return render_template('detail.html', titulo='Detalle de usuario', anterior = url_for('users.search'), diccionario=user.to_dict(), entidad='users')
+    return render_template('detail.html', diccionario=user.to_dict(), entidad='users')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.NEW.value}")

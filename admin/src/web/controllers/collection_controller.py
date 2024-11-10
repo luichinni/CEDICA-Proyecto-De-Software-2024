@@ -80,7 +80,7 @@ def search():
 def detail(id):
     """Obtiene un cobro por ID."""
     collection = CollectionService.get_collection_by_id(id)
-    return render_template('detail.html', titulo='Detalle de cobro', anterior = url_for('collections.search'), diccionario=collection.to_dict(), entidad='collections')
+    return render_template('detail.html', diccionario=collection.to_dict(), entidad='collections')
 
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.NEW.value}")
@@ -101,16 +101,16 @@ def create_collection():
     payment_method_value = get_str_param(params, 'payment_method', optional=False)
     payment_method = PaymentMethod.from_value(payment_method_value)
 
-    CollectionService.create_collection(
+    id = CollectionService.create_collection(
         employee_id=get_int_param(params, "employee_id", optional=False),
         client_id=get_str_param(params, "client_id", optional=False),
         payment_date=get_str_param(params, 'payment_date', optional=False),
         payment_method=payment_method,
         amount=get_str_param(params, 'amount', optional=False),
         observations=get_str_param(params, 'observations', "Sin observaciones", optional=True)
-    )
+    ).id
     flash("Cobro creado exitosamente", "success")
-    return redirect(url_for('collections.search'))
+    return redirect(url_for('collections.detail',id=id))
 
 @bp.route('/update/<int:id>', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.COLLECTION.value}_{PermissionCategory.UPDATE.value}")
@@ -124,7 +124,7 @@ def update(id):
     if form.validate_on_submit():
         return update_collection(id)
 
-    return render_template('form.html', form=form, url_volver=url_for('collections.search'))
+    return render_template('form.html', form=form, url_volver=url_for('collections.detail',id=id))
 
 def update_collection(collection_id):
     """Actualiza un cobro existente."""
