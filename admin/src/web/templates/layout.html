@@ -38,7 +38,9 @@
                 <div class="user-menu">
                     <img src="{{ url_for('static', filename='user-icon.png') }}" alt="User Icon" class="user-icon">
                     <div class="user-dropdown">
-                        <a href="{{url_for('users.detail', id=session["id"])}}">Perfil</a>
+                        {%if check_permission("users_index")%}
+                            <a href="{{url_for('users.detail', id=session["id"])}}">Perfil</a>
+                        {% endif %}
                         <a href="{{url_for('auths.logout')}}">Cerrar sesión</a>
                     </div>
                 </div>
