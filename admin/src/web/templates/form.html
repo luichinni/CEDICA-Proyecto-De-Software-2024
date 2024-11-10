@@ -7,7 +7,7 @@
 
 {% block content %}
 <section >
-    <h1 class="title is-2 has-text-centered has-text-weight-bold"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
+    <h1 class="title is-3 has-text-centered has-text-weight-bold"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
     <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
             {% set campos = form._fields.keys()|list %}
         

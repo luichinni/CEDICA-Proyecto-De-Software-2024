@@ -124,7 +124,7 @@ def update(id):
     if form.validate_on_submit():
         return update_collection(id)
 
-    return render_template('form.html', form=form, url_volver=url_for('collections.detail',id=id))
+    return render_template('form.html', form=form, url_volver=url_for('collections.detail',id=id), titulo=f"Editar cobro del empleado: {collection.employee.email}, sobre el J&A: {collection.client.dni}")
 
 def update_collection(collection_id):
     """Actualiza un cobro existente."""

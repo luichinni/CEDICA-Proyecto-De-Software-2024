@@ -88,7 +88,7 @@ def update(id):
     if form.validate_on_submit():
         return update_user(id)
 
-    return render_template('form.html', form=form, url_volver=url_for('users.detail', id=id))
+    return render_template('form.html', form=form, url_volver=url_for('users.detail', id=id), titulo=f"Editar usuario con email: {user.employee.email}")
 
 def update_user(id):
     """Actualiza la información de un usuario existente.""" 
