@@ -28,10 +28,12 @@
           <div class="box">
             <ul class="list is-hoverable">
               {% for key in diccionario %}
+                {% if key != 'id' %}
                 <li class="mb-3">
                   <strong class="has-text-weight-bold">{{ key }}:</strong>
                   <span>{{ diccionario[key] }}</span>
                 </li>
+                {% endif %}
               {% endfor %}
             </ul>
           </div>
