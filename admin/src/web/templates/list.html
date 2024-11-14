@@ -27,23 +27,19 @@
                                         <div class="buttons">
                                         {%if check_permission(entidad + '_show')%}
                                         <!-- Link to view details -->
-                                        <a class="button is-dark is-small" href="{{ url_for( entidad + '.detail',id = diccionario['id']) }}" class="card-footer-item">Ver Detalles</a>
+                                        <a class="button is-dark" href="{{ url_for( entidad + '.detail',id = diccionario['id']) }}" class="card-footer-item">Ver Detalles</a>
                                         {%endif%}
                                         {%if check_permission(entidad + "_update")%}
                                         <!--Link to edit -->
-                                        <a class="button is-primary is-small" href="{{ url_for( entidad + '.update',id = diccionario['id']) }}" class="card-footer-item">Editar</a>                                    
+                                        <a class="button is-primary" href="{{ url_for( entidad + '.update',id = diccionario['id']) }}" class="card-footer-item">Editar</a>                                    
                                         {%endif%}
-                                        {%if check_permission(entidad + "_destroy")%}
-                                        <!-- Form to delete the element -->
-                                        <form action="{{ url_for( entidad + '.delete', id = diccionario.id ) }}" method="post" style="display:inline;">
-                                            <button class="button is-dark is-small" type="submit">Eliminar</button>
-                                        </form>
-                                        {%endif%}
+                                        
+                                        {% include 'delete_button.html' %}
                                     
                                         {%if entidad == 'users' and check_permission(entidad +'_block')%}
                                         <!-- Form to block the element -->
                                         <form action="{{ url_for('users.block', user_id= diccionario['id']) }}" method="post" style="display:inline;">
-                                            <button class="button is-primary is-small" type="submit">Bloquear/Desbloquear</button>
+                                            <button class="button is-primary" type="submit">Bloquear/Desbloquear</button>
                                         </form>
                                         {%endif%}
                                     </div>

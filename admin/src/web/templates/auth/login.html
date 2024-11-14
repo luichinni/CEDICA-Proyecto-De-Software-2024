@@ -3,9 +3,21 @@
   {{ super() }}
   <meta name="google-signin-client_id" content="{{ google_client_id() }}">
 {% endblock %}
-
 {% block content %}
   {{ super() }}
-  <a href="{{url_for('auths.oauth_login')}}">Google Login</a>
+  
+  <!-- Sección para Google Login -->
+  <section class="section">
+    <div class="container has-text-centered">
+      <a href="{{ url_for('auths.oauth_login') }}" class="button is-primary is-large is-rounded">
+        <span class="icon">
+          <i class="fab fa-google"></i>
+        </span>
+        <span>Iniciar sesión con Google</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Script de Google API -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
 {% endblock %}
