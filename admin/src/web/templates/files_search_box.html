@@ -10,11 +10,15 @@
    
   <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}">
     {{ form.hidden_tag() }}
+  
 
     <div class="search_input field is-grouped">
       <div class="control is-expanded">
         {{ form.busqueda(class="input", placeholder="Buscar...") }}
      </div>
+    </div>
+    <div> 
+      <input type="hidden" value="documents" name="activo">
     </div>
     <div class="search_selec field is-grouped">
       <div class="control">  
