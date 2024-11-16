@@ -8,30 +8,30 @@
 {% block content %}
 <section >
     <h1 class="title is-3 has-text-centered has-text-weight-bold"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
+    
     <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
-            {% set campos = form._fields.keys()|list %}
-        
-        {{ form.hidden_tag() }}<!-- CSRF token -->
-        
-
-        {% for field in form if field.name != 'csrf_token' and field.type != 'SubmitField' %}
-            <div class="field">
-                <label class="label">{{ field.label.text }}</label>
-                <div class="control">
-                    {{ field(class="input") }}
-                </div>
-                <!-- Mostrar mensajes de error -->
-                {% for error in field.errors %}
-                    <span class="error" style="color: red;">{{ error }}</span>
-                {% endfor %}
-            </div>
-        {% endfor %}
-
-        {% if form.submit %}
-            <div class="field has-text-centered">
-                {{ form.submit(class="button is-large is-primary") }}
-            </div>
-        {% endif %}
+        {% set campos = form._fields.keys()|list %}
+      
+       {{ form.hidden_tag() }}<!-- CSRF token -->
+      
+       {% for campo in range(campos|length-1)%}
+           <div>
+               {{ form[campos[campo]].label }}  <!-- Renderiza la etiqueta -->
+               {{ form[campos[campo]] }}        <!-- Renderiza el campo de entrada -->
+           
+               <!-- Mostrar mensajes de error -->
+               {% for error in form[campos[campo]].errors %}
+                   <span class="error" style="color: red;">{{ error }}</span>
+               {% endfor %}
+           </div>
+           <div>
+               <!-- Mostrar mensajes de error -->
+               {% for error in form[campos[campo]].errors %}
+                   <span class="error" style="color: red;">{{ error }}</span>
+               {% endfor %}
+               
+           </div>
+           {% endfor %}
 
     </form>
 
