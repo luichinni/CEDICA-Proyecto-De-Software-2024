@@ -47,7 +47,11 @@ class EmployeeService:
         employees_query = Employee.query.filter_by(deleted = include_deleted)
         if filtro:
             valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
-            employees_query = employees_query.filter_by(**valid_filters)
+            for key, value in valid_filters.items():
+                if key == 'puesto_laboral':
+                    employees_query = employees_query.filter(Employee.puesto_laboral == value)
+                else:
+                    employees_query = employees_query.filter(getattr(Employee, key).ilike(f"%{str(value).lower()}%"))
 
 
 
