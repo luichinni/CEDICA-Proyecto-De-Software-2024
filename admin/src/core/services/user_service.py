@@ -168,7 +168,7 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def get_all_users(page=1, per_page=25, include_deleted=False, include_blocked=True):
+    def get_all_users(page=1, per_page=5, include_deleted=False, include_blocked=True):
         """Obtiene todos los usuarios."""
         query = User.query
         
@@ -196,7 +196,7 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=5, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query
 

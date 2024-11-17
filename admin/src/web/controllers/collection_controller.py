@@ -30,7 +30,7 @@ def search():
     employee_email = get_str_param(params, 'employee_email', optional=True)
     client_dni = get_str_param(params, 'client_dni', optional=True)
     page = get_int_param(params, 'page', 1, optional=True)
-    per_page = get_int_param(params, 'per_page', 25, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by_date = get_bool_param(params, 'order_by_date', default=True, optional=True)
     ascending = get_bool_param(params, 'ascending', default=False, optional=True)
     include_deleted = get_bool_param(params, 'include_deleted', optional=True)
