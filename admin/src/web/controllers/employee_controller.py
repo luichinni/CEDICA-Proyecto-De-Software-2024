@@ -4,9 +4,10 @@ from src.core.services.employee_service import EmployeeService
 from src.core.services.user_service import UserService
 from web.forms.employee_forms.CreateEmployeeForm import CreateEmployeeForm
 from web.forms.employee_forms.EditEmployeeForm import EditEmployeeForm
+from web.forms.employee_forms.SearchEmployeeForm import SearchEmployeeForm
 from web.forms.search_form import SearchForm
 from web.handlers.auth import check_permissions
-from web.handlers import handle_error, get_int_param
+from web.handlers import handle_error, get_int_param, get_str_param, get_bool_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
 from src.core.models.employee import PuestoLaboralEnum
 
@@ -30,7 +31,7 @@ def collect_employee_data_from_form(form):
             'obra_social': form.obra_social.data,
             'nro_afiliado': form.nro_afiliado.data,
             'condicion': form.condicion.data.replace(' ','_').upper(),
-            'activo': form.activo.data,
+            'activo': bool(form.activo.data),
         }
 
 @bp.route('/create', methods=['GET', 'POST'])
@@ -68,53 +69,35 @@ def index():
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.INDEX.value}")
 def search():
-    form = SearchForm()
-
-    employee_fields = ['Nombre', 'Apellido', 'DNI', 'Email', 'Puesto_Laboral']
-    form.tipo_filtro.choices = [(campo.lower(), campo.replace('_',' ').capitalize()) for campo in employee_fields]
-    form.orden_filtro.choices = [(campo.lower(), campo.replace('_', ' ').capitalize()) for campo in employee_fields]
-
     params = request.args
-    page = int(params.get('page', 1))
-    per_page = int(params.get('per_page', 25))
-    order_by = params.get('order_by', None)
-    ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
 
-    filtro = None
-    for param, valor in params.items():
-        if param in form._fields:
-            form._fields[param].data = valor
+    filtros = {}
+    filtros['email'] = get_str_param(params, 'email', optional=True)
+    filtros['nombre'] = get_str_param(params, 'nombre', optional=True)
+    filtros['apellido'] = get_str_param(params, 'apellido', optional=True)
+    filtros['dni'] = get_str_param(params, 'dni', optional=True)
+    filtros['puesto_laboral'] = get_str_param(params, 'puesto_laboral', optional=True)
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 25, optional=True)
+    order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
+    ascending = get_bool_param(params, 'ascending', True, optional=True)
 
-    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
-        value = params.get('busqueda')
-        if params['tipo_filtro'] == 'puesto_laboral' : value = PuestoLaboralEnum.from_value(value)
-        filtro = {
-            params['tipo_filtro']: value
-        }
-    employees, total, pages = EmployeeService.get_employees(filtro=filtro, page=page, per_page=per_page,
-                                                            order_by=order_by, ascending=ascending)
-    listado = [
-      {
-          'id': employee.id,
-          'Nombre': employee.nombre,
-          'Apellido': employee.apellido,
-          'DNI': employee.dni,
-          'Email': employee.email,
-          'Puesto Laboral': employee.puesto_laboral.name.capitalize()
-      } for employee in employees] if employees else [{
-        'id': '0',
-        'Nombre': '',
-        'Apellido': '',
-        'DNI': '',
-        'Email': '',
-        'Puesto Laboral': ''
-    }]
+    employees, total, pages = EmployeeService.get_employees(
+        filtro=filtros,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending)
+
+    lista_diccionarios = [employee.to_dict() for employee in employees]
+
+    form = SearchEmployeeForm(**params.to_dict())
 
     return render_template('search_box.html',
                                               form=form,
                                               entidad='employees',
                                               anterior=url_for('home'),
-                                              lista_diccionarios=listado,
+                                              lista_diccionarios=lista_diccionarios,
                                               total=total,
                                               current_page=page,
                                               per_page =per_page,
