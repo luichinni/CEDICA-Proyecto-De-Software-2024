@@ -28,7 +28,7 @@ from src.web.controllers.reports_controller import bp as reports_bp
 from src.web.controllers.api_controller import bp as api_bp
 
 from src.core.storage import storage
-from src.core.bcrypy_and_session import bcrypt, session
+from src.core.bcrypy_and_session import bcrypt, session, cipher
 
 from src.core.oauth import oauth
 
@@ -43,6 +43,7 @@ def create_app(env="development", static_folder="../../static"):
     storage.init_app(app)
     oauth.init_app(app)
     CORS(app)
+    cipher.init_app(app)
 
     @app.route("/")
     def home():
@@ -62,6 +63,7 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(equestrian_file_bp)
     app.register_blueprint(reports_bp) 
     app.register_blueprint(api_bp) 
+
 
     #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)
