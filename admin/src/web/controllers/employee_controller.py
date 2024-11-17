@@ -59,7 +59,7 @@ def index():
     """Listar los empleados"""
     params = request.args
     page = get_int_param(params, 'page', 1, True)
-    per_page = get_int_param(params, 'per_page', 25, True)
+    per_page = get_int_param(params, 'per_page', 5, True)
 
     employees, total, pages = EmployeeService.get_employees(page=page, per_page=per_page)
 
@@ -78,7 +78,7 @@ def search():
     filtros['dni'] = get_str_param(params, 'dni', optional=True)
     filtros['puesto_laboral'] = get_str_param(params, 'puesto_laboral', optional=True)
     page = get_int_param(params, 'page', 1, optional=True)
-    per_page = get_int_param(params, 'per_page', 25, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
     ascending = get_bool_param(params, 'ascending', True, optional=True)
 

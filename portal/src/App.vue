@@ -1,85 +1,70 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="container mt-5">
+    <!-- Sección Home -->
+    <section class="hero is-primary is-medium">
+      <div class="hero-body">
+        <p class="title has-text-centered">Institución</p>
+        <p class="subtitle has-text-centered">
+          Promoviendo el desarrollo educativo y cultural de nuestra comunidad.
+        </p>
+      </div>
+    </section>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <!-- Enlaces a otras secciones -->
+    <section class="section">
+      <div class="columns">
+        
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+        <!-- Enlace a Home -->
+        <div class="column">
+          <div class="card">
+            <div class="card-content">
+              <h3 class="title is-5">Home</h3>
+              <p>Ir a la pagina principal.</p>
+              <br>
+              <router-link to="/" class="button is-link is-fullwidth mt-3">
+                Home
+              </router-link>
+            </div>
+          </div>
+        </div>
 
+        <!-- Enlace a Contacto -->
+        <div class="column">
+          <div class="card">
+            <div class="card-content">
+              <h3 class="title is-5">Contacto</h3>
+              <p>¿Tienes alguna consulta? Ponte en contacto con nosotros.</p>
+              <router-link to="/contacto" class="button is-link is-fullwidth mt-3">
+                Ir a Contacto
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enlace a Actividades y Noticias -->
+        <div class="column">
+          <div class="card">
+            <div class="card-content">
+              <h3 class="title is-5">Actividades y Noticias</h3>
+              <p>Mantente informado sobre nuestras actividades y últimas noticias.</p>
+              <router-link to="/actividades-noticias" class="button is-link is-fullwidth mt-3">
+                Ver Noticias
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </section>
+  </div>
   <RouterView />
+
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+<script>
+export default {
+  name: "App",
+};
+</script>

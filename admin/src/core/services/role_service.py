@@ -57,7 +57,7 @@ class RoleService:
                 nombre = f"{model.value}_{category.value}"
                 permisos[nombre] = PermissionService.get_permission_by_name(nombre).id
                 
-        RoleService.create_role("New User").id
+        RoleService.create_role("Usuario a confirmar por admin").id
         
         """Crea roles base con sus respectivos permisos."""
         tecnica = RoleService.create_role("Técnica").id

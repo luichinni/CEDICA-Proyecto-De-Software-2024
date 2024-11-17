@@ -16,7 +16,7 @@ bp = Blueprint('payments', __name__, url_prefix='/payments')
 def index():
     params = request.args
     page = get_int_param(params, 'page', 1, optional= True)
-    per_page = get_int_param(params, 'per_page', 25, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
 
     payments, total, pages = PaymentService.get_payments(page=page, per_page=per_page)
 
@@ -35,7 +35,7 @@ def search():
 
     params = request.args
     page = int(params.get('page', 1))
-    per_page = int(params.get('per_page', 25))
+    per_page = int(params.get('per_page', 5))
     ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
 
     order_by = 'fecha_pago'

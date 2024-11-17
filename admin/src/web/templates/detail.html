@@ -44,11 +44,7 @@
      <br>
      <a href="{{ url_for( entidad + '.update',id = diccionario.id) }} " class="button is-primary">Editar</a> 
      <br>
-     <form action="{{ url_for(entidad + '.delete', id=diccionario.id) }}" method="POST" style="display:inline;">
-    <button type="submit" class="button is-danger">
-        Eliminar
-    </button>
-</form>
+      {% include 'delete_button.html' %}
      <br>
      {%if check_permission(entidad +'_block')%}
      <!-- Form to block the element -->

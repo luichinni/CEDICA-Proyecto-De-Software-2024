@@ -24,6 +24,7 @@ class ProductionConfig(Config):
     }
     GOOGLE_CLIENT_ID = environ.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = environ.get('GOOGLE_CLIENT_SECRET')
+    FERNET_KEY = environ.get('FERNET_KEY')
 
 class DevelopmentConfig(Config):
     DB_USER = environ.get('DB_USER')
@@ -38,6 +39,7 @@ class DevelopmentConfig(Config):
     MINIO_SECURE = False
     GOOGLE_CLIENT_ID = environ.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = environ.get('GOOGLE_CLIENT_SECRET')
+    FERNET_KEY = environ.get('FERNET_KEY')
 
 class TestingConfig(Config):
     TESTING = True

@@ -69,7 +69,7 @@ class UserService:
     def create_user(employee_id, alias, password, role_id = None, activo=True):
         """Crea un nuevo usuario."""
         if role_id is None:
-            role_id = RoleService.get_role_by_name("New User").id
+            role_id = RoleService.get_role_by_name("Usuario a confirmar por admin").id
         UserService.validate_password(password)
         hash = bcrypt.generate_password_hash(password.encode("utf-8"))
         password = hash.decode("utf-8")# encripta
@@ -168,7 +168,7 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def get_all_users(page=1, per_page=25, include_deleted=False, include_blocked=True):
+    def get_all_users(page=1, per_page=5, include_deleted=False, include_blocked=True):
         """Obtiene todos los usuarios."""
         query = User.query
         
@@ -196,7 +196,7 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_users(email=None, activo=None, role_id=None, page=1, per_page=25, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=5, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query
 

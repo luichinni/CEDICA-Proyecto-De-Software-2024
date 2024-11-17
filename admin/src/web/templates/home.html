@@ -8,15 +8,29 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Inicio</h1>
-  <p>Página de inicio de la aplicación</p>   
-     
-  {%if not is_authenticated() %} 
-  <a href="{{url_for('auths.index')}}">Iniciar Sesion</a>
-  {%else %}
-  <a href="{{url_for('auths.logout')}}">Cerrar Sesion</a>
-  {%endif%}
+<section class="section">
+  <div class="container">
+    <!-- Título centrado -->
+    <h1 class="title is-2 has-text-centered">Inicio</h1>
+    <p class="has-text-centered">Página de inicio de la aplicación</p>
 
-
-
+    <div class="buttons is-centered mt-5">
+      {% if not is_authenticated() %}
+        <a href="{{ url_for('auths.index') }}" class="button is-primary is-large">
+          <span class="icon">
+            <i class="fas fa-sign-in-alt"></i>
+          </span>
+          <span>Iniciar Sesión</span>
+        </a>
+      {% else %}
+        <a href="{{ url_for('auths.logout') }}" class="button is-danger is-large">
+          <span class="icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </span>
+          <span>Cerrar Sesión</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
 {% endblock %}

@@ -21,7 +21,7 @@ def search():
     activo = get_bool_param(params, 'activo', optional= True) 
     role_id = get_int_param(params, 'role_id', optional= True) 
     page = get_int_param(params, 'page', 1, optional= True) 
-    per_page = get_int_param(params, 'per_page', 25, optional= True) 
+    per_page = get_int_param(params, 'per_page', 5, optional= True) 
     order_by = get_str_param(params, 'order_by', 'created_at', optional= True)
     ascending = get_bool_param(params, 'ascending', True, optional= True)
 
