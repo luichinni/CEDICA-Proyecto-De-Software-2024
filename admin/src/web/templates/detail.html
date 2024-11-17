@@ -7,36 +7,47 @@
 
 {%block content%}
    
-     <h1> {{titulo}}</h1>
-     <br>
-     {% if anterior %}
-         <a href="{{ anterior }}" class="button">Volver</a>
-     {% else %}
-         <a href="/" class="button">Volver a inicio</a>
-     {% endif %}
-     <br>
-     <section class="section">
-       <ul class="list">  
-       {%for key in diccionario %}
-            
-           <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
-       {%endfor%}
-      </ul>
-    </section>
+    {% if titulo %}
+        <h1 class="title is-2 has-text-centered has-text-weight-bold"> {{titulo}}</h1>
+    {% elif entidad %}
+        <h1 class="title is-2 has-text-centered has-text-weight-bold"> Detalle de {{entidad}}</h1>
+    {% endif %}
+    <br>
+
+    {% if anterior %}
+        <a href="{{ anterior }}" class="button">Volver</a>
+    {% elif entidad %}
+        <a href="{{ url_for(entidad + '.search') }}" class="button">Volver al listado</a>
+    {% else %}
+        <a href="/" class="button">Volver a inicio</a>
+    {% endif %}
+    <br>
+
+    <section class="section">
+        <div class="container">
+          <div class="box">
+            <ul class="list is-hoverable">
+              {% for key in diccionario %}
+                <li class="mb-3">
+                  <strong class="has-text-weight-bold">{{ key }}:</strong>
+                  <span>{{ diccionario[key] }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </section>
+      
     <div class="buttons is-centered">
      <br>
-     <a href="{{ url_for( entidad + '.update',id = diccionario.id) }}">Editar</a> 
+     <a href="{{ url_for( entidad + '.update',id = diccionario.id) }} " class="button is-primary">Editar</a> 
      <br>
-     <form action="{{ url_for(entidad + '.delete', id=diccionario.id) }}" method="POST" style="display:inline;">
-    <button type="submit" >
-        Eliminar
-    </button>
-</form>
+      {% include 'delete_button.html' %}
      <br>
      {%if check_permission(entidad +'_block')%}
      <!-- Form to block the element -->
      <form action="{{ url_for('users.block', user_id= diccionario['id']) }}" method="post" style="display:inline;">
-        <button class="button is-primary is-small" type="submit">Bloquear</button>
+        <button class="button is-danger" type="submit">Bloquear/Desbloquear</button>
      </form>
      {%endif%}
 

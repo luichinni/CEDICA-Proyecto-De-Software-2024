@@ -26,11 +26,11 @@ class User(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'email': self.employee.email if self.employee else 'Sin email',
-            'alias': self.alias,
-            'activo': self.activo,
-            'role': self.role.name, 
-            'blocked': self.blocked, 
-            #'created_at': self.created_at.isoformat(),
-            #'updated_at': self.updated_at.isoformat(),
+            'Email': self.employee.email if self.employee else 'Sin email',
+            'Alias': self.alias,
+            'Esta activo': "Si" if self.activo else "No",
+            'Rol': self.role.name, 
+            'Esta bloqueado': "Si" if self.blocked else "No", 
+            'Fecha de creacion': self.created_at.strftime('%Y-%m-%d'),
         }
+

@@ -22,7 +22,7 @@ class UserService:
         Returns:
             int: valor que representa la ID del usuario si es que existe, sino None.
         """
-        user = UserService.search_users(email=email,activo=True)[0]
+        user = UserService.search_users(email=email,activo=True, include_deleted=False, include_blocked=False)[0]
         id_return = None
         if not user:
             return id_return
@@ -66,8 +66,10 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def create_user(employee_id, alias, password, role_id, activo=True):
+    def create_user(employee_id, alias, password, role_id = None, activo=True):
         """Crea un nuevo usuario."""
+        if role_id is None:
+            role_id = RoleService.get_role_by_name("Usuario a confirmar por admin").id
         UserService.validate_password(password)
         hash = bcrypt.generate_password_hash(password.encode("utf-8"))
         password = hash.decode("utf-8")# encripta
@@ -121,11 +123,11 @@ class UserService:
     @validate_params
     def block_user(user_id):
         """Bloquea un usuario por su ID."""
-        user = UserService.get_user_by_id(user_id)
+        user = UserService.get_user_by_id(user_id, include_blocked=True)
         
         UserService.validate_role_id(user.role_id)
         
-        user.blocked = True
+        user.blocked = not user.blocked
         db.session.commit()
     
     @staticmethod
@@ -205,7 +207,7 @@ class UserService:
             query = query.filter_by(blocked=False)
 
         if email:
-            query = query.filter(User.employee.has(email=email)) 
+            query = query.join(User.employee).filter(Employee.email.ilike(f'%{email}%'))
 
         if activo is not None:
             query = query.filter(User.activo == activo)

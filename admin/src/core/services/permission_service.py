@@ -64,5 +64,6 @@ class PermissionService:
         """Crea los permisos iniciales y los enlaza automáticamente al rol de AdminData."""
         for category in PermissionCategory:
             for model in PermissionModel:
+                if category == PermissionCategory.BLOCK and model != PermissionModel.USER: continue
                 permission_name = f"{model.value}_{category.value}"
                 PermissionService.create_permission(permission_name)

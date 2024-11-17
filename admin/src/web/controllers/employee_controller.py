@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, redirect, request, url_for, flash
 
 from src.core.services.employee_service import EmployeeService
+from src.core.services.user_service import UserService
 from web.forms.employee_forms.CreateEmployeeForm import CreateEmployeeForm
 from web.forms.employee_forms.EditEmployeeForm import EditEmployeeForm
 from web.forms.search_form import SearchForm
@@ -145,13 +146,15 @@ def update(id):
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda: url_for('employees.search'))
+@handle_error(lambda id: url_for('employees.search'))
 def delete(id):
     """Eliminar un empleado de manera logica"""
-    employee = EmployeeService.get_employee_by_id(id)
-    if not employee:
+    employee_to_delete = EmployeeService.get_employee_by_id(id)
+    if not employee_to_delete:
         flash("El empleado seleccionado no existe", "danger")
     else:
+        users = employee_to_delete.user
+        [UserService.delete_user(user.id) for user in users if not user.deleted]
         EmployeeService.delete_employee(id)
         flash("Se elimino el empleado exitosamente", "success")
     return redirect(url_for('employees.search'))
