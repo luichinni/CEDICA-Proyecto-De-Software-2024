@@ -40,20 +40,19 @@ class PaymentService:
         """Toma pagos basado en los filtros y el orden"""
         payments_query = Payment.query.filter_by(deleted=include_deleted)
         if filtro:
-            if 'tipo_pago' in filtro:
+            if 'tipo_pago' in filtro and filtro['tipo_pago']:
                 payments_query = payments_query.filter(Payment.tipo_pago == filtro['tipo_pago'])
-            elif 'rango_fechas' in filtro:
-                rango = filtro['rango_fechas']
-                desde = rango.get('desde')
-                hasta = rango.get('hasta')
-
-                payments_query = payments_query.filter(and_(Payment.fecha_pago >= desde, Payment.fecha_page <= hasta))
+            if 'start_date' in filtro and filtro['start_date']:
+                payments_query = payments_query.filter(Payment.fecha_pago >= filtro['start_date'])
+            if 'end_date' in filtro and filtro['end_date']:
+                payments_query = payments_query.filter(Payment.fecha_pago <= filtro['end_date'])
 
         if order_by:
-            if ascending:
-                payments_query = payments_query.order_by(getattr(Payment, order_by).asc())
-            else:
-                payments_query = payments_query.order_by(getattr(Payment, order_by).desc())
+            column = Payment.fecha_pago
+        else:
+            column = Payment.created_at
+
+        payments_query = payments_query.order_by(column.asc() if ascending else column.desc())
 
         pagination = payments_query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
