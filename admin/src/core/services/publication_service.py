@@ -5,7 +5,8 @@ class PublicationService:
 
     @staticmethod
     def list_publications(page, per_page):
-        return Publication.query.paginate(page=page, per_page=per_page)
+        pagination = Publication.query.paginate(page=page, per_page=per_page, error_out=False)
+        return pagination.items, pagination.total, pagination.pages
 
 
     @staticmethod
