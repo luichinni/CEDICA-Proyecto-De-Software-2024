@@ -17,6 +17,35 @@ def search():
     """Busca usuarios según criterios específicos con paginación."""
     params = request.args
     
+    form = SearchUserForm(**params.to_dict())
+    
+    only_pending = False
+    reduced = False
+
+    # Si se presiona ver pendientes, se cambia el modo, es un hidden input que sirve de variable
+    if params.get('pendientes', False) and form.modo.data == 'normal':
+        form.modo.data = "pendientes"
+    
+    elif params.get('pendientes', False) and form.modo.data == 'pendientes':
+        form.modo.data = "normal"
+    
+    # Segun el modo actual se cambian cosas
+    pending = UserService.pending_users()
+    if form.modo.data == 'normal':
+        if pending:
+            flash("Hay usuarios que están esperando que los validen!!!", "warning")
+            form.pendientes.label.text = "Mostrar pendientes de confirmación"
+        else: # si no hay pendientes elimino el boton
+            del form.pendientes
+    else:
+        reduced = True
+        only_pending = True
+
+        del form.activo
+        form.pendientes.label.text = "Salir de los pendientes"
+
+    form.pendientes.data = False
+
     email = get_str_param(params, 'email', optional= True)
     activo = get_bool_param(params, 'activo', optional= True) 
     role_id = get_int_param(params, 'role_id', optional= True) 
@@ -24,7 +53,7 @@ def search():
     per_page = get_int_param(params, 'per_page', 5, optional= True) 
     order_by = get_str_param(params, 'order_by', 'created_at', optional= True)
     ascending = get_bool_param(params, 'ascending', True, optional= True)
-
+    
     users, total, pages = UserService.search_users(
         email=email,
         activo=activo,
@@ -32,12 +61,11 @@ def search():
         page=page,
         per_page=per_page,
         order_by=order_by,
-        ascending=ascending
+        ascending=ascending,
+        only_pending=only_pending
     )
 
-    users_list = [user.to_dict() for user in users]
-    
-    form = SearchUserForm(**params.to_dict())
+    users_list = [user.to_dict(reduced) for user in users]
 
     return render_template('search_box.html', entidad='users', form=form, lista_diccionarios=users_list, total=total, current_page=page, per_page=per_page, pages=pages)
 

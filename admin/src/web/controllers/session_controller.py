@@ -1,5 +1,3 @@
-from argon2 import PasswordHasher
-from core.models.user import User
 from core.services.employee_service import EmployeeService
 from flask import Blueprint
 from flask import request
@@ -64,7 +62,7 @@ def oauth_auth():
     
     print(user_info.get('email'))
     
-    user:User = UserService.search_users(email=user_info.get('email'), activo=True)[0]
+    user = UserService.search_users(email=user_info.get('email'), activo=True)[0]
 
     mode = session['login_mode']
     del session['login_mode']
@@ -102,11 +100,11 @@ def oauth_auth():
         # Intento de crear user para empleado registrado
         try:
             emp = EmployeeService.get_employee_by_email(user_info.get("email")) # lanza excepcion si no existe
-            UserService.create_user(emp.id, user_info.get("displayName"), "1aA"+cipher.generate_word(8))
+            UserService.create_user(emp.id, user_info.get("displayName"), "1aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
         
         except:
             # Si no se es empleado, se genera un user default
-            UserService.create_user(-1, user_info.get("displayName"), "2aA"+cipher.generate_word(8))
+            UserService.create_user(-1, user_info.get("displayName"), "2aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
         
         finally:
             # Por ultimo se comunica que debe quedar a la espera

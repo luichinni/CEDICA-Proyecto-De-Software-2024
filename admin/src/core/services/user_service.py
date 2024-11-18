@@ -75,10 +75,10 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def create_user(employee_id, alias, password, role_id = None, activo=True, employee_email = 'SIN INGRESAR'):
+    def create_user(employee_id, alias, password, role_id = "SIN COMPLETAR", activo=True, employee_email = 'SIN INGRESAR'):
         employee_email = None if employee_email == 'SIN INGRESAR' else employee_email
         """Crea un nuevo usuario."""
-        if role_id is None:
+        if role_id == "SIN COMPLETAR":
             role_id = RoleService.get_role_by_name("Usuario a confirmar por admin").id
         UserService.validate_password(password)
         hash = bcrypt.generate_password_hash(password.encode("utf-8"))
@@ -213,24 +213,30 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_users(email=None, activo=None, role_id=None, page=1, per_page=5, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=5, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True, only_pending = False):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query
 
-        if not include_deleted:
-            query = query.filter_by(deleted=False)
+        if only_pending:
+            query = query.filter_by(role_id=RoleService.get_role_by_name("Usuario a confirmar por admin").id)
         
-        if not include_blocked:
-            query = query.filter_by(blocked=False)
+        else:
+            query = query.filter(User.role_id != RoleService.get_role_by_name("Usuario a confirmar por admin").id)
+
+            if not include_deleted:
+                query = query.filter_by(deleted=False)
+            
+            if not include_blocked:
+                query = query.filter_by(blocked=False)
+
+            if activo is not None:
+                query = query.filter(User.activo == activo)
+
+            if role_id:
+                query = query.filter(User.role_id == role_id)
 
         if email:
             query = query.join(User.employee).filter(Employee.email.ilike(f'%{email}%'))
-
-        if activo is not None:
-            query = query.filter(User.activo == activo)
-
-        if role_id:
-            query = query.filter(User.role_id == role_id)
 
         if order_by not in ['email', 'created_at']:
             raise ValueError("El campo de ordenamiento debe ser 'email' o 'created_at'.")
@@ -241,6 +247,10 @@ class UserService:
         
         return pagination.items, pagination.total, pagination.pages
 
+    @staticmethod
+    @validate_params
+    def pending_users():
+        return User.query.filter_by(role=RoleService.get_role_by_name("Usuario a confirmar por admin")).count() > 0
 
     @staticmethod
     @validate_params
