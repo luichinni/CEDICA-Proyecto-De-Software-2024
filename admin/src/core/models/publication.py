@@ -16,10 +16,23 @@ class Publication(db.Model):
     summary = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(100), nullable=False)
-    status = db.Column(Enum(PublicationStatusEnum), nullable=False)
+    status = db.Column(Enum(PublicationStatusEnum, name='status_type'),nullable=False)
     published_date = db.Column(db.DateTime)
     created_date = db.Column(db.DateTime, default=datetime.now())
     updated_date = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __repr__(self):
         return f"<Publicacion: {self.title}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "titulo": self.title,
+            "copete": self.summary,
+            "contenido": self.content,
+            "autor": self.author,
+            "estado": self.status,
+            "fecha de publicacion": self.published_date,
+            "fecha de creacion": self.created_date,
+            "fecha de modificacion": self.updated_date
+        }
