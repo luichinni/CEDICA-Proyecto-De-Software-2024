@@ -1,13 +1,16 @@
 from argon2 import PasswordHasher
+from core.models.user import User
+from core.services.employee_service import EmployeeService
 from flask import Blueprint
 from flask import request
 from flask import render_template
-from flask import abort
 from flask import redirect
 from flask import url_for
 from flask import flash
 from web.forms.auth_forms.login_form import LoginForm
 from web.handlers.auth import login_required
+from src.core.bcrypy_and_session import cipher
+
 
 from src.core.services.user_service import UserService
 
@@ -61,24 +64,51 @@ def oauth_auth():
     
     print(user_info.get('email'))
     
-    user = UserService.search_users(email=user_info.get('email'), activo=True)[0]
+    user:User = UserService.search_users(email=user_info.get('email'), activo=True)[0]
 
-    if session['login_mode'] == "login":        
+    mode = session['login_mode']
+    del session['login_mode']
+
+    if mode == "login":        
+        # Intento de login sin user
         if not user:
             flash('Parece que no estás registrado en el sistema!', 'warning')
             return redirect(url_for('auths.index'))
         
+        # Validación si el user ya fue confirmado (en caso de ser necesario)
+        try:
+            UserService.validate_user_is_confirmed(user)
+        except:
+            flash('Se paciente, los administradores aun están verificando tu cuenta 📝', "warning")
+            return redirect(url_for('auths.index'))
+
+        # Generación de la sesión de usuario
         session["id"] = user[0].id
         
         flash('Iniciado Correctamente!','success')
         return redirect('/')
     
-    elif session['login_mode'] == "registration":
+    elif mode == "registration":
+        # Intento de registro con usuario existente, confirmado o no
         if user:
-            flash('Parece que ya estás registrado, intenta iniciando sesión!')
+            try:
+                UserService.validate_user_is_confirmed(user)
+                flash('Parece que ya estás registrado, intenta iniciando sesión!', "info")
+            except:
+                flash('Se paciente, los administradores aun están verificando tu cuenta 📝', "warning")
+            
             return redirect(url_for('auths.index'))
 
-        del session['login_mode']
-
-        # === Registro sin rol ===
+        # Intento de crear user para empleado registrado
+        try:
+            emp = EmployeeService.get_employee_by_email(user_info.get("email")) # lanza excepcion si no existe
+            UserService.create_user(emp.id, user_info.get("displayName"), "1aA"+cipher.generate_word(8))
         
+        except:
+            # Si no se es empleado, se genera un user default
+            UserService.create_user(-1, user_info.get("displayName"), "2aA"+cipher.generate_word(8))
+        
+        finally:
+            # Por ultimo se comunica que debe quedar a la espera
+            flash("Tu usuario ha quedado a la espera de que un administrador lo valide 📝", "info")
+            return redirect(url_for('auths.index'))

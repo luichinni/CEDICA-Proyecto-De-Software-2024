@@ -1,4 +1,6 @@
 import base64
+import random
+import string
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 
@@ -30,5 +32,8 @@ class Cipher:
 
     def compare(self, data, encrypted):
         return data == self.decrypt(encrypted).decode('utf-8')
-    
+
+    def generate_word(length = 6):
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
 cipher = Cipher()
