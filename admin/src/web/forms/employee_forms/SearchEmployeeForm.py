@@ -20,5 +20,5 @@ class SearchEmployeeForm(FlaskForm):
         ('created_at', 'Fecha de creación')
     ], validators=[Optional()])
 
-    ascending = RadioField('Orden ascendente',choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1')
+    ascending = RadioField('Orden',choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1')
     submit = SubmitField('Buscar empleados')

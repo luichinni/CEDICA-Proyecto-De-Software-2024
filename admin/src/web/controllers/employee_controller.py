@@ -71,16 +71,15 @@ def index():
 def search():
     params = request.args
 
-    filtros = {}
-    filtros['email'] = get_str_param(params, 'email', optional=True)
-    filtros['nombre'] = get_str_param(params, 'nombre', optional=True)
-    filtros['apellido'] = get_str_param(params, 'apellido', optional=True)
-    filtros['dni'] = get_str_param(params, 'dni', optional=True)
-    filtros['puesto_laboral'] = get_str_param(params, 'puesto_laboral', optional=True)
+    filtros = {'email': get_str_param(params, 'email', optional=True),
+               'nombre': get_str_param(params, 'nombre', optional=True),
+               'apellido': get_str_param(params, 'apellido', optional=True),
+               'dni': get_str_param(params, 'dni', optional=True),
+               'puesto_laboral': get_str_param(params, 'puesto_laboral', optional=True)}
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
-    ascending = get_bool_param(params, 'ascending', True, optional=True)
+    ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
 
     employees, total, pages = EmployeeService.get_employees(
         filtro=filtros,

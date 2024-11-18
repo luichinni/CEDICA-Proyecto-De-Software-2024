@@ -72,7 +72,7 @@ class Employee(db.Model):
     equestrians_asociados = db.relationship('Equestrian', secondary='associates',back_populates='empleados_asociados')
 
     def __repr__(self):
-        return f"Empleado {self.nombre} {self.apellido} {self.dni}"
+        return f"Nombre: {self.nombre} Apellido: {self.apellido} DNI: {self.dni}"
 
     def to_dict(self):
         """Convierte la instancia del empleado a un diccionario."""
