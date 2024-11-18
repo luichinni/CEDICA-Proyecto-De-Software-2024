@@ -64,6 +64,7 @@ class Employee(db.Model):
     obra_social = db.Column(db.String(100), nullable=True)
     nro_afiliado = db.Column(db.String(50), nullable=False)
     condicion = db.Column(Enum(CondicionEnum), nullable=False)
+    has_default_data = db.Column(db.Boolean, default=False)
     activo = db.Column(db.Boolean, default=True)
     deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
