@@ -1,6 +1,5 @@
 from src.core.database import db
 from src.core.models.publication import Publication
-
 class PublicationService:
 
     @staticmethod
@@ -41,4 +40,14 @@ class PublicationService:
             raise ValueError('La publicacion solicitada no existe')
         db.session.delete(publication)
         db.session.commit()
+
+    @staticmethod
+    def form_to_dict(form):
+        return {'title': form.title.data,
+            'summary': form.summary.data,
+            'content': form.body.data,
+            'status': form.status.data,
+            'published_date': form.published_at.data,
+            'author': 'Current user' #TODO: tomar el usuario que carga la publicacion
+        }
 
