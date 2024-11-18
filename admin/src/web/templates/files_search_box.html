@@ -10,37 +10,23 @@
    
   <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}">
     {{ form.hidden_tag() }}
-
-    <div class="search_input field is-grouped">
-      <div class="control is-expanded">
-        {{ form.busqueda(class="input", placeholder="Buscar...") }}
-     </div>
-    </div>
-    <div class="search_selec field is-grouped">
-      <div class="control">  
-        {{ form.tipo_filtro.label(class="label") }}
-        <div class="select">  
-         <div> 
-            {{ form.tipo_filtro(class="select") }}
-         </div>
-        </div>
-      </div>
+    <input type="hidden" name="activo" value="{{activo}}"/>
+    
+    <!-- Iteración dinámica de campos del formulario -->
+    {% for field in form if field.name != 'csrf_token' and field.type != 'SubmitField' %}
+    <div class="field">
+      <label class="label">{{ field.label.text }}</label>
       <div class="control">
-        {{ form.orden_filtro.label(class="label") }}
-        <div class="select">
-         <div>
-         {{ form.orden_filtro(class="select") }}
-        </div>
-       </div>
+        {{ field }}
       </div>
-    <div class="control">
-      {{ form.orden(class="radio") }}
-      <label class="radio">{{ form.orden[0] }}</label>
-      <label class="radio">{{ form.orden[1] }}</label>
-  </div>
-
-    <div>
-        {{ form.submit(class="button is-info") }}  <!-- Botón para enviar el formulario -->
+    </div>
+    {% endfor %}
+    
+    <!-- Botón de búsqueda -->
+    <div class="field">
+      <div class="control">
+        {{ form.submit(class="button is-info") }}
+      </div>
     </div>
 </form>
  </section>
