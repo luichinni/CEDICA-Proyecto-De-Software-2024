@@ -1,3 +1,4 @@
+from argon2 import PasswordHasher
 from flask import Blueprint
 from flask import request
 from flask import render_template
@@ -44,8 +45,10 @@ def logout():
         
     return redirect(url_for('auths.index'))
 
-@session_bp.route('/login')
-def oauth_login():
+@session_bp.route('/login/<string:mode>')
+def oauth_login(mode):
+    session['login_mode'] = mode # guardo el estado para más tarde
+
     redirect_uri = url_for('auths.oauth_auth', _external = True)
     
     return oauth.client.google.authorize_redirect(redirect_uri)
@@ -53,18 +56,29 @@ def oauth_login():
 @session_bp.route('/oauth')
 def oauth_auth():
     token = oauth.client.google.authorize_access_token()
-    
+        
     user_info = token['userinfo']
     
     print(user_info.get('email'))
     
     user = UserService.search_users(email=user_info.get('email'), activo=True)[0]
+
+    if session['login_mode'] == "login":        
+        if not user:
+            flash('Parece que no estás registrado en el sistema!', 'warning')
+            return redirect(url_for('auths.index'))
+        
+        session["id"] = user[0].id
+        
+        flash('Iniciado Correctamente!','success')
+        return redirect('/')
     
-    if not user:
-        flash('Parece que no estás registrado en el sistema!', 'warning')
-        return redirect(url_for('auths.index'))
-    
-    session["id"] = user[0].id
-    
-    flash('Iniciado Correctamente!','success')
-    return redirect('/')
+    elif session['login_mode'] == "registration":
+        if user:
+            flash('Parece que ya estás registrado, intenta iniciando sesión!')
+            return redirect(url_for('auths.index'))
+
+        del session['login_mode']
+
+        # === Registro sin rol ===
+        
