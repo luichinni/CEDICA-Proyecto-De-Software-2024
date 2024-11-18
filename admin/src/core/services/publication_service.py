@@ -3,8 +3,23 @@ from src.core.models.publication import Publication
 class PublicationService:
 
     @staticmethod
-    def list_publications(page, per_page):
-        pagination = Publication.query.paginate(page=page, per_page=per_page, error_out=False)
+    def list_publications(filtro=None, order_by=None, ascending=True, page=1, per_page=5):
+        publications_query = Publication.query
+        if filtro:
+            valid_filters = {key: value for key, value in filtro.items() if hasattr(Publication, key) and value is not None}
+            if 'title' in valid_filters:
+                publications_query = publications_query.filter(Publication.title.ilike(valid_filters['title']))
+            if 'start_published_date' in valid_filters:
+                publications_query = publications_query.filter(Publication.published_date >= valid_filters['start_published_date'])
+            if 'end_published_date' in valid_filters:
+                publications_query = publications_query.filter(Publication.published_date <= valid_filters['end_published_date'])
+        if order_by:
+            if ascending:
+                publications_query = publications_query.order_by(getattr(Publication, order_by).asc())
+            else:
+                publications_query = publications_query.order_by(getattr(Publication, order_by).desc())
+
+        pagination = publications_query.query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
 
 
