@@ -20,8 +20,7 @@ class CreatePublicationForm(FlaskForm):
         ]
     )
 
-    contento = TextAreaField('Contenido', validators=[DataRequired()])
-    body = TextAreaField('Content', validators=[DataRequired()])
+    body = TextAreaField('Contenido', validators=[DataRequired()])
     status = SelectField(
         'Estado',
         choices=[(estado.name, estado.name.replace('_',' ')) for estado in PublicationStatusEnum],
