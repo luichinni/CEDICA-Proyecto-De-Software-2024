@@ -261,7 +261,10 @@ class ClientService:
         Returns:
             list: Listado de clientes obtenidos a partir de la busqueda
         """
-        query = Clients.query.filter_by(deleted=include_deleted)
+        query = Clients.query
+        
+        if not include_deleted:
+            query = query.filter_by(deleted=include_deleted)
         
         if filtro:
             for key, value in filtro.items():
@@ -422,12 +425,15 @@ class ClientService:
         if isinstance(client_id,str):
             client_id = int(client_id)
         
-        query = ClientDocuments.query.filter(ClientDocuments.client_id == client_id, ClientDocuments.deleted == include_deleted)
+        query = ClientDocuments.query.filter(ClientDocuments.client_id == client_id)
+
+        if not include_deleted:
+            query.filter(ClientDocuments.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
                 if hasattr(ClientDocuments, key) and value is not None:
-                    if isinstance(value, str) and like:
+                    if isinstance(value, str) and not issubclass(getattr(ClientDocuments, key).type.python_type, Enum) and like:
                         query = query.filter(getattr(ClientDocuments, key).like(f'%{value}%'))
                     else:
                         query = query.filter(getattr(ClientDocuments, key) == value)
