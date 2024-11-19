@@ -1,22 +1,28 @@
-{% extends "layout.html" %}
-
-{% block title %}Home{% endblock %}
-
+{% extends "form.html" %}
 {% block head %}
   {{ super() }}
+  <meta name="google-signin-client_id" content="{{ google_client_id() }}">
 {% endblock %}
-
 {% block content %}
-  <h1>Iniciar Sesion</h1>
-  <!-- Mostrar mensajes flash -->
-        {% include 'mensaje_flash.html' %}
-  <form method="POST" action="{{url_for('auths.index')}}">
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
-  </br>
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" name="password" required></textarea>
-</br>
-    <button type="submit">Iniciar</button>
-</form>
+  {{ super() }}
+  <div class="container">
+    <div class="buttons is-centered">
+      <a href="{{url_for('auths.oauth_login', mode='login')}}" class="button is-primary is-outlined is-medium">
+        <span class="icon">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png?20230822192911" alt="Google logo" width="20" height="20">
+        </span>
+        <span>Iniciar sesión con Google</span>
+      </a>
+  
+      <a href="{{url_for('auths.oauth_login', mode='registration')}}" class="button is-link is-outlined is-medium">
+        <span class="icon">
+          <!-- Encontre el svg en wikimedia anashei -->
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png?20230822192911" alt="Google logo" width="20" height="20">
+        </span>
+        <span>Registrarse con Google</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
 {% endblock %}

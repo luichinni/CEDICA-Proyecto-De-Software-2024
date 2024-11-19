@@ -1,0 +1,129 @@
+{% extends 'layout.html' %}
+{% block title %}Reportes{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  {{ super() }}
+{% endblock %}
+{% block content %}
+<a href="/reports" class="button">Volver</a>
+
+<div class="container mt-5">
+  <h1 class="title">Reporte de Datos</h1>
+
+  <script>
+    const dataDict = {};
+    const labels = {};   
+    const values = {};   
+    const ctx = {};      
+    const chart = {};
+  </script>
+  
+  <script>
+    const create_charts = {
+      "pie": function(chartIndex) { return new Chart(ctx[chartIndex], {
+              type: 'pie', // Tipo de gráfico: torta
+              data: {
+                  labels: labels[chartIndex],
+                  datasets: [{
+                      label: 'Cantidad',
+                      data: values[chartIndex],
+                      backgroundColor: ['red', 'blue', 'green', 'orange', 'purple'], // Colores simples
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false, // Permite que el gráfico mantenga su aspecto
+              }
+          }); },
+      "bar": function(chartIndex) { return new Chart(ctx[chartIndex], {
+              type: 'bar', // Tipo de gráfico: barras
+              data: {
+                  labels: labels[chartIndex],
+                  datasets: [{
+                      label: 'Cantidad',
+                      data: values[chartIndex],
+                      backgroundColor: 'rgba(75, 192, 192, 0.5)', // Color de las barras con transparencia
+                      borderColor: 'rgba(75, 192, 192, 1)', // Color del borde de las barras
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false, // Permite que el gráfico mantenga su aspecto
+                  scales: {
+                      y: {
+                          beginAtZero: true // Inicia el eje Y en 0
+                      }
+                  }
+              }
+          }); }
+    };
+  </script>
+
+  <script>
+    function sortChartData(data) {
+      const order_by = data["order_by"] ? data["order_by"] : "value";
+      const sort_order = data["sort_order"] ? data["sort_order"] : "descending";
+      const order_type = data["order_type"] ? data["order_type"] : "num";
+
+      let chart_data = data["chart_data"];
+
+      let sortedChartData = {};
+
+      // Transformar claves o valores según order_by
+      const transformedData = Object.entries(chart_data).map(([key, value]) => {
+          const transformedKey = order_by === "key" && order_type === "num" ? Number(key) : key;
+          const transformedValue = order_by === "value" && order_type === "num" ? Number(value) : value;
+          return [transformedKey, transformedValue];
+      });
+
+      if (order_by === "value") {
+          sortedChartData = transformedData.sort((a, b) => {
+              return sort_order === "ascending" ? a[1] - b[1] : b[1] - a[1];
+          });
+      } else if (order_by === "key") {
+          sortedChartData = transformedData.sort((a, b) => {
+              return sort_order === "ascending" ? a[0] - b[0] : b[0] - a[0];
+          });
+      }
+
+      chart_data = Object.fromEntries(sortedChartData);
+      return chart_data; // Retorna el chart_data ordenado
+    }   
+  </script>
+
+  <div class="columns is-multiline">
+    {% for data in charts_data %}
+      <div class="column is-half-tablet is-one-third-desktop">
+        <h2 class="subtitle">{{ data["chart_name"] | default(loop.index) }}</h2>
+        {% set chart_index = loop.index %}
+
+        <div class="chart-container">
+          <canvas id="chart-{{ chart_index }}" width="500" height="300"></canvas>
+        </div>
+      </div>
+
+      <script>
+          chartIndex = '{{ chart_index }}'; 
+          dataDict[chartIndex] = JSON.parse('{{ data | tojson }}');
+          console.log(dataDict[chartIndex])
+          
+          chart_data = sortChartData(dataDict[chartIndex]);
+
+          console.log(chart_data)
+
+          chart_name = dataDict[chartIndex]["chart_name"]
+          chart_type = dataDict[chartIndex]["chart_type"]
+            
+          labels[chartIndex] = Object.keys(chart_data);
+          values[chartIndex] = Object.values(chart_data);
+
+          // Crear el gráfico de torta
+          ctx[chartIndex] = document.getElementById('chart-' + chartIndex).getContext('2d');
+          chart[chartIndex] = create_charts[chart_type](chartIndex);
+      </script>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

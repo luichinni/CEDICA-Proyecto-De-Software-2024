@@ -105,7 +105,7 @@ class EquestrianService :
         return equestrian
     
     @staticmethod
-    def get_all_equestrian (page=1, per_page=25, include_deleted=False):
+    def get_all_equestrian (page=1, per_page=5, include_deleted=False):
         """Lista todos los ecuestres"""
         query = Equestrian.query
         if not include_deleted:
@@ -128,13 +128,13 @@ class EquestrianService :
     
 
     @staticmethod
-    def search_equestrian(filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like:bool = False) -> tuple:
-        """Lista los ecuestres segun los filtros especificados, en caso de no especificar retorna los primeros 25 ecuestres
+    def search_equestrian(filtro: dict = None, page: int = 1, per_page: int = 5, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like:bool = False) -> tuple:
+        """Lista los ecuestres segun los filtros especificados, en caso de no especificar retorna los primeros 5 ecuestres
 
         Args:
             filtro (dict, optional): Diccionario de { campo: valor_esperado } para filtrar. Defaults to None.
             page (int, optional): Nro de pagina esperada. Defaults to 1.
-            per_page (int, optional): Cantidad de resultados por pagina. Defaults to 25.
+            per_page (int, optional): Cantidad de resultados por pagina. Defaults to 5.
             order_by (str, optional): Campo para ordenar. Defaults to None.
             ascending (bool, optional): Flag de ordenamiento asc o desc. Defaults to True.
             include_deleted (bool, optional): Flag de inclusión eliminados. Defaults to False.
@@ -266,7 +266,7 @@ class EquestrianService :
         return archivo
     
 
-    def get_documents(equestrian_id: int | str, filtro: dict = None, extension: str = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
+    def get_documents(equestrian_id: int | str, filtro: dict = None, extension: str = None, page: int = 1, per_page: int = 5, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
         """
         Obtiene por página y filtro los documentos de un ecuestre específico.
 
@@ -274,7 +274,7 @@ class EquestrianService :
             equestrian_id (int | str): ID del cliente cuyos documentos son requeridos.
             filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
             page (int, optional): Número de página requerida. Defaults to 1.
-            per_page (int, optional): Cantidad de archivos por página. Defaults to 25.
+            per_page (int, optional): Cantidad de archivos por página. Defaults to 5.
             order_by (str, optional): Campo de orden para los elementos. Defaults to None.
             ascending (bool, optional): Flag de datos ascendentes o descendentes. Defaults to True.
             include_deleted (bool, optional): Flag de inclusión de archivos con borrado lógico. Defaults to False.

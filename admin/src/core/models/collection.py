@@ -42,12 +42,14 @@ class Collection(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "employee_id": self.employee_id,
-            "client_id": self.client_id,
-            "payment_date": self.payment_date.isoformat(),
-            "payment_method": self.payment_method.value,
-            "amount": self.amount,
-            "observations": self.observations,
+            "Nombre del empleado": self.employee.nombre if self.employee and self.employee.nombre else "Sin Nombre",
+            "Apellido del empleado": self.employee.apellido if self.employee and self.employee.apellido else "Sin apellido",
+            "Email del empleado": self.employee.email if self.employee and self.employee.email else "Sin empleado asignado",
+            "Dni del cliente": self.client.dni if self.client and self.client.dni else "Sin cliente asignado",
+            "Fecha de pago": self.payment_date.strftime('%Y-%m-%d'),
+            "Metodo de pago": self.payment_method.value,
+            "Monto": self.amount,
+            "Observaciones": self.observations,
             #"created_at": self.created_at.isoformat(),
             #"updated_at": self.updated_at.isoformat()
         }

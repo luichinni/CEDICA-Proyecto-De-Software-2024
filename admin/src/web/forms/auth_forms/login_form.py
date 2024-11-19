@@ -5,3 +5,4 @@ from wtforms.validators import DataRequired, Email, Length
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email(), Length(max=50)])
     password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Iniciar sesion')

@@ -109,7 +109,7 @@ def search():
     
     page = int(getattr(params,'page','1'))
 
-    per_page = int(getattr(params,'per_page','25'))
+    per_page = int(getattr(params,'per_page','5'))
 
 
     equestrians, total, pages = EquestrianService.search_equestrian(filtro,page,per_page,order_by,ascending, like=True)
@@ -286,7 +286,7 @@ def search(id):
     
     page = int(params.get('page','1'))
 
-    per_page = int(params.get('per_page','25'))
+    per_page = int(params.get('per_page','5'))
     
     archivos, total, pages = EquestrianService.get_documents(id,filtro,extension,page,per_page,order_by,ascending, like=True)
     

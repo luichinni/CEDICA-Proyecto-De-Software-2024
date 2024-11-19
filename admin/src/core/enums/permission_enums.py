@@ -14,3 +14,4 @@ class PermissionModel(Enum):
     CLIENT = "clients"
     PAYMENT = "payments"
     EQUESTRIAN = "equestrians"
+    CONTENT = "content"

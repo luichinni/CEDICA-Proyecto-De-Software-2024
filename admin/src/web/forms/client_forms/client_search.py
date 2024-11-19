@@ -1,9 +1,17 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, RadioField, SubmitField
+from wtforms.validators import Optional
+from wtforms import StringField, SelectField, RadioField, SubmitField, IntegerField, BooleanField
 
 class ClientSearchForm(FlaskForm):
-    busqueda = StringField()
-    tipo_filtro = SelectField(choices=[(campo.replace(' ','_').lower(),campo) for campo in ['Nombre','Apellido','DNI','Atendido por']]) # campo que se quiere filtrar con la busqueda
-    orden_filtro = SelectField(choices=[(campo.replace(' ','_').lower(),campo) for campo in ['Nombre','Apellido','DNI','Atendido por']]) # campo por el que se quiere ordenar la busqueda, pueden ser iguales o diferentes
-    orden = RadioField(choices=['Ascendente', 'Descendente'])
-    submit = SubmitField('Aplicar')
+    nombre = StringField("Nombre", validators=[Optional()])
+    apellido = StringField("Apellido", validators=[Optional()])
+    dni = IntegerField("DNI", validators=[Optional()])
+    atendido_por = StringField("Profesionales que lo atienden", validators=[Optional()])
+    order_by = SelectField("Ordenar por", choices=[
+        ('nombre', 'Nombre'),
+        ('apellido', 'Apellido'),
+        ('dni', 'DNI')
+    ],validators=[Optional()])
+    ascending = RadioField('Orden',choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1', validators=[Optional()])
+    deleted = BooleanField('Mostrar eliminados', default=False)
+    submit = SubmitField('Buscar JyA')

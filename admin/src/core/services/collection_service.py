@@ -1,5 +1,7 @@
 from src.core.database import db
 from src.core.models.collection import Collection
+from src.core.models.employee import Employee
+from src.core.models.client import Clients
 from sqlalchemy import desc
 from src.core.services.employee_service import EmployeeService
 from src.core.services.client_service import ClientService
@@ -94,7 +96,7 @@ class CollectionService:
 
     @staticmethod
     @validate_params
-    def get_all_collections(page=1, per_page=25, include_deleted=False):
+    def get_all_collections(page=1, per_page=5, include_deleted=False):
         """Lista todos los cobros"""
         query = Collection.query
         if not include_deleted:
@@ -115,7 +117,7 @@ class CollectionService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_collections(start_date=None, end_date=None, payment_method=None, nombre=None, apellido=None, page=1, per_page=25, order_by_date=True, ascending=False, include_deleted=False):
+    def search_collections(start_date=None, end_date=None, employee_email=None, client_dni=None, payment_method=None, employee_name=None, employee_last_name=None, page=1, per_page=25, order_by_date=True, ascending=False, include_deleted=False):
         """Busca cobros con filtros"""
         query = Collection.query
 
@@ -129,10 +131,15 @@ class CollectionService:
         if payment_method:
             query = query.filter_by(payment_method=payment_method)
 
-        if nombre:
-            query = query.join(Collection.employee).filter_by(nombre=nombre)
-        if apellido:
-            query = query.join(Collection.employee).filter_by(apellido=apellido)
+        if employee_name:
+            query = query.join(Collection.employee).filter(Employee.nombre.ilike(f'%{employee_name}%'))
+        if employee_last_name:
+            query = query.join(Collection.employee).filter(Employee.apellido.ilike(f'%{employee_last_name}%'))
+        if employee_email:
+            query = query.join(Collection.employee).filter(Employee.email.ilike(f'%{employee_email}%'))
+
+        if client_dni:
+            query = query.join(Collection.client).filter(Clients.dni.ilike(f'%{client_dni}%'))
         
         query = CollectionService.apply_ordering(query, order_by_date, ascending)
 

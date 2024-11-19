@@ -38,7 +38,8 @@ def validate_params(func):
 
 def get_param(params, key, param_type, default=None, optional=False):
     """Obtiene y valida un parámetro del tipo especificado."""
-    value = params.get(key)
+    param = params.get(key)
+    value = param.strip() if param else None
 
     if value:
         if param_type == int and value.isdigit():

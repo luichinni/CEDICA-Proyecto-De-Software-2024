@@ -7,38 +7,32 @@
 
 {% block content %}
 <section >
-   <h1 class="title"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
-            <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
-                 {% set campos = form._fields.keys()|list %}
+    <h1 class="title is-3 has-text-centered has-text-weight-bold"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
+    
+    <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
+        {% set campos = form._fields.keys()|list %}
+      
+       {{ form.hidden_tag() }}<!-- CSRF token -->
+      
+       {% for campo in range(campos|length-1)%}
+           <div>
+               {{ form[campos[campo]].label }}  <!-- Renderiza la etiqueta -->
+               {{ form[campos[campo]] }}        <!-- Renderiza el campo de entrada -->
+
+           </div>
+           <div>
+               <!-- Mostrar mensajes de error -->
+               {% for error in form[campos[campo]].errors %}
+                   <span class="error" style="color: red;">{{ error }}</span>
+               {% endfor %}
                
-                {{ form.hidden_tag() }}<!-- CSRF token -->
-               
+           </div>
+           {% endfor %}
 
-                {% for campo in range(campos|length-1)%}
-                    <div>
-                        {{ form[campos[campo]].label }}  <!-- Renderiza la etiqueta -->
-                        {{ form[campos[campo]] }}        <!-- Renderiza el campo de entrada -->
-                    
-                        <!-- Mostrar mensajes de error -->
-                        {% for error in form[campos[campo]].errors %}
-                            <span class="error" style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    <div>
-                        <!-- Mostrar mensajes de error -->
-                        {% for error in form[campos[campo]].errors %}
-                            <span class="error" style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                        
-                    </div>
-                {% endfor %}
+    </form>
 
-             <button type="submit" class="button">Submit</button>
-            </form>
-
-     
     <br> 
-    <a href="{{ url_volver }}"  class="button">Volver</a>
+    <a href="{{ url_volver }}" class="button is-danger">Cancelar</a>
     <br> 
 
 </section>

@@ -246,13 +246,13 @@ class ClientService:
         return existing_client
     
     @staticmethod
-    def get_clients(filtro: dict = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like:bool = False) -> tuple:
-        """Lista los clientes segun los filtros especificados, en caso de no especificar retorna los primeros 25 clientes
+    def get_clients(filtro: dict = None, page: int = 1, per_page: int = 5, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like:bool = False) -> tuple:
+        """Lista los clientes segun los filtros especificados, en caso de no especificar retorna los primeros 5 clientes
 
         Args:
             filtro (dict, optional): Diccionario de { campo: valor_esperado } para filtrar. Defaults to None.
             page (int, optional): Nro de pagina esperada. Defaults to 1.
-            per_page (int, optional): Cantidad de resultados por pagina. Defaults to 25.
+            per_page (int, optional): Cantidad de resultados por pagina. Defaults to 5.
             order_by (str, optional): Campo para ordenar. Defaults to None.
             ascending (bool, optional): Flag de ordenamiento asc o desc. Defaults to True.
             include_deleted (bool, optional): Flag de inclusión eliminados. Defaults to False.
@@ -261,7 +261,10 @@ class ClientService:
         Returns:
             list: Listado de clientes obtenidos a partir de la busqueda
         """
-        query = Clients.query.filter_by(deleted=include_deleted)
+        query = Clients.query
+        
+        if not include_deleted:
+            query = query.filter_by(deleted=include_deleted)
         
         if filtro:
             for key, value in filtro.items():
@@ -405,7 +408,7 @@ class ClientService:
         return doc
     
     @staticmethod
-    def get_documents(client_id: int | str, filtro: dict = None, extension: str = None, page: int = 1, per_page: int = 25, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
+    def get_documents(client_id: int | str, filtro: dict = None, extension: str = None, page: int = 1, per_page: int = 5, order_by: str = None, ascending: bool = True, include_deleted: bool = False, like: bool = False):
         """
         Obtiene por página y filtro los documentos de un cliente específico.
 
@@ -413,7 +416,7 @@ class ClientService:
             client_id (int | str): ID del cliente cuyos documentos son requeridos.
             filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
             page (int, optional): Número de página requerida. Defaults to 1.
-            per_page (int, optional): Cantidad de archivos por página. Defaults to 25.
+            per_page (int, optional): Cantidad de archivos por página. Defaults to 5.
             order_by (str, optional): Campo de orden para los elementos. Defaults to None.
             ascending (bool, optional): Flag de datos ascendentes o descendentes. Defaults to True.
             include_deleted (bool, optional): Flag de inclusión de archivos con borrado lógico. Defaults to False.
@@ -422,12 +425,15 @@ class ClientService:
         if isinstance(client_id,str):
             client_id = int(client_id)
         
-        query = ClientDocuments.query.filter(ClientDocuments.client_id == client_id, ClientDocuments.deleted == include_deleted)
+        query = ClientDocuments.query.filter(ClientDocuments.client_id == client_id)
+
+        if not include_deleted:
+            query.filter(ClientDocuments.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
                 if hasattr(ClientDocuments, key) and value is not None:
-                    if isinstance(value, str) and like:
+                    if isinstance(value, str) and not issubclass(getattr(ClientDocuments, key).type.python_type, Enum) and like:
                         query = query.filter(getattr(ClientDocuments, key).like(f'%{value}%'))
                     else:
                         query = query.filter(getattr(ClientDocuments, key) == value)
