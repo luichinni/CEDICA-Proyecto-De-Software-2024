@@ -1,7 +1,6 @@
-from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension, TipoDocs
+from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import EquestrianService
-from core.services.user_service import UserService
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from web.forms.client_forms.client_file_search import ClientFileSearchForm
 from web.forms.client_forms.client_search import ClientSearchForm
@@ -10,8 +9,7 @@ from src.web.handlers.auth import check_permissions
 from src.web.handlers import handle_error
 from src.web.handlers import get_int_param, get_str_param, get_bool_param
 from src.core.enums.permission_enums import PermissionCategory, PermissionModel
-from src.web.forms.client_forms.create_client_form import ClientFirstForm, ClientSecondForm, ClientThirdForm, ClientFourthForm, ClientFifthForm, ClientSixthForm, ClientSeventhForm, PropuestaDeTrabajo, UploadFile, UploadLink
-from flask import session
+from src.web.forms.client_forms.create_client_form import ClientFirstForm, ClientSecondForm, ClientThirdForm, ClientFourthForm, ClientFifthForm, ClientSixthForm, ClientSeventhForm, UploadFile, UploadLink
 from src.web.forms.client_forms.procesadores import *
 
 
@@ -141,7 +139,7 @@ def new():
 
 @clients_bp.get('/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda: url_for('clients.search'))
+@handle_error(lambda id: url_for('clients.search'))
 def detail(id: int):
     return redirect(
         url_for('client_files.search',
@@ -152,7 +150,7 @@ def detail(id: int):
 
 @clients_bp.route('/update/<int:id>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.UPDATE.value}")
-@handle_error(lambda: url_for('clients.search'))
+@handle_error(lambda id: url_for('clients.search'))
 def update(id):
     forms = {
         'Datos personales': ClientFirstForm,
@@ -224,7 +222,7 @@ def update(id):
 
 @clients_bp.post('/delete/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda: url_for('clients.search'))
+@handle_error(lambda id: url_for('clients.search'))
 def delete(id):
     ClientService.delete_client(id)
     
@@ -237,7 +235,7 @@ clients_files_bp = Blueprint('client_files', __name__,url_prefix='/client_files'
 
 @clients_files_bp.route('/upload/<int:id>/<string:es_link>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('client_files.search'))
+@handle_error(lambda id, es_link: url_for('client_files.search'))
 def new(id,es_link):
     es_link = (es_link.lower() == 'true')
     form = UploadFile() if not es_link else UploadLink()
@@ -263,7 +261,7 @@ def new(id,es_link):
 
 @clients_files_bp.route('/update/<int:id>/<int:id_entidad>/<string:es_link>', methods=['POST','GET'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
-@handle_error(lambda: url_for('clients.search'))
+@handle_error(lambda id, id_entidad, es_link: url_for('clients.search'))
 def update(id:int, id_entidad: int,es_link:str):
     es_link = es_link=='True'
     
@@ -318,7 +316,7 @@ def update(id:int, id_entidad: int,es_link:str):
 
 @clients_files_bp.post('/delete/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda: url_for('clients.search'))
+@handle_error(lambda id: url_for('clients.search'))
 def delete(id):
     ClientService.delete_document(id)
     
@@ -329,7 +327,7 @@ def delete(id):
 
 @clients_files_bp.get('/detail/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda: url_for('clients.search'))
+@handle_error(lambda id: url_for('clients.search'))
 def detail(id):
     archivo = ClientService.get_document(id)
     
@@ -340,7 +338,7 @@ def detail(id):
 
 @clients_files_bp.route('/listado/<int:id>',methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
-#@handle_error(lambda id: url_for('clients.search'))
+@handle_error(lambda id: url_for('clients.search'))
 def search(id):
     """Lista todos los archivos con paginación."""
     #=======================================================================#
@@ -473,7 +471,7 @@ def search(id):
         activo=activo,
         entidad='clients',
         entidad_archivo='client_files',
-        anterior=url_for('clients.detail',id=id),
+        anterior=url_for('clients.search',id=id),
         form=form, 
         lista_diccionarios=lista_diccionarios,
         total=total,

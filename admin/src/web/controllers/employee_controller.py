@@ -79,7 +79,7 @@ def search():
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
-    ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
+    ascending = get_bool_param(params, 'ascending', True, optional= True)
 
     employees, total, pages = EmployeeService.get_employees(
         filtro=filtros,
@@ -148,8 +148,7 @@ def detail(id):
     employee = EmployeeService.get_employee_by_id(id)
     if not employee:
         flash(f'Empleado con ID {id} no encontrado', 'warning')
-        return redirect(url_for('employees.search_employees'))
-
+        return redirect(url_for('employees.search'))
 
     titulo = f'Detalle del empleado {employee.nombre} {employee.apellido}'
     anterior = url_for('employees.search')

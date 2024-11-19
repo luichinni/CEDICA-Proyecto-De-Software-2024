@@ -26,6 +26,7 @@ from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 from src.web.controllers.equestrian_controller import bp_file as equestrian_file_bp
 from src.web.controllers.reports_controller import bp as reports_bp
 from src.web.controllers.api_controller import bp as api_bp
+from src.web.controllers.publication_controller import bp as publications_bp
 
 from src.core.storage import storage
 from src.core.bcrypy_and_session import bcrypt, session, cipher
@@ -62,7 +63,8 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(equestrians_bp) 
     app.register_blueprint(equestrian_file_bp)
     app.register_blueprint(reports_bp) 
-    app.register_blueprint(api_bp) 
+    app.register_blueprint(api_bp)
+    app.register_blueprint(publications_bp)
 
 
     #Registrar funcion en jinja
