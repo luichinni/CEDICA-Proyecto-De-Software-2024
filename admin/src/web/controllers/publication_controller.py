@@ -58,3 +58,25 @@ def new():
                'url_volver': url_for('home')
     }
     return render_template('form.html', **context)
+
+@bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+def update(id):
+    """Editar una publicacion existente"""
+    publication = PublicationService.get_publication_by_id(id)
+    if not publication:
+        flash("La publicacion seleccionada no existe", "danger")
+        return redirect(url_for('publications.search'))
+    form = CreatePublicationForm(obj=publication)
+    if form.validate_on_submit():
+        publication_data = PublicationService.form_to_dict(form)
+        PublicationService.update_publication(publication.id, **publication_data)
+        flash(f"Publicacion {publication.title} actualizada con éxito", "success")
+        return redirect(url_for('publications.search'))
+    context = {
+        'form': form,
+        'titulo': 'Editar una publicacion',
+        'url_post': url_for('publications.update', id=id),
+        'url_volver': url_for('publications.search')
+    }
+    return render_template('form.html', **context)
+
