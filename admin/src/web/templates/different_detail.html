@@ -33,8 +33,9 @@
     <section class="section">
       <ul class="list">  
       {%for key in diccionario %}
-           
+      {%if key != 'id' %}
           <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
+          {%endif%}
       {%endfor%}
      </ul>
    </section>
@@ -51,6 +52,12 @@
     {% set id_entidad= diccionario.id %}
     {% include 'files_search_box.html'%}
   </div>
+
+</div>
+<div>
+  {% block tarjetas %}
+  {% endblock %}
+   
 </div>
 
 <script>
@@ -71,6 +78,20 @@
       
         // Agregar la clase is-active a la pestaña clicada
         event.currentTarget.classList.add('is-active');
+
+        // Obtener los parámetros actuales de la URL
+        let urlParams = new URLSearchParams(window.location.search);
+
+        // Eliminar el parámetro 'activa'
+        urlParams.delete('activo');
+
+        // Modificar o agregar un nuevo parámetro
+        urlParams.set('activo', tabId);
+
+        // Actualizar la URL sin recargar la página
+        let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + urlParams.toString();
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+   
 
     }
     var activo = "{{activo}}"

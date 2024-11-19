@@ -5,19 +5,24 @@
 {% endblock %}
 {% block content %}
   {{ super() }}
-  
-  <!-- Sección para Google Login -->
-  <section class="section">
-    <div class="container has-text-centered">
-      <a href="{{ url_for('auths.oauth_login') }}" class="button is-primary is-large is-rounded">
+  <div class="container">
+    <div class="buttons is-centered">
+      <a href="{{url_for('auths.oauth_login', mode='login')}}" class="button is-primary is-outlined is-medium">
         <span class="icon">
-          <i class="fab fa-google"></i>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png?20230822192911" alt="Google logo" width="20" height="20">
         </span>
         <span>Iniciar sesión con Google</span>
       </a>
+  
+      <a href="{{url_for('auths.oauth_login', mode='registration')}}" class="button is-link is-outlined is-medium">
+        <span class="icon">
+          <!-- Encontre el svg en wikimedia anashei -->
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png?20230822192911" alt="Google logo" width="20" height="20">
+        </span>
+        <span>Registrarse con Google</span>
+      </a>
     </div>
-  </section>
+  </div>
 
-  <!-- Script de Google API -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
 {% endblock %}

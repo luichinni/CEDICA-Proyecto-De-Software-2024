@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, DateField, BooleanField, TextAreaField
+from wtforms import StringField, RadioField, SelectField, DateField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, Optional
 from src.core.enums.employee_enum.CondicionEnum import CondicionEnum
 from src.core.enums.employee_enum.ProfesionEnum import ProfesionEnum
@@ -27,4 +27,5 @@ class EditEmployeeForm(FlaskForm):
     nro_afiliado = StringField('Nro afiliado', validators=[DataRequired()])
     condicion = SelectField('Condicion', choices=[(condicion.name.replace('_',' ')
         .title()) for condicion in CondicionEnum], validators=[DataRequired()])
-    activo = BooleanField('Activo', default=True)
+    activo = RadioField('Activo', choices=[(True, 'Si'), (False, 'No')], default=True)
+    submit = SubmitField('Crear Empleado')

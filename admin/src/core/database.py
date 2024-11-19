@@ -45,6 +45,9 @@ def init(UserService, RoleService, EmployeeService, PermissionService, ClientSer
     print("Creando cliente de ejemplo")
     create_example_client(ClientService)
 
+    print("Creando user pendiente")
+    UserService.create_user(-1, "Esteban Quito", "Clavemagica123", role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id, employee_email="esperando@validacion.com")
+
     print("Finalizacion de la inicializacion de la base de datos!")
 
     
@@ -99,7 +102,8 @@ def create_example_client(ClientService):
         conductor_id=2,
         caballo_id=1,
         auxiliar_pista_id=3,
-        deleted=False
+        deleted=False,
+        deudor=False
     )
 
     ClientService.create_client(
@@ -151,7 +155,8 @@ def create_example_client(ClientService):
         conductor_id=2,
         caballo_id=1,
         auxiliar_pista_id=3,
-        deleted=False
+        deleted=False,
+        deudor=True
     )
     
     

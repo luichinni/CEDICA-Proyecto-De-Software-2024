@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class PaymentEnum(Enum):
     HONORARIOS: 1
     PROVEEDOR: 2

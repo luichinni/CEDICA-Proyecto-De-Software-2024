@@ -1,6 +1,4 @@
-import random
-import string
-from flask import Blueprint, Response, request, jsonify
+from flask import Blueprint, request, jsonify
 from src.web.handlers import get_int_param, get_bool_param, get_str_param
 
 import base64
@@ -49,9 +47,6 @@ def get_noticias():
     return jsonify(noticias_data), 200
 
 
-def generate_word(length = 6):
-    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
-
 @bp.route('/captcha', methods=['GET','POST'])
 def generate_captcha():
     """
@@ -92,7 +87,7 @@ def generate_captcha():
     status = 400
 
     if request.method == 'GET':
-        word = generate_word()
+        word = cipher.generate_word()
 
         api_res = requests.post(
             "https://api.opencaptcha.io/captcha",
