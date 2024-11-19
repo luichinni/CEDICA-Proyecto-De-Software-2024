@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, request, render_template, url_for, flash, redirect
 
-from src.web.handlers import get_int_param
+from src.web.handlers import get_int_param, get_bool_param
 from src.core.services.publication_service import PublicationService
 from web.forms.publication_forms.create_publication_form import CreatePublicationForm
 from web.forms.publication_forms.search_publication_form import SearchPublicationForm
@@ -22,10 +22,15 @@ def search():
 
     page = get_int_param(params, 'page', 1, True)
     per_page = get_int_param(params, 'per_page', 10, True)
-    order_by = get_str_param(params, 'order_by', optional=True)
-    ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
+    order_by = get_str_param(params, 'order_by', 'title',optional=True)
+    ascending = get_bool_param(params, 'ascending', True, optional= True)
 
-    publications, total, pages = PublicationService.list_publications(filtros, page, per_page, order_by, ascending)
+    publications, total, pages = PublicationService.list_publications(
+        filtro=filtros,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending)
 
     lista_diccionarios = [publication.to_dict() for publication in publications]
 
@@ -69,7 +74,7 @@ def update(id):
     form = CreatePublicationForm(obj=publication)
     if form.validate_on_submit():
         publication_data = PublicationService.form_to_dict(form)
-        PublicationService.update_publication(publication.id, **publication_data)
+        PublicationService.update_publication(publication.id, publication_data)
         flash(f"Publicacion {publication.title} actualizada con éxito", "success")
         return redirect(url_for('publications.search'))
     context = {
@@ -80,3 +85,16 @@ def update(id):
     }
     return render_template('form.html', **context)
 
+@bp.route('<int:id>', methods=['GET'])
+def detail(id):
+    publication = PublicationService.get_publication_by_id(id)
+    if not publication:
+        flash(f'Publicacion "{publication.title}" no encontrada', 'warning')
+        return redirect(url_for('publications.search'))
+
+    titulo = f'Detalle de la publicacion "{publication.title}"'
+    anterior = url_for('publications.search')
+    diccionario = publication.to_dict()
+    entidad = 'publications'
+
+    return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario= diccionario, entidad=entidad )

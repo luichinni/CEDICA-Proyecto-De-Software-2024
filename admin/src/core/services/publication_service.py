@@ -19,7 +19,7 @@ class PublicationService:
             else:
                 publications_query = publications_query.order_by(getattr(Publication, order_by).desc())
 
-        pagination = publications_query.query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination = publications_query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
 
 
@@ -58,7 +58,8 @@ class PublicationService:
 
     @staticmethod
     def form_to_dict(form):
-        return {'title': form.title.data,
+        return {
+            'title': form.title.data,
             'summary': form.summary.data,
             'content': form.body.data,
             'status': form.status.data,

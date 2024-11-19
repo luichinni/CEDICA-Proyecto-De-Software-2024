@@ -8,7 +8,7 @@ class SearchPublicationForm(FlaskForm):
     end_published_date = DateField('Fecha de publicacion maxima')
 
     ascending = RadioField('Orden', choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1')
-    order_by = SelectField('Ordenar por', chocies=[
+    order_by = SelectField('Ordenar por', choices=[
         ('title', 'Titulo'),
         ('published_date', 'Fecha de publicacion'),
     ])
