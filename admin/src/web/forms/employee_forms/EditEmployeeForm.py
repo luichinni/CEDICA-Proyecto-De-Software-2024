@@ -17,7 +17,7 @@ class EditEmployeeForm(FlaskForm):
     profesion = SelectField('Profesión', choices=[
         profesion.name.replace('_',' ').title() for profesion in ProfesionEnum], validators=[DataRequired()])
     puesto_laboral = SelectField('Puesto laboral', choices=[
-        (puesto_laboral.name.replace('_',' ')
+        (puesto_laboral.name, puesto_laboral.name.replace('_',' ')
          .upper()) for puesto_laboral in PuestoLaboralEnum], validators=[DataRequired()])
     fecha_inicio = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[DataRequired()])
     fecha_cese = DateField('Fecha de cese', format='%Y-%m-%d', validators=[Optional()])
