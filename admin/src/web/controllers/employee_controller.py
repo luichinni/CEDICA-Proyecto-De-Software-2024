@@ -148,8 +148,7 @@ def detail(id):
     employee = EmployeeService.get_employee_by_id(id)
     if not employee:
         flash(f'Empleado con ID {id} no encontrado', 'warning')
-        return redirect(url_for('employees.search_employees'))
-
+        return redirect(url_for('employees.search'))
 
     titulo = f'Detalle del empleado {employee.nombre} {employee.apellido}'
     anterior = url_for('employees.search')
