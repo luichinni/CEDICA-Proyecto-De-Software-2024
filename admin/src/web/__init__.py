@@ -24,6 +24,7 @@ from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 from src.web.controllers.equestrian_controller import bp_file as equestrian_file_bp
+from src.web.controllers.equestrian_controller import bp_file as associates_bp
 from src.web.controllers.reports_controller import bp as reports_bp
 from src.web.controllers.api_controller import bp as api_bp
 
@@ -61,6 +62,7 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(payment_bp)
     app.register_blueprint(equestrians_bp) 
     app.register_blueprint(equestrian_file_bp)
+    app.register_blueprint(associates_bp)
     app.register_blueprint(reports_bp) 
     app.register_blueprint(api_bp) 
 
