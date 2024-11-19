@@ -16,7 +16,10 @@
       
        {% for campo in range(campos|length-1)%}
            <div>
+              
+               {%if campos[campo] != 'submit'%}
                {{ form[campos[campo]].label }}  <!-- Renderiza la etiqueta -->
+               {%endif%}
                {{ form[campos[campo]] }}        <!-- Renderiza el campo de entrada -->
            
                <!-- Mostrar mensajes de error -->
@@ -24,13 +27,7 @@
                    <span class="error" style="color: red;">{{ error }}</span>
                {% endfor %}
            </div>
-           <div>
-               <!-- Mostrar mensajes de error -->
-               {% for error in form[campos[campo]].errors %}
-                   <span class="error" style="color: red;">{{ error }}</span>
-               {% endfor %}
-               
-           </div>
+          
            {% endfor %}
 
     </form>
