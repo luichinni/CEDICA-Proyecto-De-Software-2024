@@ -1,34 +1,46 @@
-<script setup>
-  import NoticiasList from '../components/NoticiasList.vue';
-</script>
-
 <template>
   <section class="section">
     <div class="container">
-
       <h2 class="title is-3 has-text-centered">Actividades y Noticias</h2>
       <p class="subtitle has-text-centered">
         Descubre nuestras últimas actividades y noticias.
       </p>
 
-      <!-- Listado de Noticias -->
-      <NoticiasList :noticias="noticias" :loading="loading" :error="error" />
-
+      <NoticiasList 
+        v-if="!noticiaSeleccionada" 
+        :noticias="noticias" 
+        :loading="loading" 
+        :error="error" 
+        @ver-detalle="verDetalle" 
+      />
+      
+      <NoticiasDetail 
+        v-else 
+        :noticia="noticiaSeleccionada" 
+        @volver-al-listado="volverAlListado" 
+      />
     </div>
   </section>
 </template>
 
 <script>
-
+import NoticiasList from '../components/NoticiasList.vue';
+import NoticiasDetail from '../components/NoticiasDetail.vue';
 import axios from 'axios';
 import { noticias_route } from '../router/api_routes';
+
 export default {
-  name: 'ActividadesYNoticias',
+  name: 'ActividadesNoticiasView',
+  components: {
+    NoticiasList,
+    NoticiasDetail,
+  },
   data() {
     return {
       noticias: [],
       loading: false,
       error: null,
+      noticiaSeleccionada: null,
     };
   },
   methods: {
@@ -45,6 +57,12 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    verDetalle(noticia) {
+      this.noticiaSeleccionada = noticia;
+    },
+    volverAlListado() {
+      this.noticiaSeleccionada = null;
     },
     // Formatear fecha a un formato legible
     formatDate(dateString) {

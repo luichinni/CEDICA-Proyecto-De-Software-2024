@@ -97,6 +97,8 @@ class Clients(db.Model):
 
     archivos = db.relationship('ClientDocuments', back_populates="cliente")
 
+    deudor = db.Column(db.Boolean, default=False, nullable=False)
+
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))  
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)) 
     deleted = db.Column(db.Boolean, default=False)
@@ -104,8 +106,8 @@ class Clients(db.Model):
     def __repr__(self):
         return f"<Client id={self.id}>"
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_id=True):
+        jya_dict = {
             "id": self.id,
             "dni": self.dni,
             "nombre": self.nombre,
@@ -117,6 +119,7 @@ class Clients(db.Model):
             "contacto_emergencia": self.contacto_emergencia,
             "becado": self.becado,
             "obs_beca": self.obs_beca,
+            "deudor": self.deudor,
             "cert_discapacidad": self.cert_discapacidad,
             "discapacidad": self.discapacidad.value,
             "asignacion": self.asignacion.value,
@@ -137,3 +140,8 @@ class Clients(db.Model):
             "auxiliar_pista_id": self.auxiliar_pista_id,
             "caballo_id": self.caballo_id
         }
+
+        if not include_id:
+            del jya_dict['id']
+        
+        return jya_dict

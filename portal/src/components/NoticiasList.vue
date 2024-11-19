@@ -13,6 +13,7 @@
       v-for="(noticia, index) in noticias" 
       :key="index" 
       :noticia="noticia" 
+      @ver-detalle="$emit('ver-detalle', noticia)"
     />
   </div>
   <p v-if="!loading && !noticias.length"> No hay noticias disponibles. </p>

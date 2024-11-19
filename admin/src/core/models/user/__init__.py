@@ -23,14 +23,19 @@ class User(db.Model):
         email = self.employee.email if self.employee else 'Sin email'
         return f'<User alias={self.alias}, email={email}, activo={self.activo}, rol={self.role.name}, created_at={self.created_at}, updated_at={self.updated_at}>'
 
-    def to_dict(self):
-        return {
+    def to_dict(self, reduced=False):
+        user_ret = {
             'id': self.id,
             'Email': self.employee.email if self.employee else 'Sin email',
             'Alias': self.alias,
-            'Esta activo': "Si" if self.activo else "No",
             'Rol': self.role.name, 
-            'Esta bloqueado': "Si" if self.blocked else "No", 
             'Fecha de creacion': self.created_at.strftime('%Y-%m-%d'),
         }
 
+        if not reduced:
+            user_ret.update({
+                'Esta activo': "Si" if self.activo else "No",
+                'Esta bloqueado': "Si" if self.blocked else "No", 
+            })
+        
+        return user_ret

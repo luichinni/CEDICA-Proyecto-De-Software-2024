@@ -20,7 +20,7 @@ activa
     <div class="tabs">
         <ul>
             {% for idx,form in enumerate(forms) %}
-                <li id="tab-{{idx}}" onclick="mostrar('{{ idx }}')" class="{% if activa == idx %} is-active {% endif %}">
+                <li id="tab-{{idx}}" class="{% if activa == idx %} is-active {% endif %}">
                     <a>{{ form }}</a>
                 </li>
             {% endfor%}
@@ -49,18 +49,40 @@ activa
                     {% if idx > 0 %}
                         <button class="button is-secondary" onclick="mostrar('{{ idx - 1 }}')" >Atras</button>
                     {% endif %}
-                    {% if idx < 6 %}
-                        <button class="button is-primary" onclick="mostrar('{{ idx + 1 }}')" >Siguiente</button>
+                    {% if idx < forms|length %}
+                        <button class="button is-primary" onclick="validarYAvanzar('{{ idx }}')" >Siguiente</button>
                     {% endif %}
                 </div>
             {% endfor %}
             </br>
-            <button type="submit" class="button is-warning">Submit</button>
         </form>
     </div>
 
 {% block complementos %}
 <script>
+    function validarYAvanzar(tabId) {
+        // Agarro la ventana activa y selecciono los campos posibles
+        const form = document.getElementById('content-' + tabId);
+        const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+        let todosCompletos = true;
+
+        // Comprobamos los campos
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                todosCompletos = false;
+                input.classList.add('is-danger'); // le ponemos la clase danger si no está cargado
+            } else {
+                input.classList.remove('is-danger');
+            }
+        });
+
+        // Si todos los campos están completos, avanzar a la siguiente pestaña
+        if (todosCompletos) {
+            mostrar(parseInt(tabId) + 1);
+        } else {
+            alert("Por favor, completa todos los campos requeridos.");
+        }
+    }
 
     function mostrar (tabId)
     {

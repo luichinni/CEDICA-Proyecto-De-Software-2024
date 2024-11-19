@@ -12,6 +12,15 @@ from src.core.bcrypy_and_session import bcrypt
 class UserService:
     
     @staticmethod
+    def validate_user_is_confirmed(user):
+        """Verifica que el user este confirmado por el adiministrador"""
+        if user.role.name == "Usuario a confirmar por admin":
+            raise ValueError("El usuario falta ser confirmado por el administrador. Necesita que se le asigne un rol")
+        if user.employee.has_default_data:
+            raise ValueError("El usuario falta ser confirmado por el administrador. Necesita que los datos del empleado relacionado sean actualizados")
+
+
+    @staticmethod
     def check_user(email,password) -> int:
         """Este método comprueba que un mail y contraseña sean validos para posteriormente iniciar una sesión.
 
@@ -66,15 +75,23 @@ class UserService:
 
     @staticmethod
     @validate_params
-    def create_user(employee_id, alias, password, role_id = None, activo=True):
+    def create_user(employee_id, alias, password, role_id = "SIN COMPLETAR", activo=True, employee_email = 'SIN INGRESAR'):
+        employee_email = None if employee_email == 'SIN INGRESAR' else employee_email
         """Crea un nuevo usuario."""
-        if role_id is None:
+        if role_id == "SIN COMPLETAR":
             role_id = RoleService.get_role_by_name("Usuario a confirmar por admin").id
         UserService.validate_password(password)
         hash = bcrypt.generate_password_hash(password.encode("utf-8"))
         password = hash.decode("utf-8")# encripta
         UserService.validate_role_id(role_id)
-        UserService.validate_employee_id(employee_id)
+
+        try:
+            UserService.validate_employee_id(employee_id)
+        except ValueError as e:
+            if employee_email is None:
+                raise ValueError(f"No se encontro el empleado con id {employee_id} ni se ingreso un email para crearlo")
+            employee_id = EmployeeService.add_default_data_employee(email=employee_email)
+
         user = User(
             employee_id=employee_id,
             alias=alias,
@@ -196,24 +213,30 @@ class UserService:
         return query.order_by(column.asc() if ascending else column.desc())
 
     @staticmethod
-    def search_users(email=None, activo=None, role_id=None, page=1, per_page=5, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True):
+    def search_users(email=None, activo=None, role_id=None, page=1, per_page=5, order_by='created_at', ascending=True, include_deleted=False, include_blocked=True, only_pending = False):
         """Busca usuarios por email, activo, y rol con paginación y ordenamiento."""
         query = User.query
 
-        if not include_deleted:
-            query = query.filter_by(deleted=False)
+        if only_pending:
+            query = query.filter_by(role_id=RoleService.get_role_by_name("Usuario a confirmar por admin").id)
         
-        if not include_blocked:
-            query = query.filter_by(blocked=False)
+        else:
+            query = query.filter(User.role_id != RoleService.get_role_by_name("Usuario a confirmar por admin").id)
+
+            if not include_deleted:
+                query = query.filter_by(deleted=False)
+            
+            if not include_blocked:
+                query = query.filter_by(blocked=False)
+
+            if activo is not None:
+                query = query.filter(User.activo == activo)
+
+            if role_id:
+                query = query.filter(User.role_id == role_id)
 
         if email:
             query = query.join(User.employee).filter(Employee.email.ilike(f'%{email}%'))
-
-        if activo is not None:
-            query = query.filter(User.activo == activo)
-
-        if role_id:
-            query = query.filter(User.role_id == role_id)
 
         if order_by not in ['email', 'created_at']:
             raise ValueError("El campo de ordenamiento debe ser 'email' o 'created_at'.")
@@ -224,6 +247,10 @@ class UserService:
         
         return pagination.items, pagination.total, pagination.pages
 
+    @staticmethod
+    @validate_params
+    def pending_users():
+        return User.query.filter_by(role=RoleService.get_role_by_name("Usuario a confirmar por admin")).count() > 0
 
     @staticmethod
     @validate_params
