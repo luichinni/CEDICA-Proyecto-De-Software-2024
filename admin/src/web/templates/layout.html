@@ -29,7 +29,10 @@
                         {%if check_permission("users_index")%}
                             <li><a href="{{ url_for('users.search') }}">Usuarios</a></li> {% endif %}
                                    
-                        <li><a href="{{ url_for('reports.reports') }}">Reportes</a></li> 
+                        <li><a href="{{ url_for('reports.reports') }}">Reportes</a></li>
+
+                        {%if check_permission("publications_index")%}
+                            <li><a href="{{ url_for('publications.search') }}">Contenido</a></li> {% endif %}
 
                      {% endif %}
                         </ul>
