@@ -98,3 +98,14 @@ def detail(id):
     entidad = 'publications'
 
     return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario= diccionario, entidad=entidad )
+
+@bp.route('/delete/<int:id>', methods=['POST'])
+def delete(id):
+    """Eliminar una publicacion de manera logica"""
+    publication_to_delete = PublicationService.get_publication_by_id(id)
+    if not publication_to_delete:
+        flash("La publicacion seleccionada no existe", "danger")
+    else:
+        PublicationService.delete_publication(id)
+        flash("Se elimino la publicacion exitosamente", "success")
+    return redirect(url_for('publications.search'))

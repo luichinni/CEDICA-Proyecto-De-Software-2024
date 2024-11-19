@@ -18,6 +18,7 @@ class Publication(db.Model):
     author = db.Column(db.String(100), nullable=False)
     status = db.Column(Enum(PublicationStatusEnum, name='status_type'),nullable=False)
     published_date = db.Column(db.DateTime)
+    deleted = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_date = db.Column(db.DateTime, onupdate=datetime.now(timezone.utc))
 

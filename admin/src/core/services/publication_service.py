@@ -3,8 +3,8 @@ from src.core.models.publication import Publication
 class PublicationService:
 
     @staticmethod
-    def list_publications(filtro=None, order_by=None, ascending=True, page=1, per_page=5):
-        publications_query = Publication.query
+    def list_publications(include_deleted=False, filtro=None, order_by=None, ascending=True, page=1, per_page=5):
+        publications_query = Publication.query.filter_by(deleted=include_deleted)
         if filtro:
             valid_filters = {key: value for key, value in filtro.items() if hasattr(Publication, key) and value is not None}
             if 'title' in valid_filters:
@@ -24,12 +24,14 @@ class PublicationService:
 
 
     @staticmethod
-    def get_publication_by_id(publication_id):
-        publication = Publication.query.get(publication_id)
+    def get_publication_by_id(publication_id, include_deleted=False):
+        publication = Publication.query.filter_by(id=publication_id)
+        if not include_deleted:
+            publication = publication.filter_by(deleted = include_deleted)
         if publication is None:
             raise ValueError('La publicacion solicitada no existe')
 
-        return publication
+        return publication.first()
 
     @staticmethod
     def create_publication(publication_data):
@@ -53,7 +55,7 @@ class PublicationService:
         publication = Publication.query.get(publication_id)
         if publication is None:
             raise ValueError('La publicacion solicitada no existe')
-        db.session.delete(publication)
+        publication.deleted = True
         db.session.commit()
 
     @staticmethod
