@@ -24,7 +24,7 @@ from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 from src.web.controllers.equestrian_controller import bp_file as equestrian_file_bp
-from src.web.controllers.equestrian_controller import bp_file as associates_bp
+from src.web.controllers.equestrian_controller import bp_associates as associates_bp
 from src.web.controllers.reports_controller import bp as reports_bp
 from src.web.controllers.api_controller import bp as api_bp
 

@@ -233,10 +233,10 @@ def  update(id:int, id_entidad: int,es_link:str):
 
 def get_employees_associates (associates):
     empleados_asociados = []
-    if associates is not None : 
-        for associate in associates:
-            empleado = EmployeeService.get_employee_by_id(associate["empleado_id"])
-            empleados_asociados.append(empleado)
+    if associates is not None :  
+        for associate in associates: 
+             empleado = EmployeeService.get_employee_by_id(associate.employee_id)
+             empleados_asociados.append(empleado)
     return empleados_asociados
 
 
@@ -311,18 +311,13 @@ def search(id):
     }]
     
     datos_equestrian = EquestrianService.get_equestrian_by_id(id).to_dict()
-    cards_data = [
-    {"id": 1,"nombre": "Juan", "apellido": "Pérez","telefono": "123-456-7890"},
-    {"id": 1,"nombre": "Ana", "apellido": "Gómez","telefono": "987-654-3210"},
-    {"id": 1,"nombre": "Luis", "apellido": "Martínez", "telefono": "555-555-5555"}
-      ]
     
     page2 = int(params.get('page2','1'))
-    per_page2 = int(params.get('per_page2','25'))
+    per_page2 = int(params.get('per_page2','8'))
 
     associates, total2, pages2 = AssociatesService.get_associate_of_an_equestrian(id,page2,per_page2) #obtengo todas las asociaciones
     cards_data = get_employees_associates(associates)
-
+  
 
     return render_template('detail_with_targets.html', 
                            diccionario=datos_equestrian,
@@ -376,17 +371,18 @@ bp_associates = Blueprint('associates', __name__, url_prefix='/associates')
 @handle_error(lambda: url_for('equestrian_files.search'))
 def new(id):  
     
-    empleados = EmployeeService.get_employees(filtro={"puesto_laboral": "conductor"}, page=1, per_page=25)
+    empleados,total, pages = EmployeeService.get_employees(filtro={"puesto_laboral": "CONDUCTOR"}, page=1, per_page=25)
 
-    empleados2 = EmployeeService.get_employees(filtro= {"puesto_laboral":"entrenador"}, page=1, per_page=25)
+    empleados2,total2, pages2 = EmployeeService.get_employees(filtro= {"puesto_laboral":"ENTRENADOR_DE_CABALLOS"}, page=1, per_page=25)
     empleados_asociados= empleados+ empleados2
     form = AddEmployeeAssing()    
-    form.empleados.choices = [(empleado.id, f"""Nombre: {empleado.nombre} {empleado.apellido},
-                                              Puesto Laboral: {empleado.puesto_laboral}""") for empleado in empleados_asociados]
-
+    form.empleado.choices = [
+    (empleado.id, f"Nombre: {empleado.nombre} {empleado.apellido}, Puesto Laboral: {empleado.puesto_laboral.name}")
+      for empleado in empleados_asociados
+    ]
     if form.validate_on_submit():
         flash('Cargado exitosamente','success')
-        AssociatesService.add_associated(id, form.empleado.data)
+        AssociatesService.add_associated(form.empleado.data, id)
         return redirect(url_for('equestrian_files.search',id=id, activo='informacion'))
     
     return render_template('form.html',

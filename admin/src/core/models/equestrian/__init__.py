@@ -10,7 +10,7 @@ class Associated (db.Model):
    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
    employee_id =  db.Column('employee_id',db.Integer, db.ForeignKey('employees.id'), primary_key=True) 
    equestrian_id = db.Column('equestrian_id', db.Integer, db.ForeignKey('equestrians.id'), primary_key=True)
-   deleted = db.Column('activo', db.Boolean, default=True)
+   deleted = db.Column('deleted', db.Boolean, default=False)
 
    employee = db.relationship('Employee', back_populates='equestrians_asociados')
    equestrian = db.relationship('Equestrian', back_populates='empleados_asociados')
@@ -20,9 +20,9 @@ class Associated (db.Model):
 
    def __repr__(self):
         return f"""Asociado: 
-            empleado id: {self.employee_id},
-            ecuestre id: {self.equestrian_id},
-            activo: {self.activo},
+            employee_id: {self.employee_id},
+            equestrian_id: {self.equestrian_id},
+            deleted: {self.deleted}
            """
    
    def to_dict(self):
@@ -31,7 +31,7 @@ class Associated (db.Model):
             "id": self.id,
             "employee_id": self.employee_id,
             "equestrian_id": self.equestrian_id,
-            "activo": self.activo
+            "activo": self.deleted
        }
            
         

@@ -19,5 +19,5 @@ class EquestrianCreateForm(FlaskForm):
     submit = SubmitField('Enviar')
 
 class AddEmployeeAssing(FlaskForm):
-    empleado = SelectField('Empleados', choices=[], validators=[DataRequired()])
+    empleado = SelectField('Empleados', choices=[], coerce=int, validators=[DataRequired()])
     submit = SubmitField('Asignar')
