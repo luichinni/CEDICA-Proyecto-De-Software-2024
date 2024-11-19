@@ -390,10 +390,10 @@ class AssociatesService :
         """Lista todos los asociados de un ecuestre""" 
         equestrian_id = int(equestrian_id)
         query = Associated.query.filter(Associated.equestrian_id == equestrian_id)
-        print(query)
+         
         if not include_deleted:
             query = query.filter(Associated.deleted == False)
-        print(query)
+        
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         
         return pagination.items, pagination.total, pagination.pages
