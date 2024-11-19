@@ -8,15 +8,17 @@ class CustomInput:
 
     def __call__(self, field, **kwargs):
         return f"""
-            <div class="field">
-                <p class="control has-icons-left has-icons-right">
-                    <input id="{field.id}" name="{field.name}" class="input" type="{self.type}" placeholder="{self.placeholder}">
-                    <span class="icon is-small is-left">
+            <div id="{field.id}-div" class="field has-addons">
+                <div class="control">
+                    <button class="button is-white" name="{field.name}" id="{field.id}-icon" type="button">
                         <span class="icon">
                             <img src="{self.icon}" alt="Input icon" width="20" height="20">
                         </span>
-                    </span>
-                </p>
+                    </button>
+                </div>
+                <div class="control is-expanded">
+                    <input id="{field.id}" class="input is-fullwidth" name="{field.name}" type="{self.type}" placeholder="{self.placeholder}">
+                </div>
             </div>
         """
 
