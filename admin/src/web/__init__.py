@@ -1,19 +1,16 @@
-import os
-from flask import Flask, flash
+from core.services.client_service import ClientService
+from core.services.employee_service import EmployeeService
+from core.services.equestrian_service import EquestrianService
+from core.services.permission_service import PermissionService
+from core.services.role_service import RoleService
+from core.services.user_service import UserService
+from flask import Flask
 from flask import render_template
 from flask_cors import CORS
 from web.handlers import error
 from src.web.handlers.auth import has_permission, is_authenticated
-from src.web.handlers.auth import check_permissions
 from src.core import database
 from src.core.config import config
-
-from src.core.services.user_service import UserService
-from src.core.services.user_service import RoleService
-from src.core.services.employee_service import EmployeeService
-from src.core.services.permission_service import PermissionService 
-from src.core.services.client_service import ClientService
-from src.core.services.equestrian_service import EquestrianService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp

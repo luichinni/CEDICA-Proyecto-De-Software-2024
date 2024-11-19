@@ -3,11 +3,11 @@ from core.enums.permission_enums import PermissionCategory, PermissionModel
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import AssociatesService, EquestrianService
 from flask import Blueprint, redirect, request, render_template, url_for, flash
-from web.forms.equestrian_form.file_search_equestrian import EquestrianFileSearchForm
+from web.forms.client_forms.client_file_search import FileSearchForm
 from web.forms.equestrian_form.create_equestrian import AddEmployeeAssing, EquestrianCreateForm
 from web.forms.equestrian_form.new_equestrian_file import UploadFile, UploadLink
 from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm 
-from web.handlers import handle_error
+from web.handlers import get_int_param, get_str_param, handle_error
 from web.handlers.auth import check_permissions
 
 bp = Blueprint('equestrians', __name__, url_prefix='/equestrians')
@@ -242,73 +242,69 @@ def get_employees_associates (associates):
 
 @bp_file.get('/listado/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}") 
-@handle_error(lambda: url_for('home'))
+#@handle_error(lambda id: url_for('home'))
 def search(id):
-    """Lista todos los archivos con paginacion."""
+    #=======================================================================#
+    # FILTRO DE LOS ARCHIVOS DEL ECUESTRE E INFORMACION FORMATEADA          #
+    #=======================================================================#
     params = request.args
-    params_dict = params.to_dict()
-    
-    form = EquestrianFileSearchForm()
-    
-    for param, valor in params_dict.items():
-        if param in form._fields:
-            form._fields[param].data = valor
-    
-    filtro = None
-    extension = params.get('tipo_filtro', None)
-    
-    if extension and extension.upper() not in ['PDF', 'DOC', 'XLS', 'JPEG','LINK']:
+
+    activo = get_str_param(params, 'activo', default="informacion")
+
+    filtros = {
+        'titulo': get_str_param(params, 'titulo', optional=True),
+        'tipo': get_str_param(params, 'tipo', 'TODOS',optional=True),
+    }
+
+    extension = get_str_param(params, 'extension', default="TODOS" ,optional=True)
+
+    if extension == "TODOS":
         extension = None
     
-    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
-        # 'PDF', 'DOC', 'XLS', 'JPEG','Link'
-        if params.get('tipo_filtro').upper() in ['PDF', 'DOC', 'XLS', 'JPEG']:
-            filtro = {
-                'titulo': params.get('busqueda')
-            }
-        elif params.get('tipo_filtro') == 'Link':
-            filtro = {
-                'titulo': params.get('busqueda')
-            }
-        else:
-            filtro = {
-                params['tipo_filtro'].lower(): params.get('busqueda')
-            }
-    
-    activo = params.get('activo', 'informacion')
-    
-    order_by = params.get('orden_filtro',None)
-    
-    if not order_by or order_by == 'fecha_de_carga':
-        order_by = 'created_at'
-    
-    ascending = (params.get('orden','Ascendente') == 'Ascendente')
-    
-    page = int(params.get('page','1'))
+    if filtros['tipo'] == "TODOS":
+        del filtros['tipo']
 
-    per_page = int(params.get('per_page','5'))
-    
-    archivos, total, pages = EquestrianService.get_documents(id,filtro,extension,page,per_page,order_by,ascending, like=True)
-    
-    listado = []
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
+    order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
+    ascending = params.get('ascending', '1') == '1'
+    deleted = False
 
-    if archivos:
-        for archivo in archivos:
-            dict_archivo = archivo.to_dict()
-            dict_archivo['tipo'] =  TipoEnum(dict_archivo['tipo']).name.replace('_',' ').capitalize() 
-            dict_archivo['ubicacion'] = 'Servidor Local' if dict_archivo['ubicacion'].startswith('client_files/') else 'Servidor Externo'
-            fecha_iso = dict_archivo['created_at']
-            dict_archivo['Fecha de carga'] ="-".join(fecha_iso.split("T")[0].split("-")[::-1])
-            del dict_archivo['created_at']
-            listado.append(dict_archivo)
+    EquestrianFileSearchForm = FileSearchForm(TipoEnum)
+    form = EquestrianFileSearchForm(**params.to_dict())
+
+    if False: # deberia chequear que sea admin?
+        deleted = get_bool_param(params, 'deleted', False, optional=True) # revisar
+
     else:
-        # por si no hay que listar y que no se rompa
-        listado = [{
-        'id': '0',
-        'Titulo':'',
-        'es_link': True,
-        'ubicacion': ''
-    }]
+        del form.deleted
+
+    docs, total, pages = EquestrianService.get_documents(
+        equestrian_id=id,
+        filtro=filtros,
+        extension=extension,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending,
+        include_deleted=deleted,
+        like=True
+    )
+
+    lista_diccionarios = []
+
+    for doc in docs:
+        lista_diccionarios.append({
+            'id': doc.id,
+            'Titulo': doc.titulo,
+            'Tipo': doc.tipo.name.capitalize(),
+            'Ubicación': 'Servidor externo' if doc.es_link else 'Servidor local',
+            'Fecha de carga': doc.created_at
+        })
+    
+    #=======================================================================#
+    # DATOS DEL DETALLE DE ECUESTRE FORMATEADOS                             #
+    #=======================================================================#
     
     datos_equestrian = EquestrianService.get_equestrian_by_id(id).to_dict()
     
@@ -318,26 +314,29 @@ def search(id):
     associates, total2, pages2 = AssociatesService.get_associate_of_an_equestrian(id,page2,per_page2) #obtengo todas las asociaciones
     cards_data = get_employees_associates(associates)
   
-
-    return render_template('detail_with_targets.html', 
-                           diccionario=datos_equestrian,
-                           activo=activo,
-                           entidad='equestrians',
-                           entidad_archivo='equestrian_files',
-                           anterior=url_for('equestrians.detail',id=id),
-                           form=form, 
-                           lista_diccionarios=listado,
-                           total=total,
-                           current_page=page,
-                           per_page=per_page,
-                           pages=pages,
-                           titulo='Detalle',
-                           cards=cards_data,
-                           total2=total2,
-                           current_page2=page2,
-                           per_page2=per_page2,
-                           pages2=pages2
-                        )
+    return render_template(
+        'detail_with_targets.html', 
+        diccionario=datos_equestrian,
+        activo=activo,
+        entidad='equestrians',
+        entidad_archivo='equestrian_files',
+        anterior=url_for(
+            'equestrians.detail',
+            id=id
+        ),
+        form=form, 
+        lista_diccionarios=lista_diccionarios,
+        total=total,
+        current_page=page,
+        per_page=per_page,
+        pages=pages,
+        titulo='Detalle',
+        cards=cards_data,
+        total2=total2,
+        current_page2=page2,
+        per_page2=per_page2,
+        pages2=pages2
+    )
      
 
 

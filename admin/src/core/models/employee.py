@@ -3,8 +3,6 @@ import enum
 from sqlalchemy import Enum
 from datetime import datetime, timezone
 
-from src.core.models.equestrian import associates
-
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
     PSICOMOTRICISTA = 2
@@ -70,7 +68,7 @@ class Employee(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    equestrians_asociados = db.relationship('Equestrian', secondary='associates',back_populates='empleados_asociados')
+    equestrians_asociados = db.relationship('Associated', back_populates='employee')
 
     def __repr__(self):
         return f"Nombre: {self.nombre} Apellido: {self.apellido} DNI: {self.dni}"
