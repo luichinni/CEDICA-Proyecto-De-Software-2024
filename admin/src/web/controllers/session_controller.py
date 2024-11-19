@@ -52,7 +52,12 @@ def oauth_login(mode):
 
     redirect_uri = url_for('auths.oauth_auth', _external = True)
     
-    return oauth.client.google.authorize_redirect(redirect_uri)
+    try:
+        return oauth.client.google.authorize_redirect(redirect_uri)
+
+    except:
+        flash("Parece que ocurrió un error, intenta nuevamente más tarde o ingresa utilizando tus credenciales.", "warning")
+        return redirect(url_for("auths.index"))
 
 @session_bp.route('/oauth')
 def oauth_auth():
