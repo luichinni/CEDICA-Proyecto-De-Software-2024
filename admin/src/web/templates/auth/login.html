@@ -1,5 +1,6 @@
 {% extends "form.html" %}
 {% block head %}
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   {{ super() }}
   <meta name="google-signin-client_id" content="{{ google_client_id() }}">
 {% endblock %}
@@ -25,4 +26,37 @@
   </div>
 
   <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+  <script>
+    function togglePassword(fieldId) {
+      const input = document.getElementById(fieldId);
+      const icon = document.getElementById(`${fieldId}-icon`).querySelector('img');
+
+      // Cambiar el tipo de input entre 'password' y 'text'
+      if (input.type === "password") {
+        input.type = "text";
+        icon.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Tabler-icons_lock-off.svg/320px-Tabler-icons_lock-off.svg.png?20230426212831";
+      } else {
+        input.type = "password";
+        icon.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Tabler-icons_lock.svg/320px-Tabler-icons_lock.svg.png?20230426212831";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const fieldId = "password";
+      const iconElement = document.getElementById(`${fieldId}-icon`);
+
+      if (iconElement) {
+        iconElement.addEventListener("click", function () {
+          togglePassword(fieldId);
+        });
+      }
+
+      const dangers = document.getElementsByClassName("button is-danger");
+      for (let i = 0; i < dangers.length; i++){
+        dangers[i].remove()
+      }
+    });
+  </script>
+
 {% endblock %}

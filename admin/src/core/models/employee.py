@@ -87,7 +87,7 @@ class Employee(db.Model):
             "localidad": self.localidad,
             "telefono": self.telefono,
             "profesion": self.profesion.value,
-            "puesto laboral": self.puesto_laboral.name.capitalize(),
+            "puesto laboral": self.puesto_laboral.name.capitalize().replace('_',' '),
             "fecha de inicio": self.fecha_inicio,
             "fecha de cese": self.fecha_cese,
             "nombre contacto de emergencia": self.contacto_emergencia_nombre,
