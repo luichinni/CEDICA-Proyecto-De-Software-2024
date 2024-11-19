@@ -74,7 +74,7 @@
                                             tipo_filtro=request.args.get('tipo_filtro'),
                                             orden_filtro=request.args.get('orden_filtro'),
                                             orden=request.args.get('orden'),
-                                            activo='documents'
+                                            activo='informacion'
                                             , id=diccionario.id) }}" 
                                             class="pagination-previous" >Previous</a>
                 {% endif %}
@@ -88,7 +88,7 @@
                                             tipo_filtro = request.args.get('tipo_filtro'),
                                             orden_filtro = request.args.get('orden_filtro'),
                                             orden = request.args.get('orden'),
-                                            activo='documents' , id=diccionario.id)}}" >{{ page_num }}</a>
+                                            activo='informacion' , id=diccionario.id)}}" >{{ page_num }}</a>
                     {% endif %}
                 {% endfor %}
                 <br>
@@ -98,7 +98,7 @@
                                             tipo_filtro=request.args.get('tipo_filtro'),
                                             orden_filtro=request.args.get('orden_filtro'),
                                             orden=request.args.get('orden'),
-                                            activo='documents' , id=diccionario.id)}}" class="pagination-next">Next</a>
+                                            activo='informacion' , id=diccionario.id)}}" class="pagination-next">Next</a>
                 {% endif %}
                 </div>
                 </nav>
