@@ -1,8 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, RadioField, SubmitField
+from wtforms import HiddenField, StringField, SelectField, RadioField, SubmitField, BooleanField
 from src.core.services.role_service import RoleService
 
 class SearchUserForm(FlaskForm):
+    modo = HiddenField(label="Filtros",default="normal")
+
     email = StringField('Email')
     
     # SelectField para permitir "no filtrar", "filtrar por True", "filtrar por False"
@@ -20,7 +22,10 @@ class SearchUserForm(FlaskForm):
     ])
     
     ascending = RadioField('Orden', choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1')
+
     submit = SubmitField('Buscar usuarios')
+
+    pendientes = BooleanField("Mostrar pendientes de confirmación",default=False) # otro submit ya que se puede saber que boton se presionó
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,14 +37,6 @@ class SearchUserForm(FlaskForm):
         if not role_choices:
             raise ValueError("No hay roles disponibles.")
         
-        self.role_id.choices = role_choices
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        role_choices = [(0, 'No filtrar')] + [(r.id, r.name) for r in RoleService.get_all_roles()]
-        if not role_choices:
-            raise ValueError("No hay roles disponibles.")
         self.role_id.choices = role_choices
         
 

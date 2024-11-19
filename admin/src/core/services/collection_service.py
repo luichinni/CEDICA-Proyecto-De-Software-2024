@@ -96,7 +96,7 @@ class CollectionService:
 
     @staticmethod
     @validate_params
-    def get_all_collections(page=1, per_page=25, include_deleted=False):
+    def get_all_collections(page=1, per_page=5, include_deleted=False):
         """Lista todos los cobros"""
         query = Collection.query
         if not include_deleted:

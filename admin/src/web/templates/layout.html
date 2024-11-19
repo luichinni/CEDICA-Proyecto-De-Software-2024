@@ -22,15 +22,15 @@
                         {%if check_permission("clients_index")%}
                             <li><a href="{{ url_for('clients.search') }}">J&A</a></li> {% endif %}
                         {%if check_permission("equestrians_index")%}
-                            <li><a href="{{ url_for('equestrians.search') }}">Ecuestre</a></li> {% endif %}
+                            <li><a href="{{ url_for('equestrians.search') }}">Ecuestres</a></li> {% endif %}
                         {%if check_permission("employees_index")%}
                             <li><a href="{{ url_for('employees.search') }}">Equipo</a></li> {% endif %}
                         {%if check_permission("collections_index")%}
-                            <li><a href="{{ url_for('collections.search') }}">cobros</a></li> {% endif %}
+                            <li><a href="{{ url_for('collections.search') }}">Cobros</a></li> {% endif %}
                         {%if check_permission("payments_index")%}
                             <li><a href="{{ url_for('payments.search') }}">Pagos</a></li> {% endif %}
                         {%if check_permission("users_index")%}
-                            <li><a href="{{ url_for('users.search') }}">Usuario</a></li> {% endif %}
+                            <li><a href="{{ url_for('users.search') }}">Usuarios</a></li> {% endif %}
                                    
                         <li><a href="{{ url_for('reports.reports') }}">Reportes</a></li> 
 

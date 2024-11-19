@@ -1,6 +1,7 @@
 from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension, TipoDocs
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import EquestrianService
+from core.services.user_service import UserService
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from web.forms.client_forms.client_file_search import ClientFileSearchForm
 from web.forms.client_forms.client_search import ClientSearchForm
@@ -23,53 +24,61 @@ def search():
     """Lista todos los clientes con paginación."""
     
     params = request.args
-    params_dict = params.to_dict()
-    
-    form = ClientSearchForm()
-    
-    for param, valor in params_dict.items():
-        if param in form._fields:
-            form._fields[param].data = valor
-    
-    filtro = None
-    
-    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
-        filtro = {
-            params['tipo_filtro']: params.get('busqueda')
-        }
-    
-    
-    order_by = params.get('orden_filtro',None)
-    
-    ascending = (params.get('orden','Ascendente') == 'Ascendente')
-    
-    page = int(params.get('page','1'))
 
-    per_page = int(params.get('per_page','25'))
+    filtros = {
+        'nombre': get_str_param(params, 'nombre', optional=True),
+        'apellido': get_str_param(params, 'apellido', optional=True),
+        'dni': get_str_param(params, 'dni', optional=True),
+        'atendido_por': get_str_param(params, 'atendido_por', optional=True)
+    }
 
-    clients, total, pages = ClientService.get_clients(filtro,page,per_page,order_by,ascending, like=True)
-    
-    listado = []
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
+    order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
+    ascending = params.get('ascending', '1') == '1'
+    deleted = False
 
-    if clients:
-        for cliente in clients:
-            listado.append({
-                'id': cliente.id,
-                'Nombre': cliente.nombre,
-                'Apellido': cliente.apellido,
-                'DNI': cliente.dni,
-                'Atendido por': cliente.atendido_por
-            })
+    form = ClientSearchForm(**params.to_dict())
+
+    if False: # deberia chequear que sea admin?
+        deleted = get_bool_param(params, 'deleted', False, optional=True) # revisar
+
     else:
-        listado = [{
-        'id': '0',
-        'Nombre': '',
-        'Apellido': '',
-        'DNI': '',
-        'Atendido por': ''
-    }]
-    
-    return render_template('search_box.html', entidad='clients', anterior=url_for('home'), form=form, lista_diccionarios=listado, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado JyA')
+        del form.deleted
+
+    jjyaa, total, pages = ClientService.get_clients(
+        filtro=filtros,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending,
+        include_deleted=deleted,
+        like=True
+    )
+
+    lista_diccionarios = []
+
+    for jya in jjyaa:
+        lista_diccionarios.append({
+            'id': jya.id,
+            'Nombre': jya.nombre,
+            'Apellido': jya.apellido,
+            'DNI': jya.dni,
+            'Atendido por': jya.atendido_por
+        })
+
+    return render_template(
+        'search_box.html',
+        form=form,
+        entidad='clients',
+        anterior=url_for('home'),
+        lista_diccionarios=lista_diccionarios,
+        total=total,
+        current_page=page,
+        per_page =per_page,
+        pages=pages,
+        titulo='Listado de Jinetes y Amazonas'
+    )
 
 
 @clients_bp.route('/create', methods=['GET','POST'])
@@ -120,14 +129,26 @@ def new():
         
         return redirect(url_for('clients.search'))
 
-    return render_template('client/multi_form.html', activa=activa,forms=forms, ruta_post=ruta_post, entidad=entidad,titulo=titulo,url_volver=url_volver)
+    return render_template(
+        'client/multi_form.html', 
+        activa=activa,forms=forms, 
+        ruta_post=ruta_post, 
+        entidad=entidad,
+        titulo=titulo,
+        url_volver=url_volver
+    )
 
 
 @clients_bp.get('/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
 @handle_error(lambda: url_for('clients.search'))
 def detail(id: int):
-    return redirect(url_for('client_files.search',id=id,activo='informacion'))
+    return redirect(
+        url_for('client_files.search',
+                id=id,
+                activo='informacion'
+                )
+        )
 
 @clients_bp.route('/update/<int:id>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.UPDATE.value}")
@@ -191,7 +212,15 @@ def update(id):
         
         return redirect(url_for('clients.search'))
 
-    return render_template('client/multi_form.html', activa=activa,forms=forms, ruta_post=ruta_post, entidad=entidad,titulo=titulo,url_volver=url_volver)
+    return render_template(
+        'client/multi_form.html', 
+        activa=activa,
+        forms=forms, 
+        ruta_post=ruta_post, 
+        entidad=entidad,
+        titulo=titulo,
+        url_volver=url_volver
+    )
 
 @clients_bp.post('/delete/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.DESTROY.value}")
@@ -217,16 +246,20 @@ def new(id,es_link):
         ClientService.add_document(id,form.titulo.data,form.archivo.data,form.tipo.data,es_link)
         return redirect(url_for('client_files.search',id=id, activo='documents'))
     
-    return render_template('form.html',
-                           url_volver=url_for('client_files.search',
-                                            id=id,
-                                            activo='documents'
-                                        ),
-                           ruta_post=url_for('client_files.new',
-                                             id=id,
-                                             es_link=es_link
-                                        ),
-                           form=form)
+    return render_template(
+        'form.html',
+        url_volver=url_for(
+            'client_files.search',
+            id=id,
+            activo='documents'
+        ),
+        ruta_post=url_for(
+            'client_files.new',
+            id=id,
+            es_link=es_link
+        ),
+        form=form
+    )
 
 @clients_files_bp.route('/update/<int:id>/<int:id_entidad>/<string:es_link>', methods=['POST','GET'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.NEW.value}")
@@ -267,14 +300,21 @@ def update(id:int, id_entidad: int,es_link:str):
         
         return redirect(url_for('client_files.search',id=id_entidad, activo='documents'))
     
-    return render_template('form.html',
-                           url_volver=url_for('client_files.search',id=id_entidad, activo='documents'),
-                           ruta_post=url_for('client_files.update',
-                                             id=id,
-                                             id_entidad=id_entidad,
-                                             es_link=es_link
-                                        ),
-                           form=form)
+    return render_template(
+        'form.html',
+        url_volver=url_for(
+            'client_files.search',
+            id=id_entidad,
+            activo='documents'
+        ),
+        ruta_post=url_for(
+            'client_files.update',
+            id=id,
+            id_entidad=id_entidad,
+            es_link=es_link
+        ),
+        form=form
+    )
 
 @clients_files_bp.post('/delete/<int:id>')
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.DESTROY.value}")
@@ -300,72 +340,70 @@ def detail(id):
 
 @clients_files_bp.route('/listado/<int:id>',methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda: url_for('clients.search'))
+#@handle_error(lambda id: url_for('clients.search'))
 def search(id):
     """Lista todos los archivos con paginación."""
+    #=======================================================================#
+    # FILTRO DE LOS ARCHIVOS DEL J Y A E INFORMACION FORMATEADA             #
+    #=======================================================================#
     params = request.args
-    params_dict = params.to_dict()
-    
-    form = ClientFileSearchForm()
-    
-    for param, valor in params_dict.items():
-        if param in form._fields:
-            form._fields[param].data = valor
-    
-    filtro = None
-    extension = params.get('tipo_filtro', None)
-    
-    if extension and extension.upper() not in ['PDF', 'DOC', 'XLS', 'JPEG','LINK']:
+
+    activo = get_str_param(params, 'activo', default="informacion")
+
+    filtros = {
+        'titulo': get_str_param(params, 'titulo', optional=True),
+        'tipo': get_str_param(params, 'tipo', 'TODOS',optional=True),
+    }
+
+    extension = get_str_param(params, 'extension', default="TODOS" ,optional=True)
+
+    if extension == "TODOS":
         extension = None
     
-    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
-        # 'PDF', 'DOC', 'XLS', 'JPEG','Link'
-        if params.get('tipo_filtro').upper() in ['PDF', 'DOC', 'XLS', 'JPEG']:
-            filtro = {
-                'titulo': params.get('busqueda')
-            }
-        elif params.get('tipo_filtro') == 'Link':
-            filtro = {
-                'titulo': params.get('busqueda')
-            }
-        else:
-            filtro = {
-                params['tipo_filtro'].lower(): params.get('busqueda')
-            }
-    
-    activo = params.get('activo', 'informacion')
-    
-    order_by = params.get('orden_filtro',None)
-    
-    if not order_by or order_by == 'fecha_de_carga':
-        order_by = 'created_at'
-    
-    ascending = (params.get('orden','Ascendente') == 'Ascendente')
-    
-    page = int(params.get('page','1'))
+    if filtros['tipo'] == "TODOS":
+        del filtros['tipo']
 
-    per_page = int(params.get('per_page','25'))
-    
-    archivos, total, pages = ClientService.get_documents(id,filtro,extension,page,per_page,order_by,ascending, like=True)
-    
-    listado = []
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
+    order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
+    ascending = params.get('ascending', '1') == '1'
+    deleted = False
 
-    if archivos:
-        for archivo in archivos:
-            dict_archivo = archivo.to_dict()
-            dict_archivo['ubicacion'] = 'Servidor Local' if dict_archivo['ubicacion'].startswith('client_files/') else 'Servidor Externo'
-            dict_archivo['Fecha de carga'] = dict_archivo['created_at']
-            del dict_archivo['created_at']
-            listado.append(dict_archivo)
+    form = ClientFileSearchForm(**params.to_dict())
+
+    if False: # deberia chequear que sea admin?
+        deleted = get_bool_param(params, 'deleted', False, optional=True) # revisar
+
     else:
-        # por si no hay que listar y que no se rompa
-        listado = [{
-        'id': '0',
-        'Titulo':'',
-        'es_link': True,
-        'ubicacion': ''
-    }]
+        del form.deleted
+
+    docs, total, pages = ClientService.get_documents(
+        client_id=id,
+        filtro=filtros,
+        extension=extension,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending,
+        include_deleted=deleted,
+        like=True
+    )
+
+    lista_diccionarios = []
+
+    for doc in docs:
+        lista_diccionarios.append({
+            'id': doc.id,
+            'Titulo': doc.titulo,
+            'Tipo': doc.tipo.name.capitalize(),
+            'Ubicación': 'Servidor externo' if doc.es_link else 'Servidor local',
+            'Fecha de carga': doc.created_at
+        })
     
+    #=======================================================================#
+    # DATOS DEL DETALLE DE J Y A FORMATEADOS                                #
+    #=======================================================================#
+
     datos_cliente = ClientService.get_client_by_id(id).to_dict()
 
     profesor = EmployeeService.get_employee_by_id(int(datos_cliente['profesor_id']))
@@ -429,17 +467,18 @@ def search(id):
             'Observaciones de la institución escolar': datos_cliente['institucion_escolar']['observaciones']
         }
 
-    return render_template('different_detail.html', 
-                           diccionario=datos_front,
-                           activo=activo,
-                           entidad='clients',
-                           entidad_archivo='client_files',
-                           anterior=url_for('clients.detail',id=id),
-                           form=form, 
-                           lista_diccionarios=listado,
-                           total=total,
-                           current_page=page,
-                           per_page=per_page,
-                           pages=pages,
-                           titulo='Detalle'
-                        )
+    return render_template(
+        'different_detail.html', 
+        diccionario=datos_front,
+        activo=activo,
+        entidad='clients',
+        entidad_archivo='client_files',
+        anterior=url_for('clients.detail',id=id),
+        form=form, 
+        lista_diccionarios=lista_diccionarios,
+        total=total,
+        current_page=page,
+        per_page=per_page,
+        pages=pages,
+        titulo=f'Información del JyA: {datos_front['Nombre']} {datos_front['Apellido']}'
+    )

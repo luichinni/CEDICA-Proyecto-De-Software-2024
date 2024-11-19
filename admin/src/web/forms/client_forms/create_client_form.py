@@ -2,7 +2,7 @@ from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import EquestrianService
 from flask_wtf import FlaskForm
 from web.forms.client_forms.file_widget import CustomFileInput
-from wtforms import FieldList, Form, FormField, StringField, DateField, TelField, BooleanField, SelectField, SelectMultipleField, FileField
+from wtforms import FieldList, SubmitField, FormField, StringField, DateField, TelField, BooleanField, SelectField, SelectMultipleField, FileField
 from wtforms.validators import DataRequired, Length, Regexp, Email
 from flask_wtf. file import FileAllowed, FileRequired
 from src.core.enums.client_enum import *
@@ -162,6 +162,7 @@ class PropuestaDeTrabajo(FlaskForm):
 
 class ClientSeventhForm(FlaskForm):
     propuesta_trabajo = FormField(PropuestaDeTrabajo,label="Propuesta de Trabajo Institucional")
+    submit = SubmitField('Enviar datos')
     
 """
 # Formulario de carga de archivos
@@ -176,9 +177,11 @@ class UploadFile(FlaskForm):
     titulo = StringField('Titulo (opcional)')
     tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs])
     archivo = FileField('Seleccionar Archivo (PDF, DOC, XLS o JPEG)', validators=[FileRequired(),FileAllowed([ext.name.lower() for ext in ExtensionesPermitidas],"Formato inválido")], widget=CustomFileInput(False))
-    
+    submit = SubmitField('Cargar archivo')
+
 class UploadLink(FlaskForm):
     titulo = StringField('Nombre de referencia', validators=[DataRequired(), Length(max=100)])
     tipo = SelectField('Tipo de Documentación', choices=[(tipo.value,tipo.name.capitalize()) for tipo in TipoDocs], validators=[DataRequired()])
     archivo = StringField('URL o Link del Documento', validators=[DataRequired()])
+    submit = SubmitField('Guardar link')
     

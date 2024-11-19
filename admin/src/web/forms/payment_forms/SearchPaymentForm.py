@@ -1,18 +1,25 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, BooleanField, DateField, FormField
+from wtforms import SelectField, SubmitField, DateField, RadioField, ValidationError
 from wtforms.validators import Optional
-from src.core.enums.payment_enum.PaymentEnum import PaymentEnum
+from src.core.models.Payment import PaymentEnum
 from web.forms.search_form import SearchForm
 
-class RangoFechas(FlaskForm):
-    fecha_desde = DateField('Fecha desde', format='%Y-%m-%d')
-    fecha_hasta = DateField('Fecha hasta', format='%Y-%m-%d')
-
-class SearchPaymentForm(SearchForm):
+class SearchPaymentForm(FlaskForm):
     """Form para buscar pagos por diferentes criterios"""
-    rango_fechas = FormField(RangoFechas)
-    tipo_pago = SelectField('Tipo de pago',
-                            choices=[(tipo.name, tipo.name.capitalize().replace('_', ' ')) for tipo in PaymentEnum])
+    start_date = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[Optional()])
+    end_date = DateField('Fecha de fin', format='%Y-%m-%d', validators=[Optional()])
+    payment_type = SelectField('Tipo de pago',
+                            choices=[('', 'No filtrar')] + [(tipo.name, tipo.name.capitalize().replace('_', ' ')) for tipo in PaymentEnum])
 
-    submit = SubmitField('Aplicar')
+    ascending = RadioField('Orden', choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1')
+
+    submit = SubmitField('Buscar pagos')
+
+    def validate_end_date(self, field):
+        """
+        Valida que la fecha de fin sea mayor o igual a la fecha de inicio.
+        """
+        if self.start_date.data and field.data:
+            if field.data < self.start_date.data:
+                raise ValidationError('La fecha de fin debe ser mayor o igual a la fecha de inicio.')
 

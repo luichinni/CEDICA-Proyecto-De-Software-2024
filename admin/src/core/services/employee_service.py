@@ -20,6 +20,15 @@ class EmployeeService:
         db.session.add(employee)
         db.session.commit()
         return employee
+    
+    @staticmethod
+    def add_default_data_employee(email):
+        """Crea un empleado con un email y el resto de los datos con valores por defecto"""
+        new_employee_default_data = {"email" : email, "has_default_data":True ,"nombre" : "PENDIENTE A INGRESAR", "apellido" : "PENDIENTE A INGRESAR", "dni" : "99999999", "domicilio" : "PENDIENTE A INGRESAR", "localidad" : "PENDIENTE A INGRESAR", "telefono" : "9999999999", "profesion" : ProfesionEnum.OTRO, "puesto_laboral" : PuestoLaboralEnum.OTRO, "fecha_inicio" : date(5555, 10, 1), "fecha_cese" : date(5555, 10, 1), "contacto_emergencia_nombre" : "PENDIENTE A INGRESAR", "contacto_emergencia_telefono" : "9999999999", "obra_social" : "PENDIENTE A INGRESAR", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : False}
+
+        return EmployeeService.add_employee(**new_employee_default_data).id
+            
+    
     @staticmethod
     def delete_employee(employee_id):
         """Elimina un empleado de manera logica"""
@@ -42,12 +51,16 @@ class EmployeeService:
         return query.all()
 
     @staticmethod
-    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=25):
+    def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=5):
         """Obtiene todos los empleados"""
         employees_query = Employee.query.filter_by(deleted = include_deleted)
         if filtro:
             valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
-            employees_query = employees_query.filter_by(**valid_filters)
+            for key, value in valid_filters.items():
+                if key == 'puesto_laboral':
+                    employees_query = employees_query.filter(Employee.puesto_laboral == value)
+                else:
+                    employees_query = employees_query.filter(getattr(Employee, key).ilike(f"%{str(value).lower()}%"))
 
 
 
@@ -83,12 +96,16 @@ class EmployeeService:
         for key, value in kwargs.items():
             if value is not None and getattr(employee, key) != value:
                 setattr(employee, key, value)
+        employee.has_default_data = False
         db.session.commit()
         return employee
 
     @staticmethod
     def get_employee_by_id(employee_id, include_deleted=False):
         """Busca un empleado por su email"""
+        if not Employee.query.get(employee_id):
+            raise ValueError(f"No se encontro el empleado con id {employee_id}")
+
         query = Employee.query.filter_by(id = employee_id)
         if not include_deleted:
             query = query.filter_by(deleted = include_deleted)
