@@ -370,9 +370,13 @@ class AssociatesService :
 
     def add_associated ( employee_id, equestrian_id): 
         """Crea la relacion entre un empleado y un ecuestre"""
-        if AssociatesService.validate_participants(employee_id, equestrian_id) :
-           associated = Associated(employee_id=employee_id , equestrian_id= equestrian_id)
-
+       
+        AssociatesService.validate_participants(employee_id, equestrian_id) 
+        existe = AssociatesService.get_associated_by_ids(equestrian_id, employee_id)
+        if existe is not None :
+            raise ValueError(f"La asignacion ya existe para este ecuestre")
+       
+        associated = Associated(employee_id=employee_id , equestrian_id= equestrian_id)
         db.session.add(associated)
         db.session.commit()
         return associated

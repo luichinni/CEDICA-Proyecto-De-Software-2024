@@ -177,9 +177,9 @@ def new(id,es_link):
         return redirect(url_for('equestrian_files.search',id=id, activo='documents'))
     
     return render_template('form.html',
-                           anterior=url_for('equestrian_files.search',
+                           url_volver=url_for('equestrian_files.search',
                                             id=id,
-                                            activo='documents'
+                                            activo='informacion'
                                         ),
                            ruta_post=url_for('equestrian_files.new',
                                              id=id,
@@ -381,12 +381,25 @@ def new(id):
       for empleado in empleados_asociados
     ]
     if form.validate_on_submit():
-        flash('Cargado exitosamente','success')
-        AssociatesService.add_associated(form.empleado.data, id)
+        try: 
+            AssociatesService.add_associated(form.empleado.data, id) 
+        except Exception: 
+            flash('El empleado ya esta asociado con el ecuestre','success')
+            return render_template('form.html',
+                           url_volver=url_for('equestrian_files.search',
+                                            id=id,
+                                            activo='informacion'
+                                        ),
+                           ruta_post=url_for('associates.new',
+                                             id=id,
+                                        ),
+                           form=form)
+        else:
+            flash('Cargado exitosamente','success') 
         return redirect(url_for('equestrian_files.search',id=id, activo='informacion'))
     
     return render_template('form.html',
-                           anterior=url_for('equestrian_files.search',
+                         url_volver=url_for('equestrian_files.search',
                                             id=id,
                                             activo='informacion'
                                         ),
