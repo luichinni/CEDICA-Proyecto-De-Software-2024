@@ -1,9 +1,10 @@
 from core.enums.equestrian_enum import SexoEnum, TipoEnum
 from core.enums.permission_enums import PermissionCategory, PermissionModel
-from core.services.equestrian_service import EquestrianService
+from core.services.employee_service import EmployeeService
+from core.services.equestrian_service import AssociatesService, EquestrianService
 from flask import Blueprint, redirect, request, render_template, url_for, flash
 from web.forms.equestrian_form.file_search_equestrian import EquestrianFileSearchForm
-from web.forms.equestrian_form.create_equestrian import EquestrianCreateForm
+from web.forms.equestrian_form.create_equestrian import AddEmployeeAssing, EquestrianCreateForm
 from web.forms.equestrian_form.new_equestrian_file import UploadFile, UploadLink
 from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm 
 from web.handlers import handle_error
@@ -121,8 +122,8 @@ def search():
             listado.append({
                 'id': ecuestre.id,
                 'Nombre': ecuestre.nombre,
-                'Fecha nacimiento': ecuestre.fecha_nacimiento,
-                'Fecha ingreso': ecuestre.fecha_ingreso,
+                'Fecha nacimiento': ecuestre.fecha_nacimiento.strftime("%d-%m-%Y"),
+                'Fecha ingreso': ecuestre.fecha_ingreso.strftime("%d-%m-%Y"),
             })
     else:
         # por si no hay que listar y que no se rompa
@@ -229,7 +230,15 @@ def  update(id:int, id_entidad: int,es_link:str):
                                              id_entidad=id_entidad,
                                              es_link=es_link
                                         ),form=form)
-                           
+
+def get_employees_associates (associates):
+    empleados_asociados = []
+    if associates is not None : 
+        for associate in associates:
+            empleado = EmployeeService.get_employee_by_id(associate["empleado_id"])
+            empleados_asociados.append(empleado)
+    return empleados_asociados
+
 
 @bp_file.get('/listado/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}") 
@@ -288,7 +297,8 @@ def search(id):
             dict_archivo = archivo.to_dict()
             dict_archivo['tipo'] =  TipoEnum(dict_archivo['tipo']).name.replace('_',' ').capitalize() 
             dict_archivo['ubicacion'] = 'Servidor Local' if dict_archivo['ubicacion'].startswith('client_files/') else 'Servidor Externo'
-            dict_archivo['Fecha de carga'] = dict_archivo['created_at']
+            fecha_iso = dict_archivo['created_at']
+            dict_archivo['Fecha de carga'] ="-".join(fecha_iso.split("T")[0].split("-")[::-1])
             del dict_archivo['created_at']
             listado.append(dict_archivo)
     else:
@@ -301,8 +311,20 @@ def search(id):
     }]
     
     datos_equestrian = EquestrianService.get_equestrian_by_id(id).to_dict()
+    cards_data = [
+    {"id": 1,"nombre": "Juan", "apellido": "Pérez","telefono": "123-456-7890"},
+    {"id": 1,"nombre": "Ana", "apellido": "Gómez","telefono": "987-654-3210"},
+    {"id": 1,"nombre": "Luis", "apellido": "Martínez", "telefono": "555-555-5555"}
+      ]
+    
+    page2 = int(params.get('page2','1'))
+    per_page2 = int(params.get('per_page2','25'))
 
-    return render_template('different_detail.html', 
+    associates, total2, pages2 = AssociatesService.get_associate_of_an_equestrian(id,page2,per_page2) #obtengo todas las asociaciones
+    cards_data = get_employees_associates(associates)
+
+
+    return render_template('detail_with_targets.html', 
                            diccionario=datos_equestrian,
                            activo=activo,
                            entidad='equestrians',
@@ -315,7 +337,11 @@ def search(id):
                            per_page=per_page,
                            pages=pages,
                            titulo='Detalle',
-                           titulo='Detalle'
+                           cards=cards_data,
+                           total2=total2,
+                           current_page2=page2,
+                           per_page2=per_page2,
+                           pages2=pages2
                         )
      
 
@@ -340,3 +366,44 @@ def delete(id:int, id_entidad:int):
     EquestrianService.delete_document(id)
     flash("Se elimino el documento exitosamente", "success")
     return redirect(url_for('equestrian_files.search',id=id_entidad, activo='documents'))
+
+
+
+bp_associates = Blueprint('associates', __name__, url_prefix='/associates')
+
+@bp_associates.route('/create/<int:id>', methods= ['GET','POST'])
+@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
+@handle_error(lambda: url_for('equestrian_files.search'))
+def new(id):  
+    
+    empleados = EmployeeService.get_employees(filtro={"puesto_laboral": "conductor"}, page=1, per_page=25)
+
+    empleados2 = EmployeeService.get_employees(filtro= {"puesto_laboral":"entrenador"}, page=1, per_page=25)
+    empleados_asociados= empleados+ empleados2
+    form = AddEmployeeAssing()    
+    form.empleados.choices = [(empleado.id, f"""Nombre: {empleado.nombre} {empleado.apellido},
+                                              Puesto Laboral: {empleado.puesto_laboral}""") for empleado in empleados_asociados]
+
+    if form.validate_on_submit():
+        flash('Cargado exitosamente','success')
+        AssociatesService.add_associated(id, form.empleado.data)
+        return redirect(url_for('equestrian_files.search',id=id, activo='informacion'))
+    
+    return render_template('form.html',
+                           anterior=url_for('equestrian_files.search',
+                                            id=id,
+                                            activo='informacion'
+                                        ),
+                           ruta_post=url_for('associates.new',
+                                             id=id,
+                                        ),
+                           form=form)
+
+
+@bp_associates.route('/create/<int:id>/<int:id_empleado>', methods= ['GET','POST'])
+@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
+@handle_error(lambda: url_for('equestrian_files.search'))
+def delete(id:int, id_empleado:int):
+    AssociatesService.delete_associated(id,id_empleado)
+    flash("Se elimino el empleado asociado exitosamente", "success")
+    return redirect(url_for('equestrian_files.search',id=id, activo='informacion'))

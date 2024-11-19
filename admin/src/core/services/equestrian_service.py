@@ -1,8 +1,9 @@
 from datetime import date, datetime, timedelta, timezone
 from core.enums.client_enum import ExtensionesPermitidas
+from core.services.employee_service import EmployeeService
 from sqlalchemy import Enum
 from src.core.database import db 
-from src.core.models.equestrian import Equestrian
+from src.core.models.equestrian import Associated, Equestrian
 from src.core.models.equestrian import SexoEnum
 from src.core.models.equestrian import TipoClienteEnum
 from src.core.models.equestrian.equestrian_docs import EquestrianDocument, TipoEnum
@@ -358,3 +359,48 @@ class EquestrianService :
         db.session.commit()
         
         return archivo
+    
+class AssociatesService :
+
+    def validate_participants (employee_id, equestrian_id):
+         equestrian = EquestrianService.get_equestrian_by_id( equestrian_id)
+         employee = EmployeeService.get_employee_by_id(employee_id) 
+         return   equestrian is not None  and employee is not None
+        
+
+    def add_associated ( employee_id, equestrian_id): 
+        """Crea la relacion entre un empleado y un ecuestre"""
+        if AssociatesService.validate_participants(employee_id, equestrian_id) :
+           associated = Associated(employee_id=employee_id , equestrian_id= equestrian_id)
+
+        db.session.add(associated)
+        db.session.commit()
+        return associated
+
+    def delete_associated (associated_id):
+        """Elimina un asociado de manera logica"""
+        associated = AssociatesService.get_associate_by_id(associated_id)
+        associated.deleted = True
+        db.session.commit()
+        return associated
+
+    def get_associate_of_an_equestrian (equestrian_id, page=1, per_page=25, include_deleted=False):
+        """Lista todos los asociados de un ecuestre""" 
+        query = Associated.query.filter(Associated.equestrian_id == equestrian_id)
+
+        if not include_deleted:
+            query = query.filter_by(deleted=False)
+        
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        return pagination.items, pagination.total, pagination.pages
+
+    def get_associated_by_id(associates_id, include_deleted=False)-> Associated:
+         """Obtiene una asociacion por su ID"""
+         query = Associated.query.filter_by(id=associates_id)
+         if not include_deleted:
+             query = query.filter_by(deleted=False)
+         associated = query.first()
+         if not associated:
+             raise ValueError(f"No existe el ecuestre con ID: {associates_id}")
+         return associated
