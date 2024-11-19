@@ -79,7 +79,7 @@ def search():
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
-    ascending = params.get('ascending', 'Ascendente') == 'Ascendente'
+    ascending = get_bool_param(params, 'ascending', True, optional= True)
 
     employees, total, pages = EmployeeService.get_employees(
         filtro=filtros,
