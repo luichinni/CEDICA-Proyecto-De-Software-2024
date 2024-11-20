@@ -114,7 +114,6 @@ def oauth_auth():
             # Si no se es empleado, se genera un user default
             print(UserService.create_user(-1 , user_info.get("name"), "1aA"+cipher.generate_word(8), employee_email= user_info.get("email")))
 
-        finally:
-            # Por ultimo se comunica que debe quedar a la espera
-            flash("Tu usuario ha quedado a la espera de que un administrador lo valide 📝", "info")
-            return redirect(url_for('auths.index'))
+        # Por ultimo se comunica que debe quedar a la espera
+        flash("Tu usuario ha quedado a la espera de que un administrador lo valide 📝", "info")
+        return redirect(url_for('auths.index'))
