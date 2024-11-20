@@ -105,11 +105,11 @@ def oauth_auth():
         # Intento de crear user para empleado registrado
         try:
             emp = EmployeeService.get_employee_by_email(user_info.get("email")) # lanza excepcion si no existe
-            UserService.create_user(emp.id, user_info.get("displayName"), "1aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
+            UserService.create_user(emp.id, user_info.get("name"), "1aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
         
         except:
             # Si no se es empleado, se genera un user default
-            UserService.create_user(-1, user_info.get("displayName"), "2aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
+            UserService.create_user(-1, user_info.get("name"), "2aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
         
         finally:
             # Por ultimo se comunica que debe quedar a la espera
