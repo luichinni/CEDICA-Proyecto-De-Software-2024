@@ -33,7 +33,7 @@ class Cipher:
     def compare(self, data, encrypted):
         return data == self.decrypt(encrypted).decode('utf-8')
 
-    def generate_word(length = 6):
+    def generate_word(self, length = 6):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 cipher = Cipher()
