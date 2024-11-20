@@ -6,6 +6,7 @@ from flask import redirect
 from flask import url_for
 from flask import flash
 from web.forms.auth_forms.login_form import LoginForm
+from web.handlers import handle_error
 from web.handlers.auth import login_required
 from src.core.bcrypy_and_session import cipher
 
@@ -60,6 +61,7 @@ def oauth_login(mode):
         return redirect(url_for("auths.index"))
 
 @session_bp.route('/oauth')
+@handle_error(lambda: url_for('auths.index'))
 def oauth_auth():
     token = oauth.client.google.authorize_access_token()
         
