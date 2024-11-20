@@ -5,6 +5,7 @@ from flask import render_template
 from flask import redirect
 from flask import url_for
 from flask import flash
+from core.services.role_service import RoleService
 from web.forms.auth_forms.login_form import LoginForm
 from web.handlers import handle_error
 from web.handlers.auth import login_required
@@ -107,12 +108,11 @@ def oauth_auth():
         # Intento de crear user para empleado registrado
         try:
             emp = EmployeeService.get_employee_by_email(user_info.get("email")) # lanza excepcion si no existe
-            UserService.create_user(emp.id, user_info.get("name"), "1aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
+            UserService.create_user(emp.id, user_info.get("name"), "1aA"+cipher.generate_word(8), employee_email= user_info.get("email"), role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id)
         
         except Exception as e:
             # Si no se es empleado, se genera un user default
-            UserService.create_user(-1, user_info.get("name"), "2aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
-            print(e)
+            UserService.create_user(-1, user_info.get("name"), "2aA"+cipher.generate_word(8), employee_email=user_info.get("email"), role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id)
 
         finally:
             # Por ultimo se comunica que debe quedar a la espera
