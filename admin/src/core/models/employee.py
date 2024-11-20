@@ -3,8 +3,6 @@ import enum
 from sqlalchemy import Enum
 from datetime import datetime, timezone
 
-from src.core.models.equestrian import associates
-
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
     PSICOMOTRICISTA = 2
@@ -64,15 +62,16 @@ class Employee(db.Model):
     obra_social = db.Column(db.String(100), nullable=True)
     nro_afiliado = db.Column(db.String(50), nullable=False)
     condicion = db.Column(Enum(CondicionEnum), nullable=False)
+    has_default_data = db.Column(db.Boolean, default=False)
     activo = db.Column(db.Boolean, default=True)
     deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    equestrians_asociados = db.relationship('Equestrian', secondary='associates',back_populates='empleados_asociados')
+    equestrians_asociados = db.relationship('Associated', back_populates='employee')
 
     def __repr__(self):
-        return f"Empleado {self.nombre} {self.apellido} {self.dni}"
+        return f"Nombre: {self.nombre} Apellido: {self.apellido} DNI: {self.dni}"
 
     def to_dict(self):
         """Convierte la instancia del empleado a un diccionario."""
@@ -86,13 +85,13 @@ class Employee(db.Model):
             "localidad": self.localidad,
             "telefono": self.telefono,
             "profesion": self.profesion.value,
-            "puesto_laboral": self.puesto_laboral.value,
-            "fecha_inicio": self.fecha_inicio,
-            "fecha_cese": self.fecha_cese,
-            "contacto_emergencia_nombre": self.contacto_emergencia_nombre,
-            "contacto_emergencia_telefono": self.contacto_emergencia_telefono,
-            "obra_social": self.obra_social,
-            "nro_afiliado": self.nro_afiliado,
-            "condicion": self.condicion.name.capitalize(),
-            "activo": self.activo,
+            "puesto laboral": self.puesto_laboral.name.capitalize().replace('_',' '),
+            "fecha de inicio": self.fecha_inicio,
+            "fecha de cese": self.fecha_cese,
+            "nombre contacto de emergencia": self.contacto_emergencia_nombre,
+            "telefono contacto de emergencia": self.contacto_emergencia_telefono,
+            "obra social": self.obra_social,
+            "n° de afiliado": self.nro_afiliado,
+            "condicion": self.condicion.name.capitalize().replace('_', ' '),
+            "activo": 'Si' if self.activo else 'No'
         }

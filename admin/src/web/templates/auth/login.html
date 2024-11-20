@@ -1,23 +1,62 @@
 {% extends "form.html" %}
 {% block head %}
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   {{ super() }}
   <meta name="google-signin-client_id" content="{{ google_client_id() }}">
 {% endblock %}
 {% block content %}
   {{ super() }}
-  
-  <!-- Sección para Google Login -->
-  <section class="section">
-    <div class="container has-text-centered">
-      <a href="{{ url_for('auths.oauth_login') }}" class="button is-primary is-large is-rounded">
+  <div class="container">
+    <div class="buttons is-centered">
+      <a href="{{url_for('auths.oauth_login', mode='login')}}" class="button is-primary is-outlined is-medium">
         <span class="icon">
-          <i class="fab fa-google"></i>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png?20230822192911" alt="Google logo" width="20" height="20">
         </span>
         <span>Iniciar sesión con Google</span>
       </a>
+  
+      <a href="{{url_for('auths.oauth_login', mode='registration')}}" class="button is-link is-outlined is-medium">
+        <span class="icon">
+          <!-- Encontre el svg en wikimedia anashei -->
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/800px-Google_%22G%22_logo.svg.png?20230822192911" alt="Google logo" width="20" height="20">
+        </span>
+        <span>Registrarse con Google</span>
+      </a>
     </div>
-  </section>
+  </div>
 
-  <!-- Script de Google API -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+  <script>
+    function togglePassword(fieldId) {
+      const input = document.getElementById(fieldId);
+      const icon = document.getElementById(`${fieldId}-icon`).querySelector('img');
+
+      // Cambiar el tipo de input entre 'password' y 'text'
+      if (input.type === "password") {
+        input.type = "text";
+        icon.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Tabler-icons_lock-off.svg/320px-Tabler-icons_lock-off.svg.png?20230426212831";
+      } else {
+        input.type = "password";
+        icon.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Tabler-icons_lock.svg/320px-Tabler-icons_lock.svg.png?20230426212831";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const fieldId = "password";
+      const iconElement = document.getElementById(`${fieldId}-icon`);
+
+      if (iconElement) {
+        iconElement.addEventListener("click", function () {
+          togglePassword(fieldId);
+        });
+      }
+
+      const dangers = document.getElementsByClassName("button is-danger");
+      for (let i = 0; i < dangers.length; i++){
+        dangers[i].remove()
+      }
+    });
+  </script>
+
 {% endblock %}

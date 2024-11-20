@@ -1,8 +1,9 @@
 from datetime import date, datetime, timedelta, timezone
+from enum import Enum
 from core.enums.client_enum import ExtensionesPermitidas
-from sqlalchemy import Enum
+from core.services.employee_service import EmployeeService
 from src.core.database import db 
-from src.core.models.equestrian import Equestrian
+from src.core.models.equestrian import Associated, Equestrian
 from src.core.models.equestrian import SexoEnum
 from src.core.models.equestrian import TipoClienteEnum
 from src.core.models.equestrian.equestrian_docs import EquestrianDocument, TipoEnum
@@ -282,12 +283,15 @@ class EquestrianService :
         if isinstance(equestrian_id,str):
             equestrian_id = int(equestrian_id)
         
-        query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id, EquestrianDocument.deleted == include_deleted)
+        query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id)
+
+        if not include_deleted:
+            query.filter(EquestrianDocument.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
                 if hasattr(EquestrianDocument, key) and value is not None:
-                    if isinstance(value, str) and like:
+                    if isinstance(value, str) and not issubclass(getattr(EquestrianDocument, key).type.python_type, Enum) and like:
                         query = query.filter(getattr(EquestrianDocument, key).like(f'%{value}%'))
                     else:
                         query = query.filter(getattr(EquestrianDocument, key) == value)
@@ -358,3 +362,56 @@ class EquestrianService :
         db.session.commit()
         
         return archivo
+    
+class AssociatesService :
+
+    def validate_participants (employee_id, equestrian_id):
+         equestrian = EquestrianService.get_equestrian_by_id( equestrian_id)
+         employee = EmployeeService.get_employee_by_id(employee_id) 
+         return   equestrian is not None  and employee is not None
+        
+
+    def add_associated ( employee_id, equestrian_id): 
+        """Crea la relacion entre un empleado y un ecuestre"""
+       
+        AssociatesService.validate_participants(employee_id, equestrian_id) 
+        existe = AssociatesService.get_associated_by_ids(equestrian_id, employee_id)
+        if existe is not None :
+            raise ValueError(f"La asignacion ya existe para este ecuestre")
+       
+        associated = Associated(employee_id=employee_id , equestrian_id= equestrian_id)
+        db.session.add(associated)
+        db.session.commit()
+        return associated
+
+    def delete_associated (equestrian_id, employee_id):
+        """Elimina un asociado de manera logica"""
+        equestrian_id = int(equestrian_id)
+        employee_id = int(employee_id)
+        associated = AssociatesService.get_associated_by_ids(equestrian_id, employee_id)
+        associated.deleted = True
+        db.session.commit()
+        return associated
+
+    def get_associate_of_an_equestrian (equestrian_id, page=1, per_page=25, include_deleted=False):
+        """Lista todos los asociados de un ecuestre""" 
+        equestrian_id = int(equestrian_id)
+        query = Associated.query.filter(Associated.equestrian_id == equestrian_id)
+         
+        if not include_deleted:
+            query = query.filter(Associated.deleted == False)
+        
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        return pagination.items, pagination.total, pagination.pages
+
+    def get_associated_by_ids(equestrian_id,employee_id, include_deleted=False)-> Associated:
+         """Obtiene una asociacion de un id de un equestre y un empleado"""
+         query = Associated.query.filter(Associated.equestrian_id == equestrian_id 
+                                         and Associated.employee_id == employee_id )
+         if not include_deleted:
+             query = query.filter_by(deleted=False)
+         associated = query.first()
+         if not associated:
+             raise ValueError(f"No existe la relacion para los id de ecuestre {equestrian_id} y empleado{employee_id }")
+         return associated

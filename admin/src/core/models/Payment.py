@@ -13,7 +13,7 @@ class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     beneficiario_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=True)
     monto = db.Column(db.Float, nullable=False)
-    fecha_pago = db.Column(db.Date, nullable=False, default=datetime.now())
+    fecha_pago = db.Column(db.DateTime, nullable=False, default=datetime.now())
     tipo_pago = db.Column(db.Enum(PaymentEnum), nullable=False)
     descripcion = db.Column(db.String, nullable=False)
     empleado = db.relationship('Employee', backref='payments')
@@ -27,10 +27,9 @@ class Payment(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "beneficiario_id": self.beneficiario_id,
+            "beneficiario": self.beneficiario_id,
             "monto": self.monto,
-            "fecha_pago": self.fecha_pago,
-            "tipo_pago": self.tipo_pago,
+            "fecha de pago": self.fecha_pago,
+            "tipo de pago": self.tipo_pago.name.capitalize(),
             "descripcion": self.descripcion,
-            "empleado": self.empleado,
         }

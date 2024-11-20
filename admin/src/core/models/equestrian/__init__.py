@@ -4,11 +4,39 @@ from src.core.database import db
 
 
 # Representa la tabla intermedia de la relacion muchos a muchos entre empleado y ecuestre
-associates= db.Table('associates',
-    db.Column('employee_id',db.Integer, db.ForeignKey('employees.id'), primary_key=True) ,
-    db.Column('equestrian_id', db.Integer, db.ForeignKey('equestrians.id'), primary_key=True),
-    extend_existing=True
-)
+class Associated (db.Model):
+   """Representa un asociado """
+   __tablename__ = 'associates'
+   id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+   employee_id =  db.Column('employee_id',db.Integer, db.ForeignKey('employees.id'), primary_key=True) 
+   equestrian_id = db.Column('equestrian_id', db.Integer, db.ForeignKey('equestrians.id'), primary_key=True)
+   deleted = db.Column('deleted', db.Boolean, default=False)
+
+   employee = db.relationship('Employee', back_populates='equestrians_asociados')
+   equestrian = db.relationship('Equestrian', back_populates='empleados_asociados')
+
+   created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+   updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+
+   def __repr__(self):
+        return f"""Asociado: 
+            employee_id: {self.employee_id},
+            equestrian_id: {self.equestrian_id},
+            deleted: {self.deleted}
+           """
+   
+   def to_dict(self):
+        """Convierte la instancia de la relacion associates a un diccionario."""
+        return{
+            "id": self.id,
+            "employee_id": self.employee_id,
+            "equestrian_id": self.equestrian_id,
+            "activo": self.deleted
+       }
+           
+        
+
+   
  
 class Equestrian (db.Model):
     """Representa un ecuestre """
@@ -28,7 +56,7 @@ class Equestrian (db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    empleados_asociados = db.relationship('Employee',secondary=associates,back_populates='equestrians_asociados')
+    empleados_asociados =  db.relationship('Associated',back_populates='equestrian')
     equestrian_documents = db.relationship('EquestrianDocument', back_populates='equestrian')
 
     def __repr__(self):
@@ -52,13 +80,13 @@ class Equestrian (db.Model):
         return {
             "id": self.id,
             "nombre": self.nombre,
-            "sexo": self.sexo.value,
+            "sexo": self.sexo.name.capitalize(),
             "raza": self.raza,
             "pelaje": self.pelaje,
             "compra": compra,
-            "fecha_nacimiento": self.fecha_nacimiento.isoformat(),
-            "fecha_ingreso": self.fecha_ingreso.isoformat(),
+            "fecha_nacimiento": self.fecha_nacimiento.strftime("%d-%m-%Y"),
+            "fecha_ingreso": self.fecha_ingreso.strftime("%d-%m-%Y"),
             "sede_asignada": self.sede_asignada,
-            "tipo_de_jya_asignado": self.tipo_de_jya_asignado.value
+            "tipo_de_jya_asignado": self.tipo_de_jya_asignado.name.capitalize()
         }
   

@@ -1,0 +1,109 @@
+{% extends 'different_detail.html'%}
+{% block tarjetas%}
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Empleados Asociados</h1>
+            <a href="{{ url_for( 'associates.new',id = diccionario.id) }}" class="card-footer-item button is-primary">Agregar asociados</a>
+            <br>
+            <br>
+            <div class="columns is-multiline">
+                {%if cards|length == 0 %}
+                <p>No hay empleados disponibles.</p>
+                {% else %}
+
+                {% for card in cards %}
+                <div class="column is-one-third">
+                    <div class="card">
+                        <div class="card-content">
+                            <p class="title is-4">Nombre: {{ card.nombre }} {{ card.apellido }}</p> 
+                            <p class="subtitle is-6">Teléfono: {{ card.telefono }}</p>
+                        </div>
+                        <div class="card-footer buttons is-centered">
+                            {% if check_permission("employees_show")%}
+                            <a href="{{ url_for( 'employees.detail',id = card.id) }}" class="button is-primary is-small  ">Ver</a>
+                            {%endif%}
+                            <br>  
+                            {% if check_permission("equestrians_update")%}
+                            <!-- Botón para abrir el modal de confirmación -->
+                            <button class="button is-danger" onclick="openDeleteModal()">Eliminar</button>
+                        
+                            <!-- Modal de confirmación -->
+                            <div id="deleteModal" class="modal">
+                              <div class="modal-background"></div>
+                              <div class="modal-card">
+                                <header class="modal-card-head">
+                                  <p class="modal-card-title">Confirmar Eliminación</p>
+                                  <button class="delete" aria-label="close" onclick="closeDeleteModal()"></button>
+                                </header>
+                                <section class="modal-card-body">
+                                    <p><strong>¿Está seguro de que quiere eliminar este elemento? {{ mensaje_eliminacion }}. Esta acción no es reversible</strong></p>
+                                </section>
+                                <footer class="modal-card-foot is-flex is-justify-content-center">
+                                    <!-- Form para enviar la eliminación -->
+                                    <form action="{{ url_for('associates.delete', id=diccionario.id, id_empleado= card.id) }}" method="post" style="display:inline;">
+                                      <button class="button is-danger mr-2" type="submit">Eliminar</button>
+                                    </form>
+                                    <button class="button  is-primary ml-2" onclick="closeDeleteModal()">Cancelar</button>
+                                </footer>
+                              </div>
+                            </div>
+                            
+                            <!-- Script para manejar el modal -->
+                            <script>
+                              function openDeleteModal() {
+                                document.getElementById('deleteModal').classList.add('is-active');
+                              }
+                              
+                              function closeDeleteModal() {
+                                document.getElementById('deleteModal').classList.remove('is-active');
+                              }
+                            </script>
+                          {% endif %} 
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Pagination controls -->
+            <nav class="pagination is-rounded" role="navigation" aria-label="pagination">
+                <div class="pagination">
+                
+                {% if current_page2 > 1 %}
+                    <a href="{{ url_for(entidad_archivo + '.search', page2=current_page2 - 1, per_page2=per_page2, 
+                                            busqueda=request.args.get('busqueda'),
+                                            tipo_filtro=request.args.get('tipo_filtro'),
+                                            orden_filtro=request.args.get('orden_filtro'),
+                                            orden=request.args.get('orden'),
+                                            activo='informacion'
+                                            , id=diccionario.id) }}" 
+                                            class="pagination-previous" >Previous</a>
+                {% endif %}
+                <br>
+                {% for page_num in range(1, pages2 + 1) %}
+                    {% if page_num == current_page2 %}
+                        <strong>{{ page_num }}</strong>
+                    {% else %}
+                        <a href="{{ url_for(entidad_archivo + '.search', page2=page_num, per_page2=per_page2, 
+                                            busqueda = request.args.get('busqueda'),
+                                            tipo_filtro = request.args.get('tipo_filtro'),
+                                            orden_filtro = request.args.get('orden_filtro'),
+                                            orden = request.args.get('orden'),
+                                            activo='informacion' , id=diccionario.id)}}" >{{ page_num }}</a>
+                    {% endif %}
+                {% endfor %}
+                <br>
+                {% if current_page2 < pages2 %}
+                    <a href="{{ url_for(entidad_archivo + '.search', page2=current_page + 1, per_page2=per_page, 
+                                            busqueda=request.args.get('busqueda'),
+                                            tipo_filtro=request.args.get('tipo_filtro'),
+                                            orden_filtro=request.args.get('orden_filtro'),
+                                            orden=request.args.get('orden'),
+                                            activo='informacion' , id=diccionario.id)}}" class="pagination-next">Next</a>
+                {% endif %}
+                </div>
+                </nav>
+                <p>Total: {{ total2 }}</p>
+        {%endif%}
+        </div>
+    </section>
+{%endblock%}

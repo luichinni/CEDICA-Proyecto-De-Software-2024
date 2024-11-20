@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, DateField, BooleanField, TextAreaField
+from wtforms import StringField, RadioField, SelectField, DateField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, Optional
 from src.core.enums.employee_enum.CondicionEnum import CondicionEnum
 from src.core.enums.employee_enum.ProfesionEnum import ProfesionEnum
@@ -17,7 +17,7 @@ class EditEmployeeForm(FlaskForm):
     profesion = SelectField('Profesión', choices=[
         profesion.name.replace('_',' ').title() for profesion in ProfesionEnum], validators=[DataRequired()])
     puesto_laboral = SelectField('Puesto laboral', choices=[
-        (puesto_laboral.name.replace('_',' ')
+        (puesto_laboral.name, puesto_laboral.name.replace('_',' ')
          .upper()) for puesto_laboral in PuestoLaboralEnum], validators=[DataRequired()])
     fecha_inicio = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[DataRequired()])
     fecha_cese = DateField('Fecha de cese', format='%Y-%m-%d', validators=[Optional()])
@@ -27,4 +27,5 @@ class EditEmployeeForm(FlaskForm):
     nro_afiliado = StringField('Nro afiliado', validators=[DataRequired()])
     condicion = SelectField('Condicion', choices=[(condicion.name.replace('_',' ')
         .title()) for condicion in CondicionEnum], validators=[DataRequired()])
-    activo = BooleanField('Activo', default=True)
+    activo = RadioField('Activo', choices=[(True, 'Si'), (False, 'No')], default=True)
+    submit = SubmitField('Crear Empleado')

@@ -3,9 +3,9 @@
     <!-- Sección Home -->
     <section class="hero is-primary is-medium">
       <div class="hero-body">
-        <p class="title has-text-centered">Institución</p>
+        <p class="title has-text-centered">CEDICA</p>
         <p class="subtitle has-text-centered">
-          Promoviendo el desarrollo educativo y cultural de nuestra comunidad.
+          Centro de Equitación para Personas con Discapacidad y Carenciadas
         </p>
       </div>
     </section>

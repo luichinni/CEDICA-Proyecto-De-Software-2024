@@ -27,11 +27,13 @@
         <div class="container">
           <div class="box">
             <ul class="list is-hoverable">
-              {% for key in diccionario %}
+              {% for key in diccionario.keys() %}
+                {% if key != 'id' %}
                 <li class="mb-3">
-                  <strong class="has-text-weight-bold">{{ key }}:</strong>
+                  <strong class="has-text-weight-bold">{{ key | capitalize}}:</strong>
                   <span>{{ diccionario[key] }}</span>
                 </li>
+                {% endif %}
               {% endfor %}
             </ul>
           </div>
@@ -40,7 +42,7 @@
       
     <div class="buttons is-centered">
      <br>
-     <a href="{{ url_for( entidad + '.update',id = diccionario.id) }} " class="button is-primary">Editar</a> 
+     <a href="{{ url_for( entidad + '.update',id = diccionario['id']) }} " class="button is-primary">Editar</a>
      <br>
       {% include 'delete_button.html' %}
      <br>

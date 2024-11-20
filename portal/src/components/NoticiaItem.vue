@@ -6,16 +6,16 @@
           <p>
             <strong>{{ noticia.titulo }}</strong>
             <br />
-            <small>{{ formatDate(noticia.fecha_publicacion) }}</small>
+            <small>{{ formatDate(noticia.fecha) }}</small>
             <br />
             <em>{{ noticia.copete }}</em>
           </p>
         </div>
         <!-- Enlace para ver la nota completa -->
         <div class="has-text-right">
-          <router-link :to="`/noticia/${noticia.id}`" class="button is-link is-small">
+          <button @click="$emit('ver-detalle', noticia)" class="button is-link is-small">
             Leer más
-          </router-link>
+          </button>
         </div>
       </div>
     </article>

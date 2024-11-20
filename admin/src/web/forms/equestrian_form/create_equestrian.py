@@ -1,6 +1,6 @@
 from core.enums.equestrian_enum import SexoEnum, TipoClienteEnum
 from flask_wtf import FlaskForm
-from wtforms import  DateField, StringField, SelectField, RadioField
+from wtforms import  DateField, StringField, SelectField, RadioField, SubmitField
 from wtforms.validators import DataRequired
 class EquestrianCreateForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
@@ -16,7 +16,8 @@ class EquestrianCreateForm(FlaskForm):
     sede_asignada = StringField('Sede Asignada', validators=[DataRequired()])
     tipo_de_jya_asignado = SelectField('Tipo de Cliente', 
                     choices=[(opcion.name, opcion.name.replace('_',' ').capitalize()) for opcion in TipoClienteEnum ], validators=[DataRequired()])
-
+    submit = SubmitField('Enviar')
 
 class AddEmployeeAssing(FlaskForm):
-    empleado = SelectField('Asignar empleado', choices=[], validators=[DataRequired()])
+    empleado = SelectField('Empleados', choices=[], coerce=int, validators=[DataRequired()])
+    submit = SubmitField('Asignar')

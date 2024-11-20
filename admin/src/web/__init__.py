@@ -1,19 +1,16 @@
-import os
-from flask import Flask, flash
+from core.services.client_service import ClientService
+from core.services.employee_service import EmployeeService
+from core.services.equestrian_service import EquestrianService
+from core.services.permission_service import PermissionService
+from core.services.role_service import RoleService
+from core.services.user_service import UserService
+from flask import Flask
 from flask import render_template
 from flask_cors import CORS
 from web.handlers import error
 from src.web.handlers.auth import has_permission, is_authenticated
-from src.web.handlers.auth import check_permissions
 from src.core import database
 from src.core.config import config
-
-from src.core.services.user_service import UserService
-from src.core.services.user_service import RoleService
-from src.core.services.employee_service import EmployeeService
-from src.core.services.permission_service import PermissionService 
-from src.core.services.client_service import ClientService
-from src.core.services.equestrian_service import EquestrianService
 
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
@@ -24,8 +21,10 @@ from web.controllers.employee_controller import bp as employee_bp
 from src.web.controllers.session_controller import session_bp
 from src.web.controllers.equestrian_controller import  bp as equestrians_bp
 from src.web.controllers.equestrian_controller import bp_file as equestrian_file_bp
+from src.web.controllers.equestrian_controller import bp_associates as associates_bp
 from src.web.controllers.reports_controller import bp as reports_bp
 from src.web.controllers.api_controller import bp as api_bp
+from src.web.controllers.publication_controller import bp as publications_bp
 
 from src.core.storage import storage
 from src.core.bcrypy_and_session import bcrypt, session, cipher
@@ -61,8 +60,10 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(payment_bp)
     app.register_blueprint(equestrians_bp) 
     app.register_blueprint(equestrian_file_bp)
+    app.register_blueprint(associates_bp)
     app.register_blueprint(reports_bp) 
-    app.register_blueprint(api_bp) 
+    app.register_blueprint(api_bp)
+    app.register_blueprint(publications_bp)
 
 
     #Registrar funcion en jinja
