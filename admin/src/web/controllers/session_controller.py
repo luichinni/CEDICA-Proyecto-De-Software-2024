@@ -65,12 +65,12 @@ def oauth_auth():
         
     user_info = token['userinfo']
     
-    print(user_info.get('email'))
-    
     user = UserService.search_users(email=user_info.get('email'), activo=True)[0]
 
     mode = session['login_mode']
     del session['login_mode']
+
+    print(user_info)
 
     if mode == "login":        
         # Intento de login sin user
