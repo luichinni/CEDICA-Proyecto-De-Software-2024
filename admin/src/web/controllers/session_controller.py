@@ -107,10 +107,11 @@ def oauth_auth():
             emp = EmployeeService.get_employee_by_email(user_info.get("email")) # lanza excepcion si no existe
             UserService.create_user(emp.id, user_info.get("name"), "1aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
         
-        except:
+        except Exception as e:
             # Si no se es empleado, se genera un user default
             UserService.create_user(-1, user_info.get("name"), "2aA"+cipher.generate_word(8), employee_email=user_info.get("email"))
-        
+            print(e)
+
         finally:
             # Por ultimo se comunica que debe quedar a la espera
             flash("Tu usuario ha quedado a la espera de que un administrador lo valide 📝", "info")
