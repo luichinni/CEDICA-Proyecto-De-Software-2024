@@ -1,6 +1,6 @@
+from core.services.message_service import MessageService
 from flask import Blueprint, request, jsonify
 from src.web.handlers import get_int_param, get_bool_param, get_str_param
-
 import base64
 import requests
 from src.core.bcrypy_and_session import cipher
@@ -11,19 +11,22 @@ bp = Blueprint('api',__name__,url_prefix='/api')
 def contacto():
     contacto_data = request.json
     #TODO: Procesar contacto_data (Con get_int_param, get_bool_param, get_str_param por ejemplo? O manualmente o con otra cosa)
-    print(contacto_data)
-    datos_incorrectos = False #TODO: Implementar esto
-    if datos_incorrectos:
+    try: 
+       print("llega al add")
+       contacto_data['status']=contacto_data['status'].upper()
+       MessageService.add_message(**contacto_data)
+    except Exception as e:
         response = {
             "error": "Datos incorrectos.",
-        }
-        return jsonify(response), 400
-
-    response = {
-        "message": "Gracias por ponerte en contacto con nosotros.",
-    }
-    return jsonify(response), 201
-
+            "message": f"{e}"
+        } 
+        return jsonify(response),400
+       
+    else:
+        response = {
+                "message": "Gracias por ponerte en contacto con nosotros.",
+            } 
+        return jsonify(response),201
 
 @bp.get('/noticias')
 def get_noticias():
