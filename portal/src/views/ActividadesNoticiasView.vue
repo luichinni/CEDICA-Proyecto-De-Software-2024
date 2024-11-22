@@ -80,13 +80,13 @@ export default {
             per_page,       
           }
         });  
-        /*this.total = response.data.total;
+        this.total = response.data.total;
         this.pages = response.data.pages;
-        this.current_page = response.data.page;
+        this.current_page = response.data.current_page;
         this.per_page = response.data.per_page;
         this.noticias = response.data.publications.sort((a, b) => new Date(b.fecha_publicacion) - new Date(a.fecha_publicacion));
-        */
-        this.noticias = response.data.sort((a, b) => new Date(b.fecha_publicacion) - new Date(a.fecha_publicacion));
+        
+        //this.noticias = response.data.sort((a, b) => new Date(b.fecha_publicacion) - new Date(a.fecha_publicacion));
       } catch (error) {
         this.error = 'Error al cargar las noticias'
         console.error('Error al cargar las noticias:', error);
