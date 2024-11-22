@@ -36,10 +36,11 @@ def get_noticias():
 
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 10, optional=True)
-    start_published_date = get_str_param(params, 'published_from')
-    end_published_date = get_str_param(params, 'published_to')
+    start_published_date = get_str_param(params, 'published_from', optional=True)
+    end_published_date = get_str_param(params, 'published_to', optional=True)
 
-    filtro = {'author': get_str_param(params, 'author'),
+    filtro = {'status': 'PUBLICADO',
+              'author': get_str_param(params, 'author', optional=True),
               'start_published_date': datetime.strptime(start_published_date, '%Y-%m-%d').date() if start_published_date else None,
               'end_published_date': datetime.strptime(end_published_date, '%Y-%m-%d').date() if end_published_date else None,}
     order_by = get_str_param(params, 'order_by', None, optional=True)

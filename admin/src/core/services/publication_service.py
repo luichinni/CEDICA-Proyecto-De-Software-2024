@@ -15,6 +15,8 @@ class PublicationService:
         publications_query = Publication.query.filter_by(deleted=include_deleted)
         if filtro:
             valid_filters = {key: value for key, value in filtro.items() if hasattr(Publication, key) and value is not None}
+            if 'status' in valid_filters:
+                publications_query = publications_query.filter(Publication.status == valid_filters['status'])
             if 'title' in valid_filters:
                 publications_query = publications_query.filter(Publication.title.ilike(valid_filters['title']))
             if 'start_published_date' in valid_filters:
