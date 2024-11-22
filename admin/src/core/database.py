@@ -2,6 +2,7 @@ from core.enums.client_enum import AsignacionFamiliar, Condicion, Pension
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 
+
 db = SQLAlchemy()
 
 def init_app(app):
@@ -26,7 +27,7 @@ def reset():
     db.create_all()
     print("Finalizacion del reset de la base de datos!")
 
-def init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService):
+def init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService, PublicationService):
     """Inicializa la base de datos"""
     print("Creando empleado admin")
     EmployeeService.create_admin_employee()
@@ -44,6 +45,8 @@ def init(UserService, RoleService, EmployeeService, PermissionService, ClientSer
     create_example_eq(EquestrianService)
     print("Creando cliente de ejemplo")
     create_example_client(ClientService)
+    print("Creando publicaciones de ejemplo")
+    PublicationService.create_example_publications()
 
     print("Creando user pendiente")
     UserService.create_user(-1, "Esteban Quito", "Clavemagica123", role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id, employee_email="esperando@validacion.com")
