@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+from src.web.schemas.publication_schema import publications_schema
+from core.services.publication_service import PublicationService
 from src.web.handlers import get_int_param, get_bool_param, get_str_param
 
 import base64
@@ -6,6 +8,7 @@ import requests
 from src.core.bcrypy_and_session import cipher
 
 bp = Blueprint('api',__name__,url_prefix='/api')
+
 
 @bp.post('/contacto')
 def contacto():
@@ -27,24 +30,24 @@ def contacto():
 
 @bp.get('/noticias')
 def get_noticias():
-    noticias_data = [
-        {
-            "fecha": "2024-11-01",
-            "titulo": "Nueva investigación educativa",
-            "copete": "Exploramos nuevas metodologías de enseñanza para mejorar la calidad educativa.",
-            "link": "/noticia/1"
-        },
-        {
-            "fecha": "2024-10-15",
-            "titulo": "Evento cultural comunitario",
-            "copete": "Únete a nosotros para celebrar la diversidad cultural.",
-            "link": "/noticia/2"
-        }
-    ]
+    params = request.args
 
-    #TODO: Obtener noticias_data de NoticiasService u otro lado
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 10, optional=True)
+    filtro = {'status' : 'PUBLICADO'}
+    order_by = get_str_param(params, 'order_by', 'created_date', optional=True)
+    ascending = get_bool_param(params, 'ascending', True, optional=True)
 
-    return jsonify(noticias_data), 200
+    publications, total, pages = PublicationService.list_publications(filtro=filtro, order_by=order_by, ascending=ascending, page=page, per_page=per_page)
+
+
+    return jsonify({
+        'total': total,
+        'pages': pages,
+        'current_page': page,
+        'per_page': per_page,
+        'publications': publications_schema.dump(publications)
+    })
 
 
 @bp.route('/captcha', methods=['GET','POST'])
