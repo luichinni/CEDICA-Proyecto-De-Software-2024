@@ -1,50 +1,63 @@
+from core.services.message_service import MessageService
+from datetime import datetime
 from flask import Blueprint, request, jsonify
+from src.web.schemas.publication_schema import publications_schema
+from core.services.publication_service import PublicationService
 from src.web.handlers import get_int_param, get_bool_param, get_str_param
-
 import base64
 import requests
 from src.core.bcrypy_and_session import cipher
 
 bp = Blueprint('api',__name__,url_prefix='/api')
 
+
 @bp.post('/contacto')
 def contacto():
     contacto_data = request.json
     #TODO: Procesar contacto_data (Con get_int_param, get_bool_param, get_str_param por ejemplo? O manualmente o con otra cosa)
-    print(contacto_data)
-    datos_incorrectos = False #TODO: Implementar esto
-    if datos_incorrectos:
+    try: 
+       print("llega al add")
+       contacto_data['status']=contacto_data['status'].upper()
+       MessageService.add_message(**contacto_data)
+    except Exception as e:
         response = {
             "error": "Datos incorrectos.",
-        }
-        return jsonify(response), 400
-
-    response = {
-        "message": "Gracias por ponerte en contacto con nosotros.",
-    }
-    return jsonify(response), 201
-
+            "message": f"{e}"
+        } 
+        return jsonify(response),400
+       
+    else:
+        response = {
+                "message": "Gracias por ponerte en contacto con nosotros.",
+            } 
+        return jsonify(response),201
 
 @bp.get('/noticias')
 def get_noticias():
-    noticias_data = [
-        {
-            "fecha": "2024-11-01",
-            "titulo": "Nueva investigación educativa",
-            "copete": "Exploramos nuevas metodologías de enseñanza para mejorar la calidad educativa.",
-            "link": "/noticia/1"
-        },
-        {
-            "fecha": "2024-10-15",
-            "titulo": "Evento cultural comunitario",
-            "copete": "Únete a nosotros para celebrar la diversidad cultural.",
-            "link": "/noticia/2"
-        }
-    ]
+    params = request.args
 
-    #TODO: Obtener noticias_data de NoticiasService u otro lado
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 10, optional=True)
+    start_published_date = get_str_param(params, 'published_from', optional=True)
+    end_published_date = get_str_param(params, 'published_to', optional=True)
 
-    return jsonify(noticias_data), 200
+    filtro = {'status': 'PUBLICADO',
+              'author': get_str_param(params, 'author', optional=True),
+              'start_published_date': datetime.strptime(start_published_date, '%Y-%m-%d').date() if start_published_date else None,
+              'end_published_date': datetime.strptime(end_published_date, '%Y-%m-%d').date() if end_published_date else None,}
+    order_by = get_str_param(params, 'order_by', None, optional=True)
+    ascending = get_bool_param(params, 'ascending', True, optional=True)
+
+    publications, total, pages = PublicationService.list_publications(filtro=filtro, order_by=order_by, ascending=ascending, page=page, per_page=per_page)
+
+
+    return jsonify({
+        'total': total,
+        'pages': pages,
+        'current_page': page,
+        'per_page': per_page,
+        'publications': publications_schema.dump(publications)
+    })
 
 
 @bp.route('/captcha', methods=['GET','POST'])

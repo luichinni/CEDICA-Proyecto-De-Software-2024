@@ -12,6 +12,7 @@ from src.web.handlers.auth import has_permission, is_authenticated
 from src.core import database
 from src.core.config import config
 
+from src.core.services.publication_service import PublicationService
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
 from src.web.controllers.client_controller import clients_bp
@@ -25,6 +26,7 @@ from src.web.controllers.equestrian_controller import bp_associates as associate
 from src.web.controllers.reports_controller import bp as reports_bp
 from src.web.controllers.api_controller import bp as api_bp
 from src.web.controllers.publication_controller import bp as publications_bp
+from src.web.controllers.contact_controller import bp as contact_bp
 
 from src.core.storage import storage
 from src.core.bcrypy_and_session import bcrypt, session, cipher
@@ -64,6 +66,7 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(reports_bp) 
     app.register_blueprint(api_bp)
     app.register_blueprint(publications_bp)
+    app.register_blueprint(contact_bp)
 
 
     #Registrar funcion en jinja
@@ -75,6 +78,6 @@ def create_app(env="development", static_folder="../../static"):
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService)
+        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService, PublicationService)
 
     return app
