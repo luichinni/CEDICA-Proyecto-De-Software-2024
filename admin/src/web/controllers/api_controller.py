@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Blueprint, request, jsonify
 from src.web.schemas.publication_schema import publications_schema
 from core.services.publication_service import PublicationService
@@ -34,8 +36,13 @@ def get_noticias():
 
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 10, optional=True)
-    filtro = {'status' : 'PUBLICADO'}
-    order_by = get_str_param(params, 'order_by', 'created_date', optional=True)
+    start_published_date = get_str_param(params, 'published_from')
+    end_published_date = get_str_param(params, 'published_to')
+
+    filtro = {'author': get_str_param(params, 'author'),
+              'start_published_date': datetime.strptime(start_published_date, '%Y-%m-%d').date() if start_published_date else None,
+              'end_published_date': datetime.strptime(end_published_date, '%Y-%m-%d').date() if end_published_date else None,}
+    order_by = get_str_param(params, 'order_by', None, optional=True)
     ascending = get_bool_param(params, 'ascending', True, optional=True)
 
     publications, total, pages = PublicationService.list_publications(filtro=filtro, order_by=order_by, ascending=ascending, page=page, per_page=per_page)
