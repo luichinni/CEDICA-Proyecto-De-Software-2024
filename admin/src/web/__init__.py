@@ -12,6 +12,7 @@ from src.web.handlers.auth import has_permission, is_authenticated
 from src.core import database
 from src.core.config import config
 
+from src.core.services.publication_service import PublicationService
 from src.web.controllers.collection_controller import bp as collection_bp
 from src.web.controllers.user_controller import bp as users_bp
 from src.web.controllers.client_controller import clients_bp
@@ -77,6 +78,6 @@ def create_app(env="development", static_folder="../../static"):
     @app.cli.command(name="reset-db")
     def reset_db():
         database.reset()
-        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService)
+        database.init(UserService, RoleService, EmployeeService, PermissionService, ClientService, EquestrianService, PublicationService)
 
     return app
