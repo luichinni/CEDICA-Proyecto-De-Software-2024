@@ -1,8 +1,8 @@
-from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension
+from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension, TipoDocs
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import EquestrianService
 from flask import Blueprint, request, render_template, redirect, url_for, flash
-from web.forms.client_forms.client_file_search import ClientFileSearchForm
+from web.forms.client_forms.client_file_search import FileSearchForm
 from web.forms.client_forms.client_search import ClientSearchForm
 from src.core.services.client_service import ClientService, ClientDocuments
 from src.web.handlers.auth import check_permissions
@@ -367,6 +367,7 @@ def search(id):
     ascending = params.get('ascending', '1') == '1'
     deleted = False
 
+    ClientFileSearchForm = FileSearchForm(TipoDocs)
     form = ClientFileSearchForm(**params.to_dict())
 
     if False: # deberia chequear que sea admin?

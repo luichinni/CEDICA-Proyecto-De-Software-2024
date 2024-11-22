@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
+from enum import Enum
 from core.enums.client_enum import ExtensionesPermitidas
 from core.services.employee_service import EmployeeService
-from sqlalchemy import Enum
 from src.core.database import db 
 from src.core.models.equestrian import Associated, Equestrian
 from src.core.models.equestrian import SexoEnum
@@ -283,12 +283,15 @@ class EquestrianService :
         if isinstance(equestrian_id,str):
             equestrian_id = int(equestrian_id)
         
-        query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id, EquestrianDocument.deleted == include_deleted)
+        query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id)
+
+        if not include_deleted:
+            query.filter(EquestrianDocument.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
                 if hasattr(EquestrianDocument, key) and value is not None:
-                    if isinstance(value, str) and like:
+                    if isinstance(value, str) and not issubclass(getattr(EquestrianDocument, key).type.python_type, Enum) and like:
                         query = query.filter(getattr(EquestrianDocument, key).like(f'%{value}%'))
                     else:
                         query = query.filter(getattr(EquestrianDocument, key) == value)

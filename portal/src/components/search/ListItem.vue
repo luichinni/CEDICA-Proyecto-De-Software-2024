@@ -4,16 +4,15 @@
       <div class="media-content">
         <div class="content">
           <p>
-            <strong>{{ noticia.titulo }}</strong>
+            <strong>{{ item.titulo }}</strong>
             <br />
-            <small>{{ formatDate(noticia.fecha) }}</small>
+            <small>{{ formatDate(item.fecha) }}</small>
             <br />
-            <em>{{ noticia.copete }}</em>
+            <em>{{ item.copete }}</em>
           </p>
         </div>
-        <!-- Enlace para ver la nota completa -->
         <div class="has-text-right">
-          <button @click="$emit('ver-detalle', noticia)" class="button is-link is-small">
+          <button @click="$emit('ver-detalle', item)" class="button is-link is-small">
             Leer más
           </button>
         </div>
@@ -24,9 +23,9 @@
 
 <script>
 export default {
-  name: 'NoticiaItem',
+  name: 'ListItem',
   props: {
-    noticia: {
+    item: {
       type: Object,
       required: true,
     },
