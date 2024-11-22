@@ -36,6 +36,9 @@
 
                         {%if check_permission("publications_index")%}
                             <li><a href="{{ url_for('publications.search') }}">Contenido</a></li> {% endif %}
+                        
+                        {%if check_permission("contact_index")%}
+                            <li><a href="{{ url_for('contact.search') }}">Mensajes</a></li> {% endif %}
 
                      {% endif %}
                         </ul>
