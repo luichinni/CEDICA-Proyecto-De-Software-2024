@@ -18,9 +18,13 @@
            <div>
               
                {%if campos[campo] != 'submit'%}
-               {{ form[campos[campo]].label }}  <!-- Renderiza la etiqueta -->
+                    {{ form[campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                    {% if form[campos[campo]].type == "TextAreaField" %}
+                        {{ form[campos[campo]](class="form-control textarea", rows=10, id=campos[campo]) }}
+                    {% else %}
+                        {{ form[campos[campo]] }} <!-- Renderiza el campo de entrada -->
+                    {%endif%}
                {%endif%}
-               {{ form[campos[campo]] }}        <!-- Renderiza el campo de entrada -->
 
            </div>
           

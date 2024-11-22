@@ -12,7 +12,7 @@ class CreatePublicationForm(FlaskForm):
             Length(max=100, message="El titulo no debe exceder los 100 caracteres.")
         ]
     )
-    summary = TextAreaField(
+    summary = StringField(
         'Copete',
         validators=[
             DataRequired(),
@@ -20,7 +20,8 @@ class CreatePublicationForm(FlaskForm):
         ]
     )
 
-    body = TextAreaField('Contenido', validators=[DataRequired()])
+    body = TextAreaField('Contenido', validators=[DataRequired()],
+            render_kw={"class": "form-control", "placeholder": "Escribe el contenido aquí..."})
     status = SelectField(
         'Estado',
         choices=[(estado.name, estado.name.replace('_',' ')) for estado in PublicationStatusEnum],
