@@ -34,7 +34,22 @@ def search():
 
     lista_diccionarios = [publication.to_dict() for publication in publications]
 
-    form = SearchPublicationForm(**params.to_dict())
+    params_dict = params.to_dict()
+    # Manejar start_published_date y end_published_date para que no de error al pasar **params_dict
+    if 'start_published_date' in params_dict:
+        if not params_dict['start_published_date']: 
+            del params_dict['start_published_date'] 
+        else:
+            params_dict['start_published_date'] = datetime.strptime(params_dict['start_published_date'], '%Y-%m-%d').date()
+
+    if 'end_published_date' in params_dict:
+        if not params_dict['end_published_date']:  
+            del params_dict['end_published_date']  
+        else:
+            params_dict['end_published_date'] = datetime.strptime(params_dict['end_published_date'], '%Y-%m-%d').date()
+
+    form = SearchPublicationForm(**params_dict)
+
     return render_template('search_box.html',
                            form=form,
                            entidad='publications',
