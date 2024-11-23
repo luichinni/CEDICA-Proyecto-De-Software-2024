@@ -1,9 +1,16 @@
+from core.enums.equestrian_enum import TipoClienteEnum
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, RadioField, SubmitField
+from wtforms.validators import Optional
+from wtforms import StringField, SelectField, RadioField, SubmitField,BooleanField
 
-class EquestriantSearchForm(FlaskForm):
-    busqueda = StringField()
-    tipo_filtro = SelectField(choices=[(campo.replace(' ','_').lower(),campo) for campo in ['Nombre','Tipo de JyA asignado']]) # campo que se quiere filtrar con la busqueda
-    orden_filtro = SelectField(choices=[(campo.replace(' ','_').lower(),campo) for campo in ['Nombre','Fecha nacimiento','Fecha ingreso']]) # campo por el que se quiere ordenar la busqueda, pueden ser iguales o diferentes
-    orden = RadioField(choices=['Ascendente', 'Descendente'])
-    submit = SubmitField('Aplicar')
+class EquestrianSearchForm(FlaskForm):
+    nombre = StringField("Nombre", validators=[Optional()])
+    tipo_de_jya_asignado = SelectField("Tipo de JyA asignado", choices=[("TODOS","Todos")]+[(tipo.name, tipo.name.replace("_"," ").capitalize()) for tipo in TipoClienteEnum],default="TODOS", validators=[Optional()]) 
+    order_by = SelectField("Ordenar por", choices=[
+        ('nombre', 'Nombre'),
+        ('fecha_nacimiento', 'Fecha nacimiento'),
+        ('fecha_ingreso', 'Fecha ingreso')
+    ],validators=[Optional()])
+    ascending = RadioField('Orden',choices=[('1', 'Ascendente'), ('0', 'Descendente')], default='1', validators=[Optional()])
+    deleted = BooleanField('Mostrar eliminados', default=False)
+    submit = SubmitField('Buscar JyA')

@@ -1,4 +1,4 @@
-from core.enums.equestrian_enum import SexoEnum, TipoEnum
+from core.enums.equestrian_enum import SexoEnum, TipoClienteEnum, TipoEnum
 from core.enums.permission_enums import PermissionCategory, PermissionModel
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import AssociatesService, EquestrianService
@@ -6,7 +6,7 @@ from flask import Blueprint, redirect, request, render_template, url_for, flash
 from web.forms.client_forms.client_file_search import FileSearchForm
 from web.forms.equestrian_form.create_equestrian import AddEmployeeAssing, EquestrianCreateForm
 from web.forms.equestrian_form.new_equestrian_file import UploadFile, UploadLink
-from web.forms.equestrian_form.search_equestrian import EquestriantSearchForm 
+from web.forms.equestrian_form.search_equestrian import EquestrianSearchForm
 from web.handlers import get_int_param, get_str_param, handle_error
 from web.handlers.auth import check_permissions
 
@@ -45,7 +45,7 @@ def new():
  
 @bp.route('/update/<int:id>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
-@handle_error(lambda: url_for('equestrians.search'))
+@handle_error(lambda id: url_for('equestrians.search'))
 def update(id): 
     """Editar un ecuestre existente"""
     id= int(id)
@@ -82,57 +82,70 @@ def update(id):
  
 
 @bp.get('/listado')
-@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}")
+@check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}") 
 @handle_error(lambda: url_for('home'))
 def search():
-    """Lista todos los ecuestres con paginación."""
+    """Lista todos los clientes con paginación."""
+    
     params = request.args
-    params_dict = params.to_dict()
-    
-    form = EquestriantSearchForm()
-    
-    for param, valor in params_dict.items():
-        if param in form._fields:
-            form._fields[param].data = valor
-    
-    filtro = None
-    
-    if params.get('tipo_filtro', None) and params.get('busqueda', '') != '':
-        filtro = {
-            params['tipo_filtro']: params.get('busqueda')
-        }
-    
-    
-    order_by = params.get('orden_filtro',None)
-    
-    ascending = (params.get('orden','Ascendente') == 'Ascendente')
-    
-    page = int(getattr(params,'page','1'))
 
-    per_page = int(getattr(params,'per_page','5'))
+    filtros = {
+        'nombre': get_str_param(params, 'nombre', optional=True),
+        'tipo_de_jya_asignado': get_str_param(params, 'tipo_de_jya_asignado','TODOS', optional=True),
+    }
+     
+    if filtros['tipo_de_jya_asignado'] == 'TODOS' :
+        del filtros['tipo_de_jya_asignado']
+    else: 
+        filtros['tipo_de_jya_asignado']= TipoClienteEnum[filtros['tipo_de_jya_asignado']]
 
+    page = get_int_param(params, 'page', 1, optional=True)
+    per_page = get_int_param(params, 'per_page', 5, optional=True)
+    order_by = get_str_param(params, 'order_by', 'created_at', optional=True)
+    ascending = params.get('ascending', '1') == '1'
+    deleted = False
 
-    equestrians, total, pages = EquestrianService.search_equestrian(filtro,page,per_page,order_by,ascending, like=True)
-    
-    listado = []
+    form = EquestrianSearchForm(**params.to_dict())
 
-    if equestrians:
-         
-        for ecuestre in equestrians:
-            listado.append({
-                'id': ecuestre.id,
-                'Nombre': ecuestre.nombre,
-                'Fecha nacimiento': ecuestre.fecha_nacimiento.strftime("%d-%m-%Y"),
-                'Fecha ingreso': ecuestre.fecha_ingreso.strftime("%d-%m-%Y"),
-            })
+    if False: # deberia chequear que sea admin?
+        deleted = get_bool_param(params, 'deleted', False, optional=True) # revisar
+
     else:
-        # por si no hay que listar y que no se rompa
-        listado = [{
-        'id': '0',
-        'Nombre': '',
-        'Fecha nacimiento': '',
-        'Fecha ingreso': '',
-    }]
+        del form.deleted
+
+    equs, total, pages = EquestrianService.search_equestrian(
+        filtro=filtros,
+        page=page,
+        per_page=per_page,
+        order_by=order_by,
+        ascending=ascending,
+        include_deleted=deleted,
+        like=True
+    )
+
+    lista_diccionarios = []
+
+    for equ in equs:
+        lista_diccionarios.append({
+            'id': equ.id,
+            'Nombre': equ.nombre,
+            'Tipo J&A': equ.tipo_de_jya_asignado.name.replace('_',' ').capitalize(),
+            'Fecha de nacimiento': equ.fecha_nacimiento.strftime("%d-%m-%Y"),
+            'Fecha de ingreso': equ.fecha_ingreso.strftime("%d-%m-%Y"),
+        })
+
+    return render_template(
+        'search_box.html',
+        form=form,
+        entidad='equestrians',
+        anterior=url_for('home'),
+        lista_diccionarios=lista_diccionarios,
+        total=total,
+        current_page=page,
+        per_page =per_page,
+        pages=pages,
+        titulo='Listado de ecuestres'
+    )
     
     return render_template('search_box.html', entidad='equestrians', anterior=url_for('home'), form=form, lista_diccionarios=listado, total=total, current_page=page, per_page=per_page, pages=pages,titulo='Listado de ecuestres')
 
@@ -140,7 +153,7 @@ def search():
 
 @bp.get('/detail/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda: url_for('equestrians.search')) 
+@handle_error(lambda id: url_for('equestrians.search')) 
 def detail(id):
       """Muestra los datos o detalles de un ecuestre"""
      
@@ -149,7 +162,7 @@ def detail(id):
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda: url_for('equestrians.search'))
+@handle_error(lambda id: url_for('equestrians.search'))
 def delete(id):
     """Eliminar un ecuestre de manera logica"""
     equestrian = EquestrianService.get_equestrian_by_id(id)
@@ -167,7 +180,7 @@ bp_file = Blueprint('equestrian_files', __name__, url_prefix='/equestrian_files'
 
 @bp_file.route('/create/<int:id>/<string:es_link>', methods= ['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.NEW.value}") 
-@handle_error(lambda: url_for('equestrian_files.search'))
+@handle_error(lambda id, es_link: url_for('equestrian_files.search'))
 def new(id,es_link): 
     es_link = (es_link.lower() == 'true')
     form = UploadFile() if not es_link else UploadLink()
@@ -189,7 +202,7 @@ def new(id,es_link):
 
 @bp_file.route('/update/<int:id>/<string:es_link>/<int:id_entidad>', methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
-@handle_error(lambda: url_for('equestrian_files.search'))
+@handle_error(lambda id: url_for('equestrian_files.search'))
 def  update(id:int, id_entidad: int,es_link:str):
     es_link = es_link=='True'
     
@@ -242,7 +255,7 @@ def get_employees_associates (associates):
 
 @bp_file.get('/listado/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}") 
-#@handle_error(lambda id: url_for('home'))
+@handle_error(lambda id: url_for('home'))
 def search(id):
     #=======================================================================#
     # FILTRO DE LOS ARCHIVOS DEL ECUESTRE E INFORMACION FORMATEADA          #
@@ -342,7 +355,7 @@ def search(id):
 
 @bp_file.get('/detail/<int:id>')
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}") 
-@handle_error(lambda: url_for('equestrian_files.search'))
+@handle_error(lambda id: url_for('equestrian_files.search'))
 def detail(id):
     archivo = EquestrianService.get_document(id)
     
@@ -354,8 +367,7 @@ def detail(id):
 
 @bp_file.route('/delete/<int:id>/<int:id_entidad>', methods=['POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.DESTROY.value}")
-@handle_error(lambda: url_for('equestrian_files.search')) 
-@handle_error(lambda: url_for('equestrian_files.search'))
+@handle_error(lambda id, id_entidad: url_for('equestrian_files.search')) 
 def delete(id:int, id_entidad:int):
     EquestrianService.delete_document(id)
     flash("Se elimino el documento exitosamente", "success")
@@ -367,7 +379,7 @@ bp_associates = Blueprint('associates', __name__, url_prefix='/associates')
 
 @bp_associates.route('/create/<int:id>', methods= ['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
-@handle_error(lambda: url_for('equestrian_files.search'))
+@handle_error(lambda id: url_for('equestrian_files.search'))
 def new(id):  
     
     empleados,total, pages = EmployeeService.get_employees(filtro={"puesto_laboral": "CONDUCTOR"}, page=1, per_page=25)
@@ -410,7 +422,7 @@ def new(id):
 
 @bp_associates.route('/create/<int:id>/<int:id_empleado>', methods= ['GET','POST'])
 @check_permissions(f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.UPDATE.value}") 
-@handle_error(lambda: url_for('equestrian_files.search'))
+@handle_error(lambda id: url_for('equestrian_files.search'))
 def delete(id:int, id_empleado:int):
     AssociatesService.delete_associated(id,id_empleado)
     flash("Se elimino el empleado asociado exitosamente", "success")

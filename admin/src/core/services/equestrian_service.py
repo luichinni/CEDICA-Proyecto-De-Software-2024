@@ -373,16 +373,20 @@ class AssociatesService :
 
     def add_associated ( employee_id, equestrian_id): 
         """Crea la relacion entre un empleado y un ecuestre"""
+        associated=None
        
         AssociatesService.validate_participants(employee_id, equestrian_id) 
-        existe = AssociatesService.get_associated_by_ids(equestrian_id, employee_id)
-        if existe is not None :
-            raise ValueError(f"La asignacion ya existe para este ecuestre")
+        try:
+            AssociatesService.get_associated_by_ids(equestrian_id, employee_id)
        
-        associated = Associated(employee_id=employee_id , equestrian_id= equestrian_id)
-        db.session.add(associated)
-        db.session.commit()
-        return associated
+        except:
+            associated = Associated(employee_id=employee_id , equestrian_id= equestrian_id)
+            db.session.add(associated)
+            db.session.commit()
+        else: 
+            raise ValueError(f"La asignacion ya existe para este ecuestre")
+        
+        return associated 
 
     def delete_associated (equestrian_id, employee_id):
         """Elimina un asociado de manera logica"""
@@ -407,8 +411,8 @@ class AssociatesService :
 
     def get_associated_by_ids(equestrian_id,employee_id, include_deleted=False)-> Associated:
          """Obtiene una asociacion de un id de un equestre y un empleado"""
-         query = Associated.query.filter(Associated.equestrian_id == equestrian_id 
-                                         and Associated.employee_id == employee_id )
+         query = Associated.query.filter(Associated.equestrian_id == equestrian_id) 
+         query = query.filter (Associated.employee_id == employee_id )
          if not include_deleted:
              query = query.filter_by(deleted=False)
          associated = query.first()
