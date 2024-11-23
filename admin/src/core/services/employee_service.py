@@ -301,7 +301,7 @@ class EmployeeService:
         query = EmployeeDocuments.query.filter(EmployeeDocuments.employee_id == employee_id)
 
         if not include_deleted:
-            query.filter(EmployeeDocuments.deleted == include_deleted)
+            query = query.filter(EmployeeDocuments.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
