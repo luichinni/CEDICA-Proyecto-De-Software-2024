@@ -18,9 +18,9 @@ class PublicationService:
             if 'status' in valid_filters:
                 publications_query = publications_query.filter(Publication.status == valid_filters['status'])
             if 'author' in valid_filters:
-                publications_query = publications_query.filter(Publication.author.ilike(valid_filters['author']))
+                publications_query = publications_query.filter(Publication.author.ilike(f"%{valid_filters['author']}%"))
             if 'title' in valid_filters:
-                publications_query = publications_query.filter(Publication.title.ilike(valid_filters['title']))
+                publications_query = publications_query.filter(Publication.title.ilike(f"%{valid_filters['title'].lower()}%"))
             if 'start_published_date' in valid_filters:
                 publications_query = publications_query.filter(Publication.published_date >= valid_filters['start_published_date'])
             if 'end_published_date' in valid_filters:
