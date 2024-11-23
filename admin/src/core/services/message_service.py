@@ -3,30 +3,13 @@ from src.core.models.message import Message
 from core.enums.message import StatuEnum
 from sqlalchemy import Enum
 from src.core.database import db 
-import re 
-from dateutil import parser
+import re  
 
 class MessageService :
     @staticmethod 
     def validate_email(email):
        patron = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-       return re.match(patron, email) is not None
-
-    @staticmethod
-    def ensure_datetime(fecha_ingreso): 
-        if isinstance(fecha_ingreso, str):
-            try:
-                print("llega a la fecha")
-                return parser.isoparse(fecha_ingreso.replace(" ", ""))
-                
-            except ValueError:
-                raise ValueError("La fecha ingresada no es válida, debe estar en formato YYYY-MM-DD.")
-        elif isinstance(fecha_ingreso, datetime) : 
-            print("llega al reutnr")
-            return fecha_ingreso
-        else:
-            raise TypeError("La fecha ingresada debe ser un objeto datetime o una cadena.")
-    
+       return re.match(patron, email) is not None 
     
     @staticmethod
     def es_enum_valido(valor , enum):
@@ -45,6 +28,7 @@ class MessageService :
     def validar_arguments(**kwargs):
         """Valida que los parametros sean correctos para mensaje"""
         dic = dict(**kwargs)
+        
         email= kwargs.get('email')
         if email is not None and MessageService.validate_email(email) :
             del dic['email']
@@ -61,7 +45,12 @@ class MessageService :
     @staticmethod 
     def add_message(**kwargs): 
        """Crea un mensaje"""
-       print("en el add")
+       closed_at= kwargs.get('closed_at')
+       if closed_at is not None :
+            del kwargs['closed_at']
+       created_at= kwargs.get('created_at')
+       if created_at is not None :
+            del kwargs['created_at']
        if MessageService.validar_arguments(**kwargs) :
            message = Message(**kwargs)    
        db.session.add(message)
