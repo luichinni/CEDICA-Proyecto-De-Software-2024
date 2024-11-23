@@ -16,7 +16,7 @@
         </section>
         <footer class="modal-card-foot is-flex is-justify-content-center">
             <!-- Form para enviar la eliminación -->
-            <form action="{{ url_for(entidad_archivo + '.delete', id=diccionario['id']) }}" method="post" style="display:inline;">
+            <form action="{{ url_for(entidad_archivo + '.delete', id=diccionario['id'], id_entidad=id_entidad) }}" method="post" style="display:inline;">
               <button class="button is-danger mr-2" type="submit">Eliminar</button>
             </form>
             <button class="button  is-primary ml-2" onclick="openDeleteModal({{ diccionario['id'] }})">Cancelar</button>
