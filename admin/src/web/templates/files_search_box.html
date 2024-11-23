@@ -6,15 +6,15 @@
 <a class="button is-primary is-pulled-left" href="{{url_for( entidad_archivo + '.new',  id=diccionario.id,  es_link =True)}}">Agregar Enlace</a>
 <br>
 <br>
-<section class="search_box">
+<section class="navbar-brand">
    
-  <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}">
+  <form method="GET" action="{{ url_for(entidad_archivo + '.search', id=diccionario.id) }}" class="is-flex is-flex-wrap-wrap is-align-items-center">
     {{ form.hidden_tag() }}
     <input type="hidden" name="activo" value="{{activo}}"/>
     
     <!-- Iteración dinámica de campos del formulario -->
     {% for field in form if field.name != 'csrf_token' and field.type != 'SubmitField' %}
-    <div class="field">
+    <div class="field mr-3">
       <label class="label">{{ field.label.text }}</label>
       <div class="control">
         {{ field }}

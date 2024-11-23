@@ -31,13 +31,17 @@
   <div id="informacion" class="tab-content" class="is-active">
    
     <section class="section">
-      <ul class="list">  
+      <div class="container">
+      <div class="box">  
+      <ul class="list is-hoverable">  
       {%for key in diccionario %}
       {%if key != 'id' %}
-          <li><strong>{{key}} :</strong>{{diccionario[key]}}  </li>
+          <li><strong class="has-text-weight-bold">{{key}} :</strong>{{diccionario[key]}}  </li>
           {%endif%}
       {%endfor%}
      </ul>
+      </div>
+     </div>
    </section>
    <div class="buttons is-centered">
     <br>
