@@ -36,12 +36,17 @@ class PuestoLaboralEnum(enum.Enum):
     AUXILIAR_DE_MANTENIMIENTO = 11
     OTRO = 12
 
-    @classmethod
-    def from_value(cls, value):
-        for method in cls:
-            if method.name.capitalize() == value:
-                return method
-        raise ValueError(f"No se encontró un puesto laboral con el valor: {value}")
+class TipoDoc(enum.Enum):
+    TITULO = 1
+    COPIA_DNI = 2
+    CV = 3
+
+class ExtensionesPermitidas(enum.Enum):
+    PDF = 'application/pdf'
+    DOC = 'application/doc'
+    XLS = 'application/xls'
+    JPEG = 'image/jpeg'
+
 
 class Employee(db.Model):
     """Representa un miembro del equipo de CEDICA"""
@@ -71,6 +76,7 @@ class Employee(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     equestrians_asociados = db.relationship('Associated',back_populates='employee')
+    archivos = db.relationship('EmployeeDocuments', back_populates="employee")
 
     def __repr__(self):
         return f"Nombre: {self.nombre} Apellido: {self.apellido} DNI: {self.dni}"
@@ -97,3 +103,10 @@ class Employee(db.Model):
             "condicion": self.condicion.name.capitalize().replace('_', ' '),
             "activo": 'Si' if self.activo else 'No'
         }
+
+    @classmethod
+    def from_value(cls, value):
+        for method in cls:
+            if method.name.capitalize() == value:
+                return method
+        raise ValueError(f"No se encontró un puesto laboral con el valor: {value}")
