@@ -286,7 +286,7 @@ class EquestrianService :
         query = EquestrianDocument.query.filter(EquestrianDocument.equestrian_id == equestrian_id)
 
         if not include_deleted:
-            query = query.filter(ClientDocuments.deleted == include_deleted)
+            query = query.filter(EquestrianDocument.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
