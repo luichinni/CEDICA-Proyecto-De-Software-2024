@@ -264,7 +264,7 @@ def new(id,es_link):
 @handle_error(lambda id, id_entidad, es_link: url_for('clients.search'))
 def update(id:int, id_entidad: int,es_link:str):
     es_link = es_link=='True'
-    
+
     archivo = ClientService.get_document_by_id(id).to_dict()
     if not es_link:
         archivo['titulo'] = ''.join(archivo['titulo'].split('_')[2:])
@@ -396,7 +396,8 @@ def search(id):
             'Titulo': doc.titulo,
             'Tipo': doc.tipo.name.capitalize(),
             'Ubicación': 'Servidor externo' if doc.es_link else 'Servidor local',
-            'Fecha de carga': doc.created_at
+            'Fecha de carga': doc.created_at,
+            'es_link': doc.es_link
         })
     
     #=======================================================================#

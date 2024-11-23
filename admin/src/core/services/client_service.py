@@ -428,7 +428,7 @@ class ClientService:
         query = ClientDocuments.query.filter(ClientDocuments.client_id == client_id)
 
         if not include_deleted:
-            query.filter(ClientDocuments.deleted == include_deleted)
+            query = query.filter(ClientDocuments.deleted == include_deleted)
 
         if filtro:
             for key, value in filtro.items():
