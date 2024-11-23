@@ -18,7 +18,7 @@
                 {% for diccionario in lista_diccionarios %}
                 <tr id="{{diccionario['id'] }}">
                     {% for key in diccionario.keys() %}
-                    {%if key != 'id'%}
+                    {%if key != 'id' and key != 'es_link'%}
                     <td>{{ diccionario[key] }}</td>
                     {%endif%}
                     {% endfor %}
@@ -27,16 +27,16 @@
                         <div class="buttons">
                             {%if check_permission(entidad + '_show')%}
                             <!-- Link to view details -->
-                            <a class="button is-dark" href="{{ url_for( entidad + '.detail',id = diccionario['id']) }}"
+                            <a class="button is-dark" href="{{ url_for( entidad_archivo + '.detail', id = diccionario.id) }}"
                                 class="card-footer-item">Ver Detalles</a>
                             {%endif%}
                             {%if check_permission(entidad + "_update")%}
                             <!--Link to edit -->
-                            <a class="button is-primary" href="{{ url_for( entidad + '.update',id = diccionario['id']) }}"
+                            <a class="button is-primary" href="{{ url_for(entidad_archivo + '.update',id = diccionario['id'], id_entidad=id_entidad, es_link = diccionario['es_link']) }}"
                                 class="card-footer-item">Editar</a>
                             {%endif%}
         
-                            {% include 'delete_button.html' %}
+                            {% include 'delete_button_archivos.html' %}
         
                             {%if entidad == 'users' and check_permission(entidad +'_block')%}
                             <!-- Form to block the element -->
