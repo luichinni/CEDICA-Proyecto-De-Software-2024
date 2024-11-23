@@ -44,7 +44,8 @@ def get_noticias():
     filtro = {'status': 'PUBLICADO',
               'author': get_str_param(params, 'author', optional=True),
               'start_published_date': datetime.strptime(start_published_date, '%Y-%m-%d').date() if start_published_date else None,
-              'end_published_date': datetime.strptime(end_published_date, '%Y-%m-%d').date() if end_published_date else None,}
+              'end_published_date': datetime.strptime(end_published_date, '%Y-%m-%d').date() if end_published_date else None,
+              'title': get_str_param(params, 'title', optional=True),}
     order_by = get_str_param(params, 'order_by', None, optional=True)
     ascending = get_bool_param(params, 'ascending', True, optional=True)
 
