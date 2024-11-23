@@ -26,7 +26,8 @@ activa
             {% endfor%}
         </ul>
     </div>
-
+    <div class="container box">
+        <div class=" is-flex is-justify-content-center is-align-items-center">
     <div>
         <form method="POST" action="{{ruta_post}}" enctype="multipart/form-data">
             {% include 'mensaje_flash.html' %}
@@ -56,6 +57,8 @@ activa
             {% endfor %}
             </br>
         </form>
+    </div>
+        </div>
     </div>
 
 {% block complementos %}

@@ -36,12 +36,15 @@
 
                         {%if check_permission("publications_index")%}
                             <li><a href="{{ url_for('publications.search') }}">Contenido</a></li> {% endif %}
+                        
+                        {%if check_permission("contact_index")%}
+                            <li><a href="{{ url_for('contact.search') }}">Mensajes</a></li> {% endif %}
 
                      {% endif %}
                         </ul>
             </nav>
             {%if is_authenticated() %} 
-                <div class="user-menu ">
+                <div class="user-menu is-overlay " style="z-index: 999;">
                     <img src="{{ url_for('static', filename='user-icon.png') }}" alt="User Icon" class="user-icon">
                     <div class="user-dropdown">
                         {%if check_permission("users_index")%}

@@ -6,16 +6,18 @@
 {% endblock %}
 
 {% block content %}
-<section >
+<section  >
     <h1 class="title is-3 has-text-centered has-text-weight-bold"> {{titulo}}</h1> <!-- Muestra el titulo al formulario -->
     
-    <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data">
-        {% set campos = form._fields.keys()|list %}
+    <div class="container box">
+        <div class=" is-flex is-justify-content-center is-align-items-center">
+          <form method="POST" action="{{ruta_post}}"   enctype="multipart/form-data" >
+         {% set campos = form._fields.keys()|list %}
       
-       {{ form.hidden_tag() }}<!-- CSRF token -->
+         {{ form.hidden_tag() }}<!-- CSRF token -->
       
-       {% for campo in range(campos|length-1)%}
-           <div>
+         {% for campo in range(campos|length-1)%}
+             <div>
               
                {%if campos[campo] != 'submit'%}
                     {{ form[campos[campo]].label }} <!-- Renderiza la etiqueta -->
@@ -28,16 +30,17 @@
                     {{ form[campos[campo]] }} 
                {%endif%}
 
-           </div>
+             </div>
           
            {% endfor %}
 
-    </form>
-
-    <br> 
-    <a href="{{ url_volver }}" class="button is-danger">Cancelar</a>
-    <br> 
-
+         </form>
+     </div>
+      <br> 
+      <a href="{{ url_volver }}" class="button is-danger">Cancelar</a>
+      <br> 
+   
+ </div>
 </section>
 
 {% block complementos %} 

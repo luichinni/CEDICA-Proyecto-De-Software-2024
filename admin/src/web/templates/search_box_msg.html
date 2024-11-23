@@ -11,22 +11,20 @@
   </h1>
 
   <a href="/" class="button">Volver a inicio</a>
-
-  <a class="button is-primary is-pulled-left" href="{{ url_for(entidad + '.new') }}">Agregar</a>
   <br><br>
 
-  <section  class="navbar-brand">
+  <section class="navbar-brand">
     <form method="GET" action="{{ url_for(entidad + '.search') }}" class="is-flex is-flex-wrap-wrap is-align-items-center">
       {{ form.hidden_tag() }}
 
       <!-- Iteración dinámica de campos del formulario -->
       {% for field in form if field.name != 'csrf_token' and field.type != 'SubmitField' %}
-        <div class="field  mr-3">
+        <div class="field mr-3">
           <label class="label">{{ field.label.text }}</label>
           <div class="control">
             {{ field }}
           </div>
-        </div> 
+        </div>
       {% endfor %}
 
       <!-- Botón de búsqueda -->

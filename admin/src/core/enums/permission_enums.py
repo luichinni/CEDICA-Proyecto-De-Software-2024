@@ -15,3 +15,4 @@ class PermissionModel(Enum):
     PAYMENT = "payments"
     EQUESTRIAN = "equestrians"
     CONTENT = "publications"
+    CONTACT = "contact"

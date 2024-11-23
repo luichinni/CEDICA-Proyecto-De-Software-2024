@@ -17,6 +17,8 @@ class PublicationService:
             valid_filters = {key: value for key, value in filtro.items() if hasattr(Publication, key) and value is not None}
             if 'status' in valid_filters:
                 publications_query = publications_query.filter(Publication.status == valid_filters['status'])
+            if 'author' in valid_filters:
+                publications_query = publications_query.filter(Publication.author.ilike(valid_filters['author']))
             if 'title' in valid_filters:
                 publications_query = publications_query.filter(Publication.title.ilike(valid_filters['title']))
             if 'start_published_date' in valid_filters:
