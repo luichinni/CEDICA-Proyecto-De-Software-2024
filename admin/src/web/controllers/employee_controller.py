@@ -334,7 +334,8 @@ def search(id):
             'Titulo': doc.titulo,
             'Tipo': doc.tipo.name.capitalize(),
             'Ubicación': 'Servidor externo' if doc.es_link else 'Servidor local',
-            'Fecha de carga': doc.created_at
+            'Fecha de carga': doc.created_at,
+            'es_link': doc.es_link
         })
 
 

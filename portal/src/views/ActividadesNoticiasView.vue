@@ -106,7 +106,7 @@ export default {
       return new Date(dateString).toLocaleDateString('es-ES', options);
     },
     handleSearch(search_data) {
-      this.current_search_data = search_data; 
+      this.current_search_data = { ...search_data }; // Crea un nuevo objeto
     },
     changePage(page) {
       this.current_page = page; 
