@@ -51,9 +51,12 @@ class EmployeeService:
     @staticmethod
     def add_default_data_employee(email):
         """Crea un empleado con un email y el resto de los datos con valores por defecto"""
-        new_employee_default_data = {"email" : email, "has_default_data":True ,"nombre" : "PENDIENTE A INGRESAR", "apellido" : "PENDIENTE A INGRESAR", "dni" : "99999999", "domicilio" : "PENDIENTE A INGRESAR", "localidad" : "PENDIENTE A INGRESAR", "telefono" : "9999999999", "profesion" : ProfesionEnum.OTRO, "puesto_laboral" : PuestoLaboralEnum.OTRO, "fecha_inicio" : date(5555, 10, 1), "fecha_cese" : date(5555, 10, 1), "contacto_emergencia_nombre" : "PENDIENTE A INGRESAR", "contacto_emergencia_telefono" : "9999999999", "obra_social" : "PENDIENTE A INGRESAR", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : False}
+        new_employee_default_data = {"email" : email, "has_default_data":True ,"nombre" : "PENDIENTE A INGRESAR", "apellido" : "PENDIENTE A INGRESAR", "dni" : "1000000", "domicilio" : "PENDIENTE A INGRESAR", "localidad" : "PENDIENTE A INGRESAR", "telefono" : "9999999999", "profesion" : ProfesionEnum.OTRO, "puesto_laboral" : PuestoLaboralEnum.OTRO, "fecha_inicio" : date(5555, 10, 1), "fecha_cese" : date(5555, 10, 1), "contacto_emergencia_nombre" : "PENDIENTE A INGRESAR", "contacto_emergencia_telefono" : "9999999999", "obra_social" : "PENDIENTE A INGRESAR", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : False}
+        default_employee = EmployeeService.add_employee(**new_employee_default_data)
+        default_employee.dni = str( int(default_employee.dni)+default_employee.id )
+        db.session.commit()
 
-        return EmployeeService.add_employee(**new_employee_default_data).id
+        return default_employee.id
             
     
     @staticmethod
@@ -370,5 +373,6 @@ class EmployeeService:
         ]
         for employee_data in example_employees:
             EmployeeService.add_employee(**employee_data)
+
 
 

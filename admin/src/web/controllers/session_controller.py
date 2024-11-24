@@ -30,6 +30,7 @@ def index():
         id_user = UserService.check_user(form.email.data, form.password.data)
     
         if (not id_user):
+            flash('El usuario o contraseña es incorrecto. Si tu usuario esta pendiente, se paciente a que un administrador lo confirme 📝', "warning")
             return redirect(url_for('auths.index', titulo='Inicio de Sesión!'))
 
         session["id"] = id_user
