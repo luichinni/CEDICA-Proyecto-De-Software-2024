@@ -101,7 +101,17 @@ class RoleService:
         PermissionService.link_permission_to_role(permisos[f"{PermissionModel.COLLECTION.value}_{PermissionCategory.DESTROY.value}"],administracion)
         PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.INDEX.value}"],administracion)
         PermissionService.link_permission_to_role(permisos[f"{PermissionModel.EQUESTRIAN.value}_{PermissionCategory.SHOW.value}"],administracion)
-        
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.SHOW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.UPDATE.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.NEW.value}"],administracion) 
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTENT.value}_{PermissionCategory.DESTROY.value}"],administracion)    
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTACT.value}_{PermissionCategory.INDEX.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTACT.value}_{PermissionCategory.SHOW.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTACT.value}_{PermissionCategory.UPDATE.value}"],administracion)
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTACT.value}_{PermissionCategory.NEW.value}"],administracion) 
+        PermissionService.link_permission_to_role(permisos[f"{PermissionModel.CONTACT.value}_{PermissionCategory.DESTROY.value}"],administracion)  
+    
         voluntariado = RoleService.create_role("Voluntariado").id # no tiene permisos de nada
 
         editor = RoleService.create_role("Editor").id

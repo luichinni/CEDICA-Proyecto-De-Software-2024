@@ -50,6 +50,7 @@ def init(UserService, RoleService, EmployeeService, PermissionService, ClientSer
 
     print("Creando user pendiente")
     UserService.create_user(-1, "Esteban Quito", "Clavemagica123", role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id, employee_email="esperando@validacion.com")
+    UserService.create_user(-1, "Esteban Quito 2", "Clavemagica1232", role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id, employee_email="esperando2@validacion.com")
 
     print("Finalizacion de la inicializacion de la base de datos!")
 
