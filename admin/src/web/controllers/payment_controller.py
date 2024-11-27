@@ -17,7 +17,7 @@ bp = Blueprint('payments', __name__, url_prefix='/payments')
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.INDEX.value}")
 def index():
     params = request.args
-    page = get_int_param(params, 'page', 1, optional= True)
+    page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 5, optional=True)
 
     payments, total, pages = PaymentService.get_payments(page=page, per_page=per_page)
@@ -37,14 +37,14 @@ def search():
     start_date_str = get_str_param(params, 'start_date', optional=True)
     end_date_str = get_str_param(params, 'end_date', optional=True)
 
-    filtros = {'start_date' : datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None,
-                'end_date' : datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None,
+    filtros = {'start_date': datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None,
+               'end_date': datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None,
                'tipo_pago': get_str_param(params, 'tipo_pago', optional=True)}
 
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 5, optional=True)
     order_by_date = get_bool_param(params, 'order_by_date', default=True, optional=True)
-    ascending = get_bool_param(params, 'ascending', True, optional= True)
+    ascending = get_bool_param(params, 'ascending', True, optional=True)
 
     payments, total, pages = PaymentService.get_payments(
         filtro=filtros,
@@ -86,12 +86,14 @@ def search():
         titulo='Listado de Pagos'
     )
 
+
 @bp.route('/create', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.NEW.value}")
 def new():
     form = PaymentForm()
     empleados = EmployeeService.get_all_employees()
-    form.beneficiario.choices = [(0, "No aplica")] + [(empleado.id, f"{empleado.nombre.capitalize()} {empleado.apellido.capitalize()}") for empleado in empleados]
+    form.beneficiario.choices = [(0, "No aplica")] + [
+        (empleado.id, f"{empleado.nombre.capitalize()} {empleado.apellido.capitalize()}") for empleado in empleados]
     if form.validate_on_submit():
         new_beneficiario_id = form.beneficiario.data
 
@@ -116,6 +118,7 @@ def new():
     }
     return render_template('form.html', **context)
 
+
 @bp.route('/delete/<int:id>', methods=['POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.DESTROY.value}")
 @handle_error(lambda id: url_for('payments.search'))
@@ -128,6 +131,7 @@ def delete(id):
         flash('Pago eliminado exitosamente', 'success')
     return redirect(url_for('payments.search'))
 
+
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.UPDATE.value}")
 @handle_error(lambda id: url_for('payments.search'))
@@ -135,7 +139,8 @@ def update(id):
     payment = PaymentService.get_payment_by_id(id)
     form = PaymentForm(obj=payment)
     empleados = EmployeeService.get_all_employees()
-    form.beneficiario.choices = [(0, "No aplica")] + [(empleado.id, f"{empleado.nombre.capitalize()} {empleado.apellido.capitalize()}") for empleado in empleados]
+    form.beneficiario.choices = [(0, "No aplica")] + [
+        (empleado.id, f"{empleado.nombre.capitalize()} {empleado.apellido.capitalize()}") for empleado in empleados]
     if form.validate_on_submit():
         updated_payment = {
             'beneficiario_id': form.beneficiario.data,
@@ -155,15 +160,15 @@ def update(id):
     }
     return render_template('form.html', **context)
 
+
 @bp.route('<int:id>', methods=['GET'])
 @check_permissions(f"{PermissionModel.PAYMENT.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda : url_for('payments.search'))
+@handle_error(lambda: url_for('payments.search'))
 def detail(id):
     payment = PaymentService.get_payment_by_id(id)
     if not id:
         flash(f'Pago con ID {id} no encontrado', 'warning')
         return redirect(url_for('payments.search'))
-
 
     titulo = f'Detalle del pago'
     anterior = url_for('payments.search')
@@ -171,5 +176,4 @@ def detail(id):
     diccionario['beneficiario'] = EmployeeService.get_employee_by_id(diccionario['beneficiario'])
     entidad = 'payments'
 
-    return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario= diccionario, entidad=entidad )
-
+    return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario=diccionario, entidad=entidad)

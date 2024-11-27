@@ -2,13 +2,14 @@ from datetime import datetime
 
 from flask import Blueprint, request, render_template, url_for, flash, redirect
 
-from src.web.handlers import get_int_param, get_bool_param
 from src.core.services.publication_service import PublicationService
+from src.web.handlers import get_int_param, get_bool_param
 from web.forms.publication_forms.create_publication_form import CreatePublicationForm
 from web.forms.publication_forms.search_publication_form import SearchPublicationForm
 from web.handlers import get_str_param
 
 bp = Blueprint('publications', __name__, url_prefix='/publications')
+
 
 @bp.route('/')
 def search():
@@ -17,13 +18,15 @@ def search():
     end_published_date_str = get_str_param(params, 'end_published_date', optional=True)
 
     filtros = {'title': get_str_param(params, 'titulo', optional=True),
-               'start_published_date': datetime.strptime(start_published_date_str, '%Y-%m-%d').date() if start_published_date_str else None,
-               'end_published_date': datetime.strptime(end_published_date_str, '%Y-%m-%d').date() if end_published_date_str else None}
+               'start_published_date': datetime.strptime(start_published_date_str,
+                                                         '%Y-%m-%d').date() if start_published_date_str else None,
+               'end_published_date': datetime.strptime(end_published_date_str,
+                                                       '%Y-%m-%d').date() if end_published_date_str else None}
 
     page = get_int_param(params, 'page', 1, True)
     per_page = get_int_param(params, 'per_page', 10, True)
-    order_by = get_str_param(params, 'order_by', 'title',optional=True)
-    ascending = get_bool_param(params, 'ascending', True, optional= True)
+    order_by = get_str_param(params, 'order_by', 'title', optional=True)
+    ascending = get_bool_param(params, 'ascending', True, optional=True)
 
     publications, total, pages = PublicationService.list_publications(
         filtro=filtros,
@@ -37,14 +40,15 @@ def search():
     params_dict = params.to_dict()
     # Manejar start_published_date y end_published_date para que no de error al pasar **params_dict
     if 'start_published_date' in params_dict:
-        if not params_dict['start_published_date']: 
-            del params_dict['start_published_date'] 
+        if not params_dict['start_published_date']:
+            del params_dict['start_published_date']
         else:
-            params_dict['start_published_date'] = datetime.strptime(params_dict['start_published_date'], '%Y-%m-%d').date()
+            params_dict['start_published_date'] = datetime.strptime(params_dict['start_published_date'],
+                                                                    '%Y-%m-%d').date()
 
     if 'end_published_date' in params_dict:
-        if not params_dict['end_published_date']:  
-            del params_dict['end_published_date']  
+        if not params_dict['end_published_date']:
+            del params_dict['end_published_date']
         else:
             params_dict['end_published_date'] = datetime.strptime(params_dict['end_published_date'], '%Y-%m-%d').date()
 
@@ -61,6 +65,7 @@ def search():
                            current_page=page,
                            titulo='Listado de publicaciones')
 
+
 @bp.route('/create', methods=('GET', 'POST'))
 def new():
     form = CreatePublicationForm()
@@ -72,12 +77,13 @@ def new():
         return redirect(url_for('publications.search'))
 
     context = {
-               'form': form,
-               'titulo': 'Crear una publicacion',
-               'url_post': url_for('publications.new'),
-               'url_volver': url_for('home')
+        'form': form,
+        'titulo': 'Crear una publicacion',
+        'url_post': url_for('publications.new'),
+        'url_volver': url_for('home')
     }
     return render_template('form.html', **context)
+
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 def update(id):
@@ -100,6 +106,7 @@ def update(id):
     }
     return render_template('form.html', **context)
 
+
 @bp.route('<int:id>', methods=['GET'])
 def detail(id):
     publication = PublicationService.get_publication_by_id(id)
@@ -112,7 +119,8 @@ def detail(id):
     diccionario = publication.to_dict()
     entidad = 'publications'
 
-    return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario= diccionario, entidad=entidad )
+    return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario=diccionario, entidad=entidad)
+
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 def delete(id):
