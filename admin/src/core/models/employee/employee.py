@@ -1,16 +1,17 @@
-from src.core.database import db
 import enum
-from sqlalchemy import Enum
 from datetime import datetime, timezone
 
-from src.core.models.equestrian import Associated
+from sqlalchemy import Enum
+
+from src.core.database import db
+
 
 class ProfesionEnum(enum.Enum):
     PSICOLOGO = 1
     PSICOMOTRICISTA = 2
     MEDICO = 3
     KINESIOLOGO = 4
-    TERAPISTA_OCUPACIONAL= 5
+    TERAPISTA_OCUPACIONAL = 5
     PSICOPEDAGOGO = 6
     DOCENTE = 7
     PROFESOR = 8
@@ -18,9 +19,11 @@ class ProfesionEnum(enum.Enum):
     VETERINARIO = 10
     OTRO = 11
 
+
 class CondicionEnum(enum.Enum):
     VOLUNTARIO = 1
     PERSONAL_RENTADO = 2
+
 
 class PuestoLaboralEnum(enum.Enum):
     ADMINISTRATIVO = 1
@@ -36,10 +39,12 @@ class PuestoLaboralEnum(enum.Enum):
     AUXILIAR_DE_MANTENIMIENTO = 11
     OTRO = 12
 
+
 class TipoDoc(enum.Enum):
     TITULO = 1
     COPIA_DNI = 2
     CV = 3
+
 
 class ExtensionesPermitidas(enum.Enum):
     PDF = 'application/pdf'
@@ -75,7 +80,7 @@ class Employee(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    equestrians_asociados = db.relationship('Associated',back_populates='employee')
+    equestrians_asociados = db.relationship('Associated', back_populates='employee')
     archivos = db.relationship('EmployeeDocuments', back_populates="employee")
 
     def __repr__(self):
@@ -93,7 +98,7 @@ class Employee(db.Model):
             "localidad": self.localidad,
             "telefono": self.telefono,
             "profesion": self.profesion.value,
-            "puesto laboral": self.puesto_laboral.name.capitalize().replace('_',' '),
+            "puesto laboral": self.puesto_laboral.name.capitalize().replace('_', ' '),
             "fecha de inicio": self.fecha_inicio,
             "fecha de cese": self.fecha_cese,
             "nombre contacto de emergencia": self.contacto_emergencia_nombre,

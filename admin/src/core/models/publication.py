@@ -1,12 +1,16 @@
-from src.core.database import db
-from datetime import datetime, timezone
 import enum
+from datetime import datetime, timezone
+
 from sqlalchemy import Enum
 
+from src.core.database import db
+
+
 class PublicationStatusEnum(enum.Enum):
-    BORRADOR =  1
-    PUBLICADO =  2
-    ARCHIVADO =  3
+    BORRADOR = 1
+    PUBLICADO = 2
+    ARCHIVADO = 3
+
 
 class Publication(db.Model):
     __tablename__ = 'publications'
@@ -16,7 +20,7 @@ class Publication(db.Model):
     summary = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(100), nullable=False)
-    status = db.Column(Enum(PublicationStatusEnum, name='status_type'),nullable=False)
+    status = db.Column(Enum(PublicationStatusEnum, name='status_type'), nullable=False)
     published_date = db.Column(db.DateTime)
     deleted = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
