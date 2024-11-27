@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, DateField, RadioField, SubmitField, SelectField, ValidationError
 from wtforms.validators import Optional
 
+
 class SearchPublicationForm(FlaskForm):
     title = StringField('Titulo', validators=[Optional()])
     start_published_date = DateField('Fecha de publicacion minima')
