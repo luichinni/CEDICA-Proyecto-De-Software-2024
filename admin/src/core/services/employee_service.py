@@ -18,6 +18,7 @@ from src.core.storage import storage
 
 class EmployeeService:
 
+
     @staticmethod
     def obtener_clave_por_valor(enum_class: Enum, valor):
         """Retorna la Key segun el valor asociado del enum
@@ -113,17 +114,15 @@ class EmployeeService:
     def get_employees_without_user():
         """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados."""
 
-        # Subconsulta: obtener empleados que tienen usuarios no eliminados
-        subquery = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
+        active_user_ids = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
 
-        # Consulta principal: empleados que no tienen usuario o cuyos usuarios están eliminados
-        query = Employee.query.outerjoin(User).filter(
+        employees_without_user = Employee.query.outerjoin(User).filter(
             (Employee.user == None) | (User.deleted == True)
         ).filter(
-            Employee.id.notin_(subquery)  # Excluir empleados con usuarios no eliminados
+            Employee.id.notin_(active_user_ids)
         )
 
-        return query.all()
+        return employees_without_user.all()
 
     @staticmethod
     def update_employee(employee, **kwargs):
@@ -160,11 +159,31 @@ class EmployeeService:
         return existing_employee.first()
 
     @staticmethod
+    def get_employee_by_dni(dni, include_deleted=False):
+        """
+        Obtiene un empleado por su dni
+
+        Args:
+            dni: el dni del empleado a obtener
+            include_deleted: booleano para determinar si se consideran empleados eliminados
+        """
+
+        existing_employee = Employee.query.filter_by(dni=dni)
+        if not include_deleted:
+            existing_employee = existing_employee.filter_by(deleted=False)
+        if not existing_employee:
+            raise ValueError(f"No existe empleado con dni '{dni}'")
+
+        return existing_employee.first()
+
+
+    @staticmethod
     def add_document(employee_id: int | str, titulo: str, document, tipo: TipoDoc, es_link: bool) -> EmployeeDocuments:
         """Permite cargarle un documento o link a un empleado
 
         Args:
             employee_id (int | str): ID del empleado al que se le añadirá el document
+            titulo (str): titulo a ponerle al archivo
             document (Any): Documento o link a agregar
             tipo (TipoDoc): Tipo del documento
             es_link (bool): Flag de confirmación si es link
@@ -296,8 +315,9 @@ class EmployeeService:
         Obtiene por página y filtro los documentos de un empleado específico.
 
         Args:
-            client_id (int | str): ID del empleado cuyos documentos son requeridos.
+            employee_id (int | str): ID del empleado cuyos documentos son requeridos.
             filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
+            extension (str): extension del archivo por la que filtrar. Ej. .txt, .pdf, etc.
             page (int, optional): Número de página requerida. Defaults to 1.
             per_page (int, optional): Cantidad de archivos por página. Defaults to 5.
             order_by (str, optional): Campo de orden para los elementos. Defaults to None.

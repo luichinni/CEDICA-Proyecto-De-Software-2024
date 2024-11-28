@@ -43,6 +43,18 @@ def new():
     """Crear un empleado"""
     form = CreateEmployeeForm()
     if form.validate_on_submit():
+        existing_employee_by_dni = EmployeeService.get_employee_by_dni(form.dni.data)
+        existing_employee_by_email = EmployeeService.get_employee_by_email(form.email.data)
+
+        if existing_employee_by_dni:
+            form.dni.errors.append(f"Ya existe un empleado con el dni {form.dni.data}")
+            return render_template('form.html', form=form, titulo='Crear un empleado',
+                                   url_post=url_for('employees.new'), url_volver=url_for('employees.search'))
+        if existing_employee_by_email:
+            form.email.errors.append(f"Ya existe un empleado con el email {form.email.data}")
+            return render_template('form.html', form=form, titulo='Crear un empleado',
+                                   url_post=url_for('employees.new'), url_volver=url_for('employees.search'))
+
         new_employee_data = collect_employee_data_from_form(form)
         new_employee_data['email'] = form.email.data
         EmployeeService.add_employee(**new_employee_data)
@@ -74,6 +86,11 @@ def index():
 @bp.route('/search', methods=['GET', 'POST'])
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.INDEX.value}")
 def search():
+    """
+
+    Returns:
+
+    """
     params = request.args
 
     filtros = {'email': get_str_param(params, 'email', optional=True),
@@ -153,17 +170,6 @@ def delete(id):
 @check_permissions(f"{PermissionModel.EMPLOYEE.value}_{PermissionCategory.SHOW.value}")
 @handle_error(lambda id: url_for('employees.search'))
 def detail(id):
-    # employee = EmployeeService.get_employee_by_id(id)
-    # if not employee:
-    #    flash(f'Empleado con ID {id} no encontrado', 'warning')
-    #    return redirect(url_for('employees.search'))
-
-    # titulo = f'Detalle del empleado {employee.nombre} {employee.apellido}'
-    # anterior = url_for('employees.search')
-    # diccionario = employee.to_dict()
-    # entidad = 'employees'
-
-    # return render_template('detail.html', titulo=titulo, anterior=anterior, diccionario= diccionario, entidad=entidad )
     return redirect(
         url_for('employee_files.search',
                 id=id,
