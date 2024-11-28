@@ -37,6 +37,18 @@ def contacto():
 
 @bp.get('/noticias')
 def get_noticias():
+    """
+    Obtiene las noticias en base a los filtros especificados
+
+    Returns:
+        Responde: una respuesta JSON que contiene:
+            - total (int): El total de noticias que cumplen con los filtros especificados
+            - pages (int): El total de paginas disponibles
+            - current_page (int): El numero de pagina actual
+            - per_page (int): La cantidad de noticias por pagina
+            - publications (list): Una lista de publicaciones serializadas
+    """
+
     params = request.args
 
     page = get_int_param(params, 'page', 1, optional=True)
