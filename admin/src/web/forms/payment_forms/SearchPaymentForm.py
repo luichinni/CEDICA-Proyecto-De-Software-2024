@@ -9,7 +9,7 @@ class SearchPaymentForm(FlaskForm):
     """Form para buscar pagos por diferentes criterios"""
     start_date = DateField('Fecha de inicio', format='%Y-%m-%d', validators=[Optional()])
     end_date = DateField('Fecha de fin', format='%Y-%m-%d', validators=[Optional()])
-    payment_type = SelectField('Tipo de pago',
+    tipo_pago = SelectField('Tipo de pago',
                                choices=[('', 'No filtrar')] + [(tipo.name, tipo.name.capitalize().replace('_', ' ')) for
                                                                tipo in PaymentEnum])
 
