@@ -71,6 +71,12 @@ def new():
     form = CreatePublicationForm()
 
     if form.validate_on_submit():
+        fecha_publicacion = form.published_at.data
+        estado = form.status.data
+
+        if estado == "PUBLICADO" and fecha_publicacion > datetime.now().date():
+            flash("La fecha de publicación no puede ser mayor a la fecha actual si el estado es 'Publicado'.", "danger")
+            return redirect(url_for('publications.new'))
         data = PublicationService.form_to_dict(form)
         PublicationService.create_publication(data)
         flash('Publicacion creada exitosamente', 'success')
@@ -92,6 +98,7 @@ def update(id):
     if not publication:
         flash("La publicacion seleccionada no existe", "danger")
         return redirect(url_for('publications.search'))
+    print(publication)
     form = CreatePublicationForm(obj=publication)
     if form.validate_on_submit():
         publication_data = PublicationService.form_to_dict(form)
