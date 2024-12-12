@@ -130,7 +130,7 @@ def procesar_sexto(form):
     for f5 in form:
         if f5.name == 'csrf_token':
             continue
-        
+        print(form[f5.name].entries)
         for index, tutor_form in enumerate(form[f5.name].entries):
             responsables[index] = {
                 'parentesco': tutor_form.parentesco.data,

@@ -42,16 +42,18 @@ activa
                 
                     {% for campo in range(campos|length-1) %}
                         <div>
-                            {{ forms[form][campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                            {% if forms[form][campos[campo]].type != 'SubmitField' %}
+                                {{ forms[form][campos[campo]].label }} <!-- Renderiza la etiqueta -->
+                            {% endif %}
                             {{ forms[form][campos[campo]] }} <!-- Renderiza el campo de entrada -->
                         </div>
                     {% endfor %}
 
                     {% if idx > 0 %}
-                        <button class="button is-secondary" onclick="mostrar('{{ idx - 1 }}')" >Atras</button>
+                        <button type="button" class="button is-secondary" onclick="mostrar('{{ idx - 1 }}')" >Atras</button>
                     {% endif %}
-                    {% if idx < forms|length %}
-                        <button class="button is-primary" onclick="validarYAvanzar('{{ idx }}')" >Siguiente</button>
+                    {% if idx < forms|length-1 %}
+                        <button type="button" class="button is-primary" onclick="validarYAvanzar('{{ idx }}')" >Siguiente</button>
                     {% endif %}
                 </div>
             {% endfor %}
