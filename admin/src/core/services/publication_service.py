@@ -80,7 +80,7 @@ class PublicationService:
         return {
             'title': form.title.data,
             'summary': form.summary.data,
-            'content': form.body.data,
+            'content': form.content.data,
             'status': form.status.data,
             'published_date': form.published_at.data,
         }
