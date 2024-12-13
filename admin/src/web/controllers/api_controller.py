@@ -17,7 +17,6 @@ def contacto():
     #TODO: Procesar contacto_data (Con get_int_param, get_bool_param, get_str_param por ejemplo? O manualmente o con otra cosa)
     try: 
        print("llega al add")
-       contacto_data['status']=contacto_data['status'].upper()
        MessageService.add_message(**contacto_data)
     except Exception as e:
         response = {
@@ -30,7 +29,7 @@ def contacto():
         response = {
                 "message": "Gracias por ponerte en contacto con nosotros.",
             } 
-        return jsonify(response),201
+        return jsonify(response),200
 
 @bp.get('/noticias')
 def get_noticias():

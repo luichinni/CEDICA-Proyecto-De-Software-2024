@@ -9,7 +9,10 @@ class MessageService :
     @staticmethod 
     def validate_email(email):
        patron = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-       return re.match(patron, email) is not None 
+       if not re.match(patron,email) :
+           raise ValueError('email no valido')
+       
+       return True
     
     @staticmethod
     def es_enum_valido(valor , enum):
@@ -32,10 +35,6 @@ class MessageService :
         email= kwargs.get('email')
         if email is not None and MessageService.validate_email(email) :
             del dic['email']
-
-        status = kwargs.get('status') 
-        if status is not None and  MessageService.es_enum_valido(status, StatuEnum):
-            del dic['status']
         for value in dic.values(): #verifica que sean str title, description, coments(si exist)
             if value is not None :
                MessageService.is_instance_with_exception(value, str)
@@ -45,13 +44,8 @@ class MessageService :
     @staticmethod 
     def add_message(**kwargs): 
        """Crea un mensaje"""
-       closed_at= kwargs.get('closed_at')
-       if closed_at is not None :
-            del kwargs['closed_at']
-       created_at= kwargs.get('created_at')
-       if created_at is not None :
-            del kwargs['created_at']
        if MessageService.validar_arguments(**kwargs) :
+           kwargs['status']=StatuEnum.CREADO
            message = Message(**kwargs)    
        db.session.add(message)
        db.session.commit()
@@ -74,7 +68,7 @@ class MessageService :
            for key, value in kwargs.items(): 
                if value is not None and getattr(message, key) != value :
                   setattr(message, key, value) 
-                  if key == 'status' and (value.upper() == StatuEnum.ACEPTED.name or value.upper() == StatuEnum.REJECTED.name):
+                  if key == 'status' and (value.upper() == StatuEnum.ACEPTADO.name or value.upper() == StatuEnum.RECHAZADO.name):
                      message.closed_at = datetime.now(timezone.utc)
         db.session.commit()
         return message
