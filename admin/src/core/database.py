@@ -50,6 +50,7 @@ def init(UserService, RoleService, EmployeeService, PermissionService, ClientSer
 
     print("Creando user pendiente")
     UserService.create_user(-1, "Esteban Quito", "Clavemagica123", role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id, employee_email="esperando@validacion.com")
+    UserService.create_user(-1, "Esteban Quito 2", "Clavemagica1232", role_id= RoleService.get_role_by_name("Usuario a confirmar por admin").id, employee_email="esperando2@validacion.com")
 
     print("Finalizacion de la inicializacion de la base de datos!")
 
@@ -86,17 +87,23 @@ def create_example_client(ClientService):
         observaciones='No observaciones adicionales',
         institucion_escolar=None,
         atendido_por='Dr. Smith',
-        tutores_responsables=[{
+        tutores_responsables={0:{
             "parentesco": "Padre",
             "nombre": "Carlos Pérez",
             "apellido": "Pérez",
             "dni": "23456789",
-            "domicilio": "Calle 123, Ciudad",
-            "celular": "0987654321",
+            "domicilio":{
+                'calle':'50',
+                'numero':'234',
+                'departamento':None,
+                'localidad':'La Palta',
+                'provincia':'Buenos Aires'
+            },
+            "telefono": "0987654321",
             "email": "padre@gmail.com",
             "escolaridad": "Universitario",
             "ocupacion": "Ingeniero"
-        }],
+        }},
         propuesta_trabajo=1,
         condicion=True,
         sede='CASJ',
@@ -139,17 +146,23 @@ def create_example_client(ClientService):
         observaciones='No observaciones adicionales',
         institucion_escolar=None,
         atendido_por='Dr. Smith',
-        tutores_responsables=[{
+        tutores_responsables={0:{
             "parentesco": "Padre",
             "nombre": "Carlos Pérez",
             "apellido": "Pérez",
             "dni": "23456789",
-            "domicilio": "Calle 123, Ciudad",
-            "celular": "0987654321",
+            "domicilio":{
+                'calle':'50',
+                'numero':'234',
+                'departamento':None,
+                'localidad':'La Palta',
+                'provincia':'Buenos Aires'
+            },
+            "telefono": "0987654321",
             "email": "padre@gmail.com",
             "escolaridad": "Universitario",
             "ocupacion": "Ingeniero"
-        }],
+        }},
         propuesta_trabajo=1,
         condicion=True,
         sede='CASJ',

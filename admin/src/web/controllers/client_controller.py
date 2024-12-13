@@ -1,4 +1,4 @@
-from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension, TipoDocs
+from core.enums.client_enum import AsignacionFamiliar, Condicion, Dias, Discapacidad, Pension, PropuestasInstitucionales, TipoDocs
 from core.services.employee_service import EmployeeService
 from core.services.equestrian_service import EquestrianService
 from flask import Blueprint, request, render_template, redirect, url_for, flash
@@ -103,7 +103,7 @@ def new():
         'Propuesta de trabajo': procesar_septimo
     }
 
-    activa = int(request.args.get('activa',0))
+    activa = 0
     ruta_post = url_for('clients.new')
     entidad = 'clients'
     titulo = 'Cargar J&A'
@@ -171,6 +171,7 @@ def update(id):
                 forms[form] = forms[form](data={'propuesta_trabajo':cliente_data})
             else:
                 forms[form] = forms[form](data=cliente_data)
+                print(forms[form].data)
         else:
             forms[form] = forms[form]()
         
@@ -264,7 +265,7 @@ def new(id,es_link):
 @handle_error(lambda id, id_entidad, es_link: url_for('clients.search'))
 def update(id:int, id_entidad: int,es_link:str):
     es_link = es_link=='True'
-    
+
     archivo = ClientService.get_document_by_id(id).to_dict()
     if not es_link:
         archivo['titulo'] = ''.join(archivo['titulo'].split('_')[2:])
@@ -336,9 +337,19 @@ def detail(id):
     
     return redirect(archivo)
 
+def formatear_domicilio(domicilio: dict):
+    return (domicilio['calle'] 
+            + ' n' 
+            + domicilio['numero'] 
+            + ('dpto ' + domicilio['departamento'] if domicilio['departamento'] else '') 
+            + ', '
+            + domicilio['localidad']
+            + ' provincia de '
+            + domicilio['provincia'])
+
 @clients_files_bp.route('/listado/<int:id>',methods=['GET','POST'])
 @check_permissions(f"{PermissionModel.CLIENT.value}_{PermissionCategory.SHOW.value}")
-@handle_error(lambda id: url_for('clients.search'))
+#@handle_error(lambda id: url_for('clients.search'))
 def search(id):
     """Lista todos los archivos con paginación."""
     #=======================================================================#
@@ -396,7 +407,8 @@ def search(id):
             'Titulo': doc.titulo,
             'Tipo': doc.tipo.name.capitalize(),
             'Ubicación': 'Servidor externo' if doc.es_link else 'Servidor local',
-            'Fecha de carga': doc.created_at
+            'Fecha de carga': doc.created_at.strftime("%d-%m-%Y"),
+            'es_link': doc.es_link
         })
     
     #=======================================================================#
@@ -409,22 +421,15 @@ def search(id):
     conductor = EmployeeService.get_employee_by_id(int(datos_cliente['conductor_id']))
     auxiliar = EmployeeService.get_employee_by_id(int(datos_cliente['auxiliar_pista_id']))
     caballo = EquestrianService.get_equestrian_by_id(int(datos_cliente['caballo_id']))
-    
+    print(datos_cliente)
     datos_front = {
         'id':datos_cliente['id'],
         'DNI': datos_cliente['dni'],
         'Nombre': datos_cliente['nombre'],
         'Apellido': datos_cliente['apellido'],
-        'Fecha de nacimiento': datos_cliente['fecha_nacimiento'],
+        'Fecha de nacimiento': datos_cliente['fecha_nacimiento'].strftime("%d-%m-%Y"),
         'Lugar de nacimiento': datos_cliente['lugar_nacimiento']['localidad_nacimiento'] + ' provincia de ' + datos_cliente['lugar_nacimiento']['provincia_nacimiento'],
-        'Domicilio': datos_cliente['domicilio']['calle'] 
-            + ' n' 
-            + datos_cliente['domicilio']['numero'] 
-            + ('dpto ' + datos_cliente['domicilio']['departamento'] if datos_cliente['domicilio']['departamento'] else '') 
-            + ', '
-            + datos_cliente['domicilio']['localidad']
-            + ' provincia de '
-            + datos_cliente['domicilio']['provincia'],
+        'Domicilio': formatear_domicilio(datos_cliente['domicilio']),
         'Teléfono de contacto': datos_cliente['telefono'],
         'Nombre del contacto de emergencia': datos_cliente['contacto_emergencia']['nombre'],
         'Teléfono del contacto de emergencia': datos_cliente['contacto_emergencia']['telefono'],
@@ -440,15 +445,40 @@ def search(id):
         'Observaciones': datos_cliente['observaciones'],
         'Profesionales que lo atienden': datos_cliente['atendido_por'],
         'Tutores responsables':'',
-        'Propuesta de trabajo institucional': datos_cliente['propuesta_trabajo'],
+        'Propuesta de trabajo institucional': datos_cliente['propuesta_trabajo'].name.replace("_"," ").capitalize(),
         'Condición': 'Regular' if datos_cliente['condicion'] else 'Baja',
         'Sede': datos_cliente['sede'],
         'Dias': ' | '.join(datos_cliente['dias']),
-        'Profesor asignado': profesor.nombre + ' ' + profesor.apellido + ' - ' + profesor.dni,
-        'Conductor asignado': conductor.nombre + ' ' + conductor.apellido + ' - ' + conductor.dni,
+        'Nombre, apellido y dni del profesor asignado': profesor.nombre + ' ' + profesor.apellido + ' - ' + profesor.dni,
+        'Nombre, apellido y dni del conductor asignado': conductor.nombre + ' ' + conductor.apellido + ' - ' + conductor.dni,
         'Ecuestre asignado': caballo.nombre,
-        'Auxiliar de pista asignado': auxiliar.nombre + ' ' + auxiliar.apellido + ' - ' + auxiliar.dni
+        'Nombre, apellido y dni del auxiliar de pista asignado': auxiliar.nombre + ' ' + auxiliar.apellido + ' - ' + auxiliar.dni
     }
+    
+    for tutor in datos_cliente['tutores_responsables']:
+        datos_front['Tutores responsables'] += (
+            tutor['nombre'] 
+            + " "
+            + tutor['apellido']
+            + " es el/la "
+            + tutor['parentesco']
+            + ", "
+            + "dni:"
+            + tutor['dni']
+            + ", domicilio en "
+            + formatear_domicilio(tutor['domicilio'])
+            + ", "
+            + "telefono: "
+            + tutor['telefono']
+            + ", email: "
+            + tutor['email']
+            + ", "
+            + "escolaridad maxima alcanzada "
+            + tutor['escolaridad']
+            + " y su ocupación es "
+            + tutor['ocupacion'] 
+            + " | "
+        )
     
     if datos_cliente.get('institucion_escolar',None):
         datos_front = {

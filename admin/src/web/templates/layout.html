@@ -44,7 +44,7 @@
                         </ul>
             </nav>
             {%if is_authenticated() %} 
-                <div class="user-menu ">
+                <div class="user-menu is-overlay " style="z-index: 999;">
                     <img src="{{ url_for('static', filename='user-icon.png') }}" alt="User Icon" class="user-icon">
                     <div class="user-dropdown">
                         {%if check_permission("users_index")%}
