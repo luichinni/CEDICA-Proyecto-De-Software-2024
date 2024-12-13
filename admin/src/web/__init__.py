@@ -71,7 +71,6 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(employees_files_bp)
 
 
-    #Registrar funcion en jinja
     app.jinja_env.globals.update(is_authenticated = is_authenticated)
     app.jinja_env.globals.update(check_permission = has_permission)
     app.jinja_env.globals.update(enumerate = enumerate)

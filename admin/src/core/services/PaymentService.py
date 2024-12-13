@@ -1,6 +1,6 @@
 from src.core.database import db
 from src.core.models.Payment import Payment
-from sqlalchemy import and_
+
 
 class PaymentService:
 

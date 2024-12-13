@@ -3,9 +3,8 @@ from datetime import datetime, timezone
 from core.services.employee_service import EmployeeService
 from src.core.database import db
 from src.core.models.publication import Publication, PublicationStatusEnum
-
-from web.handlers.auth import get_current_user_id
 from src.core.services.user_service import UserService
+from web.handlers.auth import get_current_user_id
 
 
 class PublicationService:
@@ -14,17 +13,21 @@ class PublicationService:
     def list_publications(include_deleted=False, filtro=None, order_by=None, ascending=True, page=1, per_page=5):
         publications_query = Publication.query.filter_by(deleted=include_deleted)
         if filtro:
-            valid_filters = {key: value for key, value in filtro.items() if hasattr(Publication, key) and value is not None}
+            valid_filters = {key: value for key, value in filtro.items() if
+                             hasattr(Publication, key) and value is not None}
             if 'status' in valid_filters:
                 publications_query = publications_query.filter(Publication.status == valid_filters['status'])
             if 'author' in valid_filters:
                 publications_query = publications_query.filter(Publication.author.ilike(f"%{valid_filters['author']}%"))
             if 'title' in valid_filters:
-                publications_query = publications_query.filter(Publication.title.ilike(f"%{valid_filters['title'].lower()}%"))
+                publications_query = publications_query.filter(
+                    Publication.title.ilike(f"%{valid_filters['title'].lower()}%"))
             if 'start_published_date' in filtro and filtro['start_published_date']:
-                publications_query = publications_query.filter(Publication.published_date >= filtro['start_published_date'])
+                publications_query = publications_query.filter(
+                    Publication.published_date >= filtro['start_published_date'])
             if 'end_published_date' in filtro and filtro['end_published_date']:
-                publications_query = publications_query.filter(Publication.published_date <= filtro['end_published_date'])
+                publications_query = publications_query.filter(
+                    Publication.published_date <= filtro['end_published_date'])
         if order_by:
             if ascending:
                 publications_query = publications_query.order_by(getattr(Publication, order_by).asc())
@@ -34,12 +37,11 @@ class PublicationService:
         pagination = publications_query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
 
-
     @staticmethod
     def get_publication_by_id(publication_id, include_deleted=False):
         publication = Publication.query.filter_by(id=publication_id)
         if not include_deleted:
-            publication = publication.filter_by(deleted = include_deleted)
+            publication = publication.filter_by(deleted=include_deleted)
         if publication is None:
             raise ValueError('La publicacion solicitada no existe')
 
@@ -78,9 +80,9 @@ class PublicationService:
         return {
             'title': form.title.data,
             'summary': form.summary.data,
-            'content': form.body.data,
+            'content': form.content.data,
             'status': form.status.data,
-            'published_date': form.published_at.data,
+            'published_date': form.published_date.data,
         }
 
     @staticmethod

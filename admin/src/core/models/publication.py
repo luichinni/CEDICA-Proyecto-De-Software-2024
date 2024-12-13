@@ -1,12 +1,16 @@
-from src.core.database import db
-from datetime import datetime, timezone
 import enum
+from datetime import datetime, timezone
+
 from sqlalchemy import Enum
 
+from src.core.database import db
+
+
 class PublicationStatusEnum(enum.Enum):
-    BORRADOR =  1
-    PUBLICADO =  2
-    ARCHIVADO =  3
+    BORRADOR = 1
+    PUBLICADO = 2
+    ARCHIVADO = 3
+
 
 class Publication(db.Model):
     __tablename__ = 'publications'
@@ -16,7 +20,7 @@ class Publication(db.Model):
     summary = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(100), nullable=False)
-    status = db.Column(Enum(PublicationStatusEnum, name='status_type'),nullable=False)
+    status = db.Column(Enum(PublicationStatusEnum, name='status_type'), nullable=False)
     published_date = db.Column(db.DateTime)
     deleted = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
@@ -33,7 +37,7 @@ class Publication(db.Model):
             "contenido": self.content,
             "autor": self.author,
             "estado": self.status.name.capitalize(),
-            "fecha de publicacion": self.published_date,
-            "fecha de creacion": self.created_date,
-            "fecha de modificacion": self.updated_date if self.updated_date else 'No tiene'
+            "fecha de publicacion": self.published_date.strftime("%d/%m/%Y"),
+            "fecha de creacion": self.created_date.strftime("%d/%m/%Y"),
+            "fecha de modificacion": self.updated_date.strftime("%d/%m/%Y") if self.updated_date else 'No tiene'
         }

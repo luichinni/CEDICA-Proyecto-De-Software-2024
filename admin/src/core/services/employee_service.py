@@ -1,22 +1,23 @@
+from datetime import date, timedelta
 from os import path
 from urllib.parse import urlparse
 
-from core.models.employee.employee import Employee
-from core.models.employee.employee_documents import EmployeeDocuments
-from src.core.storage import storage
-from src.core.models.user import User
-from src.core.database import db
-from src.core.admin_data import AdminData
-from core.models.employee.employee import ProfesionEnum
+from core.enums.employee_enum.CondicionEnum import Enum
 from core.models.employee.employee import CondicionEnum
+from core.models.employee.employee import Employee
+from core.models.employee.employee import ExtensionesPermitidas
+from core.models.employee.employee import ProfesionEnum
 from core.models.employee.employee import PuestoLaboralEnum
 from core.models.employee.employee import TipoDoc
-from core.models.employee.employee import ExtensionesPermitidas
-from core.enums.employee_enum.CondicionEnum import Enum
-from datetime import date, timedelta
+from core.models.employee.employee_documents import EmployeeDocuments
+from src.core.admin_data import AdminData
+from src.core.database import db
+from src.core.models.user import User
+from src.core.storage import storage
 
 
 class EmployeeService:
+
 
     @staticmethod
     def obtener_clave_por_valor(enum_class: Enum, valor):
@@ -47,18 +48,26 @@ class EmployeeService:
         db.session.add(employee)
         db.session.commit()
         return employee
-    
+
     @staticmethod
     def add_default_data_employee(email):
         """Crea un empleado con un email y el resto de los datos con valores por defecto"""
-        new_employee_default_data = {"email" : email, "has_default_data":True ,"nombre" : "PENDIENTE A INGRESAR", "apellido" : "PENDIENTE A INGRESAR", "dni" : "1000000", "domicilio" : "PENDIENTE A INGRESAR", "localidad" : "PENDIENTE A INGRESAR", "telefono" : "9999999999", "profesion" : ProfesionEnum.OTRO, "puesto_laboral" : PuestoLaboralEnum.OTRO, "fecha_inicio" : date(5555, 10, 1), "fecha_cese" : date(5555, 10, 1), "contacto_emergencia_nombre" : "PENDIENTE A INGRESAR", "contacto_emergencia_telefono" : "9999999999", "obra_social" : "PENDIENTE A INGRESAR", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : False}
+        new_employee_default_data = {"email": email, "has_default_data": True, "nombre": "PENDIENTE A INGRESAR",
+                                     "apellido": "PENDIENTE A INGRESAR", "dni": "1000000",
+                                     "domicilio": "PENDIENTE A INGRESAR", "localidad": "PENDIENTE A INGRESAR",
+                                     "telefono": "9999999999", "profesion": ProfesionEnum.OTRO,
+                                     "puesto_laboral": PuestoLaboralEnum.OTRO, "fecha_inicio": date(5555, 10, 1),
+                                     "fecha_cese": date(5555, 10, 1),
+                                     "contacto_emergencia_nombre": "PENDIENTE A INGRESAR",
+                                     "contacto_emergencia_telefono": "9999999999",
+                                     "obra_social": "PENDIENTE A INGRESAR", "nro_afiliado": "0",
+                                     "condicion": CondicionEnum.VOLUNTARIO, "activo": False}
         default_employee = EmployeeService.add_employee(**new_employee_default_data)
-        default_employee.dni = str( int(default_employee.dni)+default_employee.id )
+        default_employee.dni = str(int(default_employee.dni) + default_employee.id)
         db.session.commit()
 
         return default_employee.id
-            
-    
+
     @staticmethod
     def delete_employee(employee_id):
         """Elimina un empleado de manera logica"""
@@ -69,7 +78,6 @@ class EmployeeService:
         db.session.commit()
         return employee
 
-    
     @staticmethod
     def get_all_employees(include_admin=False, include_deleted=False):
         """Obtiene todos los roles."""
@@ -77,22 +85,21 @@ class EmployeeService:
         if not include_admin:
             query = query.filter(Employee.email != AdminData.email)
         if not include_deleted:
-            query = query.filter_by(deleted = False)
+            query = query.filter_by(deleted=False)
         return query.all()
 
     @staticmethod
     def get_employees(filtro=None, order_by=None, ascending=True, include_deleted=False, page=1, per_page=5):
         """Obtiene todos los empleados"""
-        employees_query = Employee.query.filter_by(deleted = include_deleted)
+        employees_query = Employee.query.filter_by(deleted=include_deleted)
         if filtro:
-            valid_filters = {key:value for key, value in filtro.items() if hasattr(Employee, key) and value is not None}
+            valid_filters = {key: value for key, value in filtro.items() if
+                             hasattr(Employee, key) and value is not None}
             for key, value in valid_filters.items():
                 if key == 'puesto_laboral':
                     employees_query = employees_query.filter(Employee.puesto_laboral == value)
                 else:
                     employees_query = employees_query.filter(getattr(Employee, key).ilike(f"%{str(value).lower()}%"))
-
-
 
         if order_by:
             if ascending:
@@ -102,22 +109,20 @@ class EmployeeService:
 
         pagination = employees_query.paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total, pagination.pages
-    
+
     @staticmethod
     def get_employees_without_user():
         """Obtiene todos los empleados que no tienen un usuario asociado o cuyos usuarios están eliminados."""
-        
-        # Subconsulta: obtener empleados que tienen usuarios no eliminados
-        subquery = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
-        
-        # Consulta principal: empleados que no tienen usuario o cuyos usuarios están eliminados
-        query = Employee.query.outerjoin(User).filter(
+
+        active_user_ids = Employee.query.join(User).filter(User.deleted == False).with_entities(Employee.id)
+
+        employees_without_user = Employee.query.outerjoin(User).filter(
             (Employee.user == None) | (User.deleted == True)
         ).filter(
-            Employee.id.notin_(subquery)  # Excluir empleados con usuarios no eliminados
+            Employee.id.notin_(active_user_ids)
         )
-        
-        return query.all()
+
+        return employees_without_user.all()
 
     @staticmethod
     def update_employee(employee, **kwargs):
@@ -136,9 +141,9 @@ class EmployeeService:
         if not Employee.query.get(employee_id):
             raise ValueError(f"No se encontro el empleado con id {employee_id}")
 
-        query = Employee.query.filter_by(id = employee_id)
+        query = Employee.query.filter_by(id=employee_id)
         if not include_deleted:
-            query = query.filter_by(deleted = include_deleted)
+            query = query.filter_by(deleted=include_deleted)
         if not query:
             raise ValueError(f"No se encontro el empleado con id {employee_id}")
         return query.first()
@@ -146,7 +151,7 @@ class EmployeeService:
     @staticmethod
     def get_employee_by_email(email, include_deleted=False):
         """Busca un empleado por email y lanza un error si no existe."""
-        existing_employee = Employee.query.filter_by(email = email)
+        existing_employee = Employee.query.filter_by(email=email)
         if not include_deleted:
             existing_employee = existing_employee.filter_by(deleted=False)
         if existing_employee is None:
@@ -154,11 +159,31 @@ class EmployeeService:
         return existing_employee.first()
 
     @staticmethod
+    def get_employee_by_dni(dni, include_deleted=False):
+        """
+        Obtiene un empleado por su dni
+
+        Args:
+            dni: el dni del empleado a obtener
+            include_deleted: booleano para determinar si se consideran empleados eliminados
+        """
+
+        existing_employee = Employee.query.filter_by(dni=dni)
+        if not include_deleted:
+            existing_employee = existing_employee.filter_by(deleted=False)
+        if not existing_employee:
+            raise ValueError(f"No existe empleado con dni '{dni}'")
+
+        return existing_employee.first()
+
+
+    @staticmethod
     def add_document(employee_id: int | str, titulo: str, document, tipo: TipoDoc, es_link: bool) -> EmployeeDocuments:
         """Permite cargarle un documento o link a un empleado
 
         Args:
             employee_id (int | str): ID del empleado al que se le añadirá el document
+            titulo (str): titulo a ponerle al archivo
             document (Any): Documento o link a agregar
             tipo (TipoDoc): Tipo del documento
             es_link (bool): Flag de confirmación si es link
@@ -199,7 +224,8 @@ class EmployeeService:
             ubicacion_archivo = 'employee_files/' + nombre_archivo  # ej: client_files/44130359_4_fotocopiadni.pdf o 44130359_4_titulo_agregado.pdf
 
             try:
-                result = storage.client.put_object("grupo23", ubicacion_archivo, document.stream, length=-1, part_size=5 * 1024 * 1024)
+                result = storage.client.put_object("grupo23", ubicacion_archivo, document.stream, length=-1,
+                                                   part_size=5 * 1024 * 1024)
             except Exception as e:
                 raise ValueError(f"Hubo un problema al cargar el archivo, intenta nuevamente: {e}")
 
@@ -289,8 +315,9 @@ class EmployeeService:
         Obtiene por página y filtro los documentos de un empleado específico.
 
         Args:
-            client_id (int | str): ID del empleado cuyos documentos son requeridos.
+            employee_id (int | str): ID del empleado cuyos documentos son requeridos.
             filtro (dict, optional): Diccionario de filtros para los archivos. Defaults to None.
+            extension (str): extension del archivo por la que filtrar. Ej. .txt, .pdf, etc.
             page (int, optional): Número de página requerida. Defaults to 1.
             per_page (int, optional): Cantidad de archivos por página. Defaults to 5.
             order_by (str, optional): Campo de orden para los elementos. Defaults to None.
@@ -352,27 +379,37 @@ class EmployeeService:
         """Crea un empleado admin con email del admin si no existe."""
         admin_email = AdminData.email
         EmployeeService.add_employee(nombre="admin", email=admin_email, apellido="a", dni="00000000",
-        domicilio="a", localidad="a",telefono="1234",profesion=ProfesionEnum.MEDICO,puesto_laboral=PuestoLaboralEnum.DOMADOR,
-        fecha_inicio=date(2023, 10, 8),
-        fecha_cese =date(2023, 10, 8),
-        contacto_emergencia_nombre ="a",
-        contacto_emergencia_telefono = "123",
-        obra_social="a",
-        nro_afiliado ="0",
-        condicion=CondicionEnum.VOLUNTARIO,
-        activo=True)
+                                     domicilio="a", localidad="a", telefono="1234", profesion=ProfesionEnum.MEDICO,
+                                     puesto_laboral=PuestoLaboralEnum.DOMADOR,
+                                     fecha_inicio=date(2023, 10, 8),
+                                     fecha_cese=date(2023, 10, 8),
+                                     contacto_emergencia_nombre="a",
+                                     contacto_emergencia_telefono="123",
+                                     obra_social="a",
+                                     nro_afiliado="0",
+                                     condicion=CondicionEnum.VOLUNTARIO,
+                                     activo=True)
 
     @staticmethod
     def create_example_employees():
         """Crea un empleados de ejemplo."""
 
         example_employees = [
-            {"nombre" : "nombre 1", "email" : "exa1@example.com", "apellido" : "apellido 1", "dni" : "00000004", "domicilio" : "a", "localidad" : "a", "telefono" : "1234", "profesion" : ProfesionEnum.MEDICO, "puesto_laboral" : PuestoLaboralEnum.DOMADOR, "fecha_inicio" : date(2023, 10, 8), "fecha_cese" : date(2023, 10, 8), "contacto_emergencia_nombre" : "a", "contacto_emergencia_telefono" : "1234", "obra_social" : "a", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : True},
-            {"nombre" : "nombre 2", "email" : "exa2@example.com", "apellido" : "apellido 2", "dni" : "00000001", "domicilio" : "a", "localidad" : "a", "telefono" : "1234", "profesion" : ProfesionEnum.MEDICO, "puesto_laboral" : PuestoLaboralEnum.DOMADOR, "fecha_inicio" : date(2023, 10, 8), "fecha_cese" : date(2023, 10, 8), "contacto_emergencia_nombre" : "a", "contacto_emergencia_telefono" : "1234", "obra_social" : "a", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : True},
-            {"nombre" : "nombre 3", "email" : "exa3@example.com", "apellido" : "apellido 3", "dni" : "00000002", "domicilio" : "a", "localidad" : "a", "telefono" : "1234", "profesion" : ProfesionEnum.MEDICO, "puesto_laboral" : PuestoLaboralEnum.DOMADOR, "fecha_inicio" : date(2023, 10, 8), "fecha_cese" : date(2023, 10, 8), "contacto_emergencia_nombre" : "a", "contacto_emergencia_telefono" : "1234", "obra_social" : "a", "nro_afiliado" : "0", "condicion" : CondicionEnum.VOLUNTARIO, "activo" : True}
+            {"nombre": "nombre 1", "email": "exa1@example.com", "apellido": "apellido 1", "dni": "00000004",
+             "domicilio": "a", "localidad": "a", "telefono": "1234", "profesion": ProfesionEnum.MEDICO,
+             "puesto_laboral": PuestoLaboralEnum.DOMADOR, "fecha_inicio": date(2023, 10, 8),
+             "fecha_cese": date(2023, 10, 8), "contacto_emergencia_nombre": "a", "contacto_emergencia_telefono": "1234",
+             "obra_social": "a", "nro_afiliado": "0", "condicion": CondicionEnum.VOLUNTARIO, "activo": True},
+            {"nombre": "nombre 2", "email": "exa2@example.com", "apellido": "apellido 2", "dni": "00000001",
+             "domicilio": "a", "localidad": "a", "telefono": "1234", "profesion": ProfesionEnum.MEDICO,
+             "puesto_laboral": PuestoLaboralEnum.DOMADOR, "fecha_inicio": date(2023, 10, 8),
+             "fecha_cese": date(2023, 10, 8), "contacto_emergencia_nombre": "a", "contacto_emergencia_telefono": "1234",
+             "obra_social": "a", "nro_afiliado": "0", "condicion": CondicionEnum.VOLUNTARIO, "activo": True},
+            {"nombre": "nombre 3", "email": "exa3@example.com", "apellido": "apellido 3", "dni": "00000002",
+             "domicilio": "a", "localidad": "a", "telefono": "1234", "profesion": ProfesionEnum.MEDICO,
+             "puesto_laboral": PuestoLaboralEnum.DOMADOR, "fecha_inicio": date(2023, 10, 8),
+             "fecha_cese": date(2023, 10, 8), "contacto_emergencia_nombre": "a", "contacto_emergencia_telefono": "1234",
+             "obra_social": "a", "nro_afiliado": "0", "condicion": CondicionEnum.VOLUNTARIO, "activo": True}
         ]
         for employee_data in example_employees:
             EmployeeService.add_employee(**employee_data)
-
-
-

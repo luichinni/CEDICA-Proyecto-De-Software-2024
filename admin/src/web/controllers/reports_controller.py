@@ -1,6 +1,7 @@
 from flask import Blueprint, request, render_template, url_for
 from web.forms.search_form import SearchForm
 from src.web.handlers import handle_error, get_int_param, get_bool_param, get_str_param
+from src.core.services.employee_service import EmployeeService
 
 from src.core.services.reports_service import ReportService
 
@@ -10,7 +11,10 @@ bp = Blueprint('reports',__name__,url_prefix='/reports')
 @bp.get('/')
 @handle_error(lambda: url_for('home'))
 def reports():
-    return render_template('reports/reports.html')
+    employees = EmployeeService.get_all_employees()
+    employees_list = [employee.to_dict() for employee in employees]
+
+    return render_template('reports/reports.html', employees=employees_list)
 
 @bp.get('/charts')
 @handle_error(lambda: url_for('home'))
@@ -84,10 +88,13 @@ def historical_payments():
     
     start_date = get_str_param(params, 'start_date', optional=True)
     end_date = get_str_param(params, 'end_date', optional=True)
-    nombre = get_str_param(params, 'nombre', optional=True)
-    apellido = get_str_param(params, 'apellido', optional=True)
+    employee_id = get_str_param(params, 'employee', optional=True)
     page = get_int_param(params, 'page', 1, optional=True)
     per_page = get_int_param(params, 'per_page', 25, optional=True)
+
+    employee = EmployeeService.get_employee_by_id(employee_id)
+    nombre = employee.nombre
+    apellido = employee.apellido
 
     historical_payments, total, pages = ReportService.get_historical_payments_report(start_date = start_date, end_date = end_date, nombre = nombre, apellido = apellido, page = page, per_page = per_page)
         

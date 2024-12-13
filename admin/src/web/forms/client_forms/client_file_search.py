@@ -10,7 +10,7 @@ def FileSearchForm(enum_tipo_docs):
             (tipo.name, tipo.name.replace('_',' ').capitalize()) for tipo in enum_tipo_docs
         ] + [
             ('TODOS', 'Todos')
-        ],validators=[Optional()])
+        ],validators=[Optional()], default="TODOS")
         extension = SelectField("Tipo de archivo", choices=[
             (ext.name.upper(), ext.name.capitalize()) for ext in ExtensionesPermitidas
         ] + [

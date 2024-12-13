@@ -26,6 +26,13 @@
                     {% else %}
                         {{ form[campos[campo]] }} 
                     {%endif%}
+                    {% if form[campos[campo]].errors %}
+                        <div class="help is-danger">
+                            {% for error in form[campos[campo]].errors %}
+                                <p>{{error}}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 {% else %}
                     {{ form[campos[campo]] }} 
                {%endif%}

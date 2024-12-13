@@ -38,7 +38,7 @@ class Message (db.Model):
             "Titulo": self.title,
             "Email": self.email,
             "Description": self.description,
-            "Estado":self.status,
+            "Estado":self.status.name.capitalize(),
             "Comentario":self.comentario,
             "Fecha de cierre":self.closed_at
        }

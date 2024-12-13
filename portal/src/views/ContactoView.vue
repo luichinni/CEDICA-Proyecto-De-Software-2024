@@ -11,6 +11,11 @@
             Tu mensaje nos ha llegado con éxito, te responderemos en cuanto podamos! 💙
           </div>
         </div>
+        <div id="error-msg">
+          <div v-if="notsuccess" class="notification is-danger">
+            Ups, parece que no pudimos enviar tu mensaje, intenta nuevamente!😔
+          </div>
+        </div>
 
         <!-- Formulario de contacto -->
         <form @submit="enviar_form">
@@ -83,6 +88,7 @@ const captcha_error = ref(false)
 const flash = ref("")
 
 const success = ref(false)
+const notsuccess = ref(false)
 
 let token = null
 
@@ -98,6 +104,19 @@ function show_success(){
     title.value = ""
     email.value = ""
     description.value = ""
+    load_captcha()
+  }
+}
+
+function show_error(){
+  notsuccess.value = !notsuccess.value;
+  if (notsuccess.value){
+    setTimeout(show_error, 10000); // para poner en false el mensaje despues de 10 segundos
+
+    let msgElem = document.getElementById("error-msg");
+    msgElem.scrollIntoView({behavior: "smooth", block: "center"});
+
+    // Reset
     load_captcha()
   }
 }
@@ -140,18 +159,18 @@ async function enviar_form(e){
     let info_contacto = {
       "title": title.value,
       "email": email.value,
-      "description": description.value,
-      "status": "created",
-      "created_at": ISO_date,
-      "closed_at": ISO_date
+      "description": description.value
     }
 
     axios.post(
       contacto_route,
       info_contacto
-    )
-
-    show_success();
+    ).then(()=>{
+      show_success()
+    }).catch(()=>{
+      show_error()
+    })
+    
   }else{
     captcha_error.value = true;
     flash.value = "Captcha incorrecto, intenta nuevamente!!";
