@@ -23,10 +23,10 @@ def search():
     reduced = False
 
     # Si se presiona ver pendientes, se cambia el modo, es un hidden input que sirve de variable
-    if params.get('pendientes', False) and form.modo.data == 'normal':
+    if get_bool_param(params, 'pendientes', False, optional= True) and form.modo.data == 'normal':
         form.modo.data = "pendientes"
     
-    elif params.get('pendientes', False) and form.modo.data == 'pendientes':
+    elif get_bool_param(params, 'pendientes', False, optional= True) and form.modo.data == 'pendientes':
         form.modo.data = "normal"
     
     # Segun el modo actual se cambian cosas
