@@ -17,7 +17,7 @@ def search():
     start_published_date_str = get_str_param(params, 'start_published_date', optional=True)
     end_published_date_str = get_str_param(params, 'end_published_date', optional=True)
 
-    filtros = {'title': get_str_param(params, 'titulo', optional=True),
+    filtros = {'title': get_str_param(params, 'title', optional=True),
                'start_published_date': datetime.strptime(start_published_date_str,
                                                          '%Y-%m-%d').date() if start_published_date_str else None,
                'end_published_date': datetime.strptime(end_published_date_str,
@@ -71,7 +71,7 @@ def new():
     form = CreatePublicationForm()
 
     if form.validate_on_submit():
-        fecha_publicacion = form.published_at.data
+        fecha_publicacion = form.published_date.data
         estado = form.status.data
 
         if estado == "PUBLICADO" and fecha_publicacion > datetime.now().date():

@@ -82,7 +82,7 @@ class PublicationService:
             'summary': form.summary.data,
             'content': form.content.data,
             'status': form.status.data,
-            'published_date': form.published_at.data,
+            'published_date': form.published_date.data,
         }
 
     @staticmethod

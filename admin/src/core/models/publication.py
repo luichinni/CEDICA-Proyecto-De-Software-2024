@@ -37,7 +37,7 @@ class Publication(db.Model):
             "contenido": self.content,
             "autor": self.author,
             "estado": self.status.name.capitalize(),
-            "fecha de publicacion": self.published_date.strftime("%d-%m-%Y"),
-            "fecha de creacion": self.created_date.strftime("%d-%m-%Y"),
-            "fecha de modificacion": self.updated_date if self.updated_date else 'No tiene'
+            "fecha de publicacion": self.published_date.strftime("%d/%m/%Y"),
+            "fecha de creacion": self.created_date.strftime("%d/%m/%Y"),
+            "fecha de modificacion": self.updated_date.strftime("%d/%m/%Y") if self.updated_date else 'No tiene'
         }
