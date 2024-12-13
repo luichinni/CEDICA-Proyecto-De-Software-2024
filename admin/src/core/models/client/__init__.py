@@ -130,7 +130,7 @@ class Clients(db.Model):
             "observaciones": self.observaciones,
             "institucion_escolar": self.institucion_escolar,
             "atendido_por": self.atendido_por,
-            "tutores_responsables": self.tutores_responsables,
+            "tutores_responsables": list(self.tutores_responsables.values()),
             "propuesta_trabajo": self.propuesta_trabajo,
             "condicion": self.condicion,
             "sede": self.sede,

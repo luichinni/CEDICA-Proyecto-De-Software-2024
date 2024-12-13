@@ -1,11 +1,14 @@
-from src.core.database import db
 from datetime import datetime, timezone
 from enum import Enum
+
+from src.core.database import db
+
 
 class PaymentEnum(Enum):
     HONORARIOS = 1
     PROVEEDOR = 2
     GASTOS_VARIOS = 3
+
 
 class Payment(db.Model):
     __tablename__ = 'payment'

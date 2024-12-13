@@ -117,9 +117,10 @@ def delete(id):
 def detail(id): 
       """Muestra los datos o detalles de un mensaje"""
       message= MessageService.get_message_by_id(id).to_dict()
+
       if not message['Fecha de cierre'] :
             message['Fecha de cierre']= "Sin concluir"
-           
+      else: message['Fecha de cierre']=message['Fecha de cierre'].strftime("%d-%m-%Y")
       
       return render_template( 'detail.html',titulo="Mensaje", entidad='contact', diccionario=message, anterior= url_for('contact.search') )
     

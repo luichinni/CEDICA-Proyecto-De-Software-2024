@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+
 from src.core.database import db
 from src.core.enums.employee_enum.tipo_doc import TipoDoc
 
