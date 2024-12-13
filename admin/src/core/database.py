@@ -87,17 +87,23 @@ def create_example_client(ClientService):
         observaciones='No observaciones adicionales',
         institucion_escolar=None,
         atendido_por='Dr. Smith',
-        tutores_responsables=[{
+        tutores_responsables={0:{
             "parentesco": "Padre",
             "nombre": "Carlos Pérez",
             "apellido": "Pérez",
             "dni": "23456789",
-            "domicilio": "Calle 123, Ciudad",
-            "celular": "0987654321",
+            "domicilio":{
+                'calle':'50',
+                'numero':'234',
+                'departamento':None,
+                'localidad':'La Palta',
+                'provincia':'Buenos Aires'
+            },
+            "telefono": "0987654321",
             "email": "padre@gmail.com",
             "escolaridad": "Universitario",
             "ocupacion": "Ingeniero"
-        }],
+        }},
         propuesta_trabajo=1,
         condicion=True,
         sede='CASJ',
@@ -140,17 +146,23 @@ def create_example_client(ClientService):
         observaciones='No observaciones adicionales',
         institucion_escolar=None,
         atendido_por='Dr. Smith',
-        tutores_responsables=[{
+        tutores_responsables={0:{
             "parentesco": "Padre",
             "nombre": "Carlos Pérez",
             "apellido": "Pérez",
             "dni": "23456789",
-            "domicilio": "Calle 123, Ciudad",
-            "celular": "0987654321",
+            "domicilio":{
+                'calle':'50',
+                'numero':'234',
+                'departamento':None,
+                'localidad':'La Palta',
+                'provincia':'Buenos Aires'
+            },
+            "telefono": "0987654321",
             "email": "padre@gmail.com",
             "escolaridad": "Universitario",
             "ocupacion": "Ingeniero"
-        }],
+        }},
         propuesta_trabajo=1,
         condicion=True,
         sede='CASJ',

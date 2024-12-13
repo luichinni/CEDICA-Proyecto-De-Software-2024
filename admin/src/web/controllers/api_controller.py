@@ -16,11 +16,10 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 @bp.post('/contacto')
 def contacto():
     contacto_data = request.json
-    # TODO: Procesar contacto_data (Con get_int_param, get_bool_param, get_str_param por ejemplo? O manualmente o con otra cosa)
-    try:
-        print("llega al add")
-        contacto_data['status'] = contacto_data['status'].upper()
-        MessageService.add_message(**contacto_data)
+    #TODO: Procesar contacto_data (Con get_int_param, get_bool_param, get_str_param por ejemplo? O manualmente o con otra cosa)
+    try: 
+       print("llega al add")
+       MessageService.add_message(**contacto_data)
     except Exception as e:
         response = {
             "error": "Datos incorrectos.",
@@ -30,10 +29,9 @@ def contacto():
 
     else:
         response = {
-            "message": "Gracias por ponerte en contacto con nosotros.",
-        }
-        return jsonify(response), 201
-
+                "message": "Gracias por ponerte en contacto con nosotros.",
+            } 
+        return jsonify(response),200
 
 @bp.get('/noticias')
 def get_noticias():

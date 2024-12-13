@@ -21,7 +21,7 @@ class CreatePublicationForm(FlaskForm):
         ]
     )
 
-    body = TextAreaField('Contenido', validators=[DataRequired()],
+    content = TextAreaField('Contenido', validators=[DataRequired()],
                          render_kw={"class": "form-control", "placeholder": "Escribe el contenido aquí..."})
     status = SelectField(
         'Estado',
@@ -30,3 +30,4 @@ class CreatePublicationForm(FlaskForm):
     )
     published_at = DateField('Fecha de publicacion', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Guardar')
+
