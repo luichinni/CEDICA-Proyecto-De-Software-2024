@@ -227,9 +227,11 @@ def update(id: int, id_entidad: int, es_link: str):
 
     if request.method == 'GET' and es_link and archivo['es_link']:
         form = UploadLink(data=archivo)
+        form.tipo.choices = [(tipo.value, tipo.name.replace('_', ' ').capitalize()) for tipo in TipoDoc]
 
     elif request.method == 'GET' and not es_link and not archivo['es_link']:
         form = UploadFile(data=archivo)
+        form.tipo.choices = [(tipo.value, tipo.name.replace('_', ' ').capitalize()) for tipo in TipoDoc]
         del form.archivo
 
     elif request.method == 'GET':
