@@ -44,7 +44,8 @@ def search():
         del form.activo
         form.pendientes.label.text = "Salir de los pendientes"
 
-    form.pendientes.data = False
+    if form.pendientes:
+        form.pendientes.data = False
 
     email = get_str_param(params, 'email', optional= True)
     activo = get_bool_param(params, 'activo', optional= True) 
