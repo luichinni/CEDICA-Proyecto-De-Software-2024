@@ -12,7 +12,7 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 
 @bp.get('/search')
 @check_permissions(f"{PermissionModel.USER.value}_{PermissionCategory.INDEX.value}")
-#@handle_error(lambda: url_for('home'))
+@handle_error(lambda: url_for('home'))
 def search():
     """Busca usuarios según criterios específicos con paginación."""
     params = request.args
