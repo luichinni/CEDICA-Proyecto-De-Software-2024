@@ -28,6 +28,7 @@ from src.web.controllers.api_controller import bp as api_bp
 from src.web.controllers.publication_controller import bp as publications_bp
 from src.web.controllers.contact_controller import bp as contact_bp
 from src.web.controllers.employee_controller import employee_files_bp as employees_files_bp
+from src.web.controllers.csv_downloader_controller import bp as csv_downloader__bp
 
 from src.core.storage import storage
 from src.core.bcrypy_and_session import bcrypt, session, cipher
@@ -69,6 +70,7 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(publications_bp)
     app.register_blueprint(contact_bp)
     app.register_blueprint(employees_files_bp)
+    app.register_blueprint(csv_downloader__bp) 
 
 
     app.jinja_env.globals.update(is_authenticated = is_authenticated)

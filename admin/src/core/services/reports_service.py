@@ -191,10 +191,10 @@ class ReportService:
             tuple: Una tupla que contiene la lista de cobros, el total de registros y el total de páginas.
         """
         payments, total, total_pages = CollectionService.search_collections(
-            start_date=start_date,
+            start_date=start_date,  
             end_date=end_date,
-            nombre=nombre,
-            apellido=apellido,
+            employee_name=nombre,
+            employee_last_name=apellido,
             page=page,
             per_page=per_page,
             order_by_date=True,
