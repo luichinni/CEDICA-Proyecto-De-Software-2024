@@ -101,6 +101,11 @@ def update(id):
     print(publication)
     form = CreatePublicationForm(obj=publication)
     if form.validate_on_submit():
+        estado = form.status.data
+        fecha_publicacion = form.published_date.data
+        if estado == "PUBLICADO" and fecha_publicacion > datetime.now().date():
+            flash("La fecha de publicación no puede ser mayor a la fecha actual si el estado es 'Publicado'.", "danger")
+            return redirect(url_for('publications.update', id=id))
         publication_data = PublicationService.form_to_dict(form)
         PublicationService.update_publication(publication.id, publication_data)
         flash(f"Publicacion {publication.title} actualizada con éxito", "success")
